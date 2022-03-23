@@ -97,7 +97,7 @@ git clone https://github.com/Mastercard/issuing-api-reference-app.git
 ### Step 2 (Optional) - Copy latest API Specs <a name="specs"></a>
 
 - Download the latest API specs from [Mastercard Developer portal](#api-reference), if required.
-- Copy in reference application source code (src\main\resources\yaml_specs)
+- Copy these specifications in reference application source code - `src\main\resources\yaml_specs`
 
 <BR/>
 
@@ -142,6 +142,7 @@ Configurations in **src/main/resources/application.properties**
 
 Configurations in **src/main/resources/application.properties**
 
+|Property Name| Description|
 |--|--|
 |mastercard.issuing.client.ref.app.encryption.public.key.file| Path to data encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
 |mastercard.issuing.client.ref.app.encryption.public.key.fingerprint| The hex-encoded SHA-256 digest of Mastercard RSA public key referred above|
@@ -244,6 +245,7 @@ To develop a client application that consumes a Issuing RESTful APIs with Spring
 The `com.mastercard.developer.issuing.client.helper.ApiClientHelper` class assists you with all the prerequisites for calling Issuing APIs.
 It covers all the below mentioned points:
 
+<br/>
 #### API Client <a name="api-client"></a>
 It is recommended to create an instance of `ApiClient` per thread in a multithreaded environment to avoid any potential issues. You can use the `getApiClient` static method of `ApiClientHelper` class to create new instance of `ApiClient` and initialize all the required configurations.
 
@@ -260,6 +262,7 @@ The `com.mastercard.developer.interceptors` provides `OkHttpFieldLevelEncryption
 The `com.mastercard.developer.interceptors.OkHttpLoggingInterceptor` class provides you the request and response logging functionality for debugging purpose.
 The request/response may contain sensitive data, hence this logging must be disabled by simply changing the `mastercard.issuing.client.debug.mode` property value to `false` in `application.properties` file.  
 
+<br/>
 ### Other References <a name="references"></a>
 - [OpenAPI Generator (Maven Plugin)](https://openapi-generator.tech/docs/plugins/)
 
