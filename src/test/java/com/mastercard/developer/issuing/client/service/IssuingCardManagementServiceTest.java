@@ -66,9 +66,9 @@ public class IssuingCardManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    CardSearchResult expectedResponse = service.searchCard();
+    CardSearchResult actualResponse = service.searchCard();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 
   /**
@@ -83,9 +83,9 @@ public class IssuingCardManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    CardProfile expectedResponse = service.getCard();
+    CardProfile actualResponse = service.getCard();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 
   /**
@@ -96,7 +96,7 @@ public class IssuingCardManagementServiceTest {
   @Test
   public void testUpdatePin() throws Exception {
     boolean success = service.updatePin();
-    assertEquals(success, true);
+    assertEquals(true, success);
   }
 
   /**
@@ -111,9 +111,9 @@ public class IssuingCardManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    ClientProfile expectedResponse = service.getClient();
+    ClientProfile actualResponse = service.getClient();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 
   /**
@@ -128,8 +128,8 @@ public class IssuingCardManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    ServiceRequestDetails expectedResponse = service.updateClient();
+    ServiceRequestDetails actualResponse = service.updateClient();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 }

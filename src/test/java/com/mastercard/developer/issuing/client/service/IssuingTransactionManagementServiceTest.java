@@ -65,9 +65,9 @@ public class IssuingTransactionManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    Topup expectedResponse = service.topupPrepaidCard();
+    Topup actualResponse = service.topupPrepaidCard();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 
   /**
@@ -82,9 +82,9 @@ public class IssuingTransactionManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    TransactionDetails expectedResponse = service.transactionHistory();
+    TransactionDetails actualResponse = service.transactionHistory();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 
   /**
@@ -99,8 +99,8 @@ public class IssuingTransactionManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    BalanceDetails expectedResponse = service.balanceInquiry();
+    BalanceDetails actualResponse = service.balanceInquiry();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 }

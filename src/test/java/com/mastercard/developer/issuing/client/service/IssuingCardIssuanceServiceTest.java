@@ -63,8 +63,8 @@ public class IssuingCardIssuanceServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    PrepaidCardProfile expectedResponse = service.prepaidCardIssuance();
+    PrepaidCardProfile actualResponse = service.prepaidCardIssuance();
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 }

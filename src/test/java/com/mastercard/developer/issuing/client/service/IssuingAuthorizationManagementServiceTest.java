@@ -68,8 +68,8 @@ public class IssuingAuthorizationManagementServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    TokenDetails expectedResponse = service.createToken("PIN_RESET");
+    TokenDetails actualResponse = service.createToken("PIN_RESET");
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 }

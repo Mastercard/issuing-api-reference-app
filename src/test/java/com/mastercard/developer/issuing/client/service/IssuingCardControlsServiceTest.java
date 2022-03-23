@@ -63,9 +63,9 @@ public class IssuingCardControlsServiceTest {
     ApiResponse apiResponse = new ApiResponse(200, null, response);
     when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    UpdatedCardStatusDetails expectedResponse =
+    UpdatedCardStatusDetails actualResponse =
         service.updateCardStatus("update-card-status-blocked");
 
-    assertEquals(response, expectedResponse);
+    assertEquals(response, actualResponse);
   }
 }
