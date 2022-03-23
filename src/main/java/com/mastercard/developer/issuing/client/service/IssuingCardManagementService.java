@@ -180,7 +180,7 @@ public class IssuingCardManagementService extends IssuingBaseService {
   }
 
   /** Update pin. */
-  public void updatePin() {
+  public boolean updatePin() {
     try {
       UpdatePinApi updatePinApi = new UpdatePinApi(apiClient);
 
@@ -199,9 +199,12 @@ public class IssuingCardManagementService extends IssuingBaseService {
       updatePinApi.updatePin(
           cardId, request, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
 
+      return true;
+	  
     } catch (ApiException exception) {
       log.error(
           "Exception occurred while calling updatePin API: " + exception.getMessage(), exception);
+      return false;
     }
   }
 

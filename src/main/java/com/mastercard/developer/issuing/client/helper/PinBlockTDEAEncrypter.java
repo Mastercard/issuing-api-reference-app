@@ -315,9 +315,9 @@ public final class PinBlockTDEAEncrypter {
     // remove public key header and footer from string
     publicKeyContent =
         publicKeyContent
-            .replaceAll("\\n", "")
             .replace("-----BEGIN PUBLIC KEY-----", "")
-            .replace("-----END PUBLIC KEY-----", "");
+            .replace("-----END PUBLIC KEY-----", "")
+			.replace("\r\n", " ").replace("\n", " ");
 
     KeyFactory kf = KeyFactory.getInstance("RSA");
     X509EncodedKeySpec x509EncodedKeySpec =

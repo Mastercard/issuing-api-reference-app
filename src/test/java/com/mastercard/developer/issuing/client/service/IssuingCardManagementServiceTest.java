@@ -95,7 +95,8 @@ public class IssuingCardManagementServiceTest {
    */
   @Test
   public void testUpdatePin() throws Exception {
-    service.updatePin();
+    boolean success = service.updatePin();
+    assertEquals(success, true);
   }
 
   /**
