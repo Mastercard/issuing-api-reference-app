@@ -1,9 +1,9 @@
 # Mastercard Processing APMEA Issuing APIs - Reference Application
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing_api-reference-app&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_issuing_api-reference-app)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing_api-reference-app&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_issuing_api-reference-app)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing_api-reference-app&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Mastercard_issuing_api-reference-app)
-[![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Mastercard/issuing-api-reference-apps/blob/master/LICENSE)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing-api-reference-app&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_issuing-api-reference-app)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing-api-reference-app&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_issuing-api-reference-app)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing-api-reference-app&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Mastercard_issuing-api-reference-app)
+[![](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Mastercard/issuing-api-reference-app/blob/master/LICENSE)
 
 ## Table of Contents
 - [Overview](#overview)
