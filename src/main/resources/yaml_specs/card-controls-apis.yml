@@ -1,0 +1,1169 @@
+
+openapi: "3.0.3"
+info:
+  title: "Card Controls API"
+  description: "The card controls API allows users to manage personalized controls
+    and protect their cards from fraud.  Comprehensive card controls empower clients
+    to manage the rules for when any transactions or operation should be approved
+    or declined."
+  contact:
+    name: "API Support"
+    url: "https://developer.mastercard.com/support"
+    email: "apisupport@mastercard.com"
+  version: "2.0.0"
+servers:
+- description: "Sandbox server"
+  url: "https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/card-controls/"
+- description: "MEA MTF/UAT server"
+  url: "https://mtf.mea.api.mastercard.com/mi-issuing/card-controls/"
+- description: "SA MTF/UAT server"
+  url: "https://mtf.sa.api.mi.mastercard.com/mi-issuing/card-controls/"
+- description: "MEA Production server"
+  url: "https://mea.api.mastercard.com/mi-issuing/card-controls/"
+- description: "SA Production server"
+  url: "https://sa.api.mi.mastercard.com/mi-issuing/card-controls/"
+
+tags:
+- name: "UpdateCardStatus"
+  description: "Update card status"
+- name: "GetCardUsage"
+  description: "Get a list of card controls that have been applied based on `channel`
+    and `acquirer` to regulate usage."
+- name: "ControlCardUsage"
+  description: "Control operations on a card by allowing/disallowing certain operations
+    on various controls that can be applied to card usage."
+
+paths:
+
+  /cards/{card_id}/status:
+    put:
+      tags:
+      - "UpdateCardStatus"
+      summary: "Update card status like activate, block, unblock, stop list"
+      description: "This API is used to block, unblock or activate a card. You can
+        also use this API to activate paired cards, add a card to stop list, or
+        withdraw a card from stop list. <br/>If the card alias is not uniquely defined
+        at institution level, then you must use the productType, planCode and programCode
+        to refine the search. Else the UNIQUE_RECORD_NOT_FOUND error is returned.
+        This error is also returned if the input form factor(s) fails to resolve
+        to a single client as multiple clients available.<br/><br/>In case of success
+        API returns 200 as HTTP status code."
+      operationId: "updateCardStatus"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdatedCardStatusRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/UpdatedCardStatusDetailsResponse"
+        "400":
+          $ref: "#/components/responses/BadPostRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+
+  /cards/{card_id}/card-controls:
+    get:
+      tags:
+      - "GetCardUsage"
+      summary: "Get a list of card controls that have been applied based on `channel`
+        and `acquirer` to regulate usage."
+      description: "This API is used to get the current status of card usage controls
+        like `international and domestic ATM`, `POS`, `e-commerce`, `contact-less`,
+        `MDES in-app or VTS in-app`, `MDES contact-less or VTS contact-less`, and
+        `MDES token QR` transactions activation and de-activation.<br/><br/> This
+        API also returns the controls applied on specific entity `Merchant Category
+        Code (MCC) / Merchant Id (MID) / Merchant Id + Acquirer Id` at the `acquirer`
+        (card level).<br/><br/> <b>This API returns the following activations or
+        de-activations for the applicable transaction based on `channel` and `acquirer`
+        depending on the activation period. </b> - If the activation type is periodic
+        or for a specific duration, then current&nbsp;activations or de-activations
+        arereturned for periodic and immediate activation. -  If the activation
+        type parameter value is L (life&nbsp;long), only the latest entry is returned.<br/><br/>
+        Note: The card level configuration will have precedence over program level
+        restriction."
+      operationId: "getCardUsage"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/Offset"
+      - $ref: "#/components/parameters/Fields"
+      - $ref: "#/components/parameters/AcquirerControls"
+      responses:
+        "200":
+          $ref: "#/components/responses/CardUsageProfileResponse"
+        "400":
+          $ref: "#/components/responses/BadGetRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+    put:
+      tags:
+      - "ControlCardUsage"
+      summary: "Control operations on a card by allowing/disallowing certain operations
+        on various controls that can be applied to card usage."
+      description: "This API enables the cardholder to toggle between the card control
+        usages, wherein the cardholder can allow or restrict the card usage for
+        `international and domestic ATM`, `POS`, `e-commerce`, `contactless`, `MDES
+        in-app or VTS in-app`, `MDES contactless or VTS contactless`, and `MDES
+        token QR` transactions based on the activation type provided in the input.<br/><br/>
+        Cardholder also has the flexibility to choose entity `Merchant Category
+        Code (MCC) / Merchant Id (MID) / Merchant Id + Acquirer Id` on which transaction
+        can be blocked and approved.</br><br/> Basically, the card can be restricted
+        based on the `channel` as well as on the `acquirer`.<br/><br/> At institution
+        and program level only `restriction` is allowed, whereas at the card level
+        `allow` as well as `restriction` is allowed.<br/><br/> The Integrated Issuing
+        system receives, validates, and processes the request. If the request is
+        successful, the device usage is allowed or restricted on the card. The system
+        then logs the `Device Usage Control service request (SR-454)` and sends
+        the service request details in the response message. In case of API channel,
+        the SR is processed immediately irrespective of whether the checker/maker
+        configuration is enabled for this SR or not. If the request fails, the system
+        returns the corresponding error code in the response and the SR is not logged.<br/><br/>
+        The following validations are performed during activation and de-activation.
+         - The highest priority is given to life&nbsp;long&nbsp;activation, followed
+        by periodic&nbsp;activation, and lastly theimmediate activation in hours.
+         - If any combination of channel activation type and origin exist, and the
+        life&nbsp;long&nbsp;activation request forall channels is received, then
+        the request is accepted. However, if all these combinations are received
+        again in a request, then the request is declined. If the periodic or hourly
+        activation for all channels is existing and the life&nbsp;long&nbsp;activation
+        request is received, then the request is accepted.  - If the periodic
+        activation or de-activation for all or any of the channels is existing,&nbsp;then
+        the activationfor same or overlapping period is not allowed.  - If life&nbsp;long
+        activation or de-activation is existing and a periodic or hourly request
+        is&nbsp;initiated with thesame combination of life&nbsp;long, then the
+        new periodic and hourly request does not get processed.  - If one or more
+        channels (not all) is configured for life&nbsp;long&nbsp;activation or de-activation,
+        and the requestis&nbsp;initiated for all channels, then the remaining
+        channels are also activated or de-activated for life&nbsp;long. The existing
+        channel entry in the channel transaction setting does not change.<br/><br/>
+        This API also provides control at granular level as follows.  - To enable
+        card issuers to control usage of entity as per their program offering.
+         - Following are the valid combinations of entity, only one of them can
+        be selected at a time.    (`mcc`, `merchantId`, `merchantId + acquirerId`).
+         - Additionally, cardholder also has the flexibility to choose entity on
+        which transaction can be blocked and approved.<br/><br/>Note: The card
+        level configuration will have precedence over program level restriction."
+      operationId: "controlCardUsage"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        $ref: "#/components/requestBodies/CardControlRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/CardControlResponse"
+        "400":
+          $ref: "#/components/responses/BadPostRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+components:
+
+  schemas:
+
+    RequestValidityTime:
+      description: "Validity of the API request. It protects the API from unauthorized
+        request or man-in-the-middle (MITM) attacks <br/>For example, if the validity
+        of the API request is set for a maximum of 5 minutes (including retry attempts),
+        and someone tries to post the same request after 5 minutes, then the system
+        rejects the API request without processing."
+      type: "object"
+      required:
+      - "dataValidUntilTimestamp"
+      properties:
+        dataValidUntilTimestamp:
+          type: "string"
+          format: "date-time"
+          description: "The date and time after which the request is considered as
+            invalid. If the timestamp of the institution is greater than this timestamp,
+            the API request is considered as expired and is returned.<br/>The dataValidUntilTimestamp
+            parameter is converted into the institution time zone before comparing
+            it with the institution date and time. It is expressed in ISO 8601 extended
+            format. Must be either <br/> YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss]
+            (+|-) hh:mm where [.sss] is optional and can be 1 to 3 digits."
+          minLength: 20
+          maxLength: 29
+          example: "2020-07-04T12:09:56.450-07:00"
+    UpdatedCardStatus:
+      allOf:
+      - $ref: "#/components/schemas/RequestValidityTime"
+      type: "object"
+      description: "Search Cards Plain request data to be encrypted by the ephemeral
+        AES key using CBC mode (IV as provided in 'iv', or zero if none provided)
+        and PKCS#7 padding. To be hex-encoded."
+      required:
+      - "productType"
+      - "status"
+      properties:
+        productType:
+          $ref: "#/components/schemas/ProductType"
+        status:
+          $ref: "#/components/schemas/RequestedCardStatus"
+        reason:
+          $ref: "#/components/schemas/ReasonCode"
+        activatePairedCard:
+          type: "boolean"
+          description: "Indicates request to activate paired cards. If the input card
+            is not one of the paired cards, and a request is received, then the
+            request will be rejected."
+          example: false
+        remarks:
+          $ref: "#/components/schemas/Remarks"
+    UpdatedCardStatusDetails:
+      type: "object"
+      properties:
+        cards:
+          type: "array"
+          description: "List of cards"
+          items:
+            $ref: "#/components/schemas/CardStatusUpdateResult"
+    ProductType:
+      type: "string"
+      description: "Type of product. It is also useful to identify a unique card if
+        multiple cards are linked to a card number alias. <br/> **Valid values:**
+
+                           * `PREPAID` - Prepaid Card
+
+                           * `CREDIT` - Credit Card
+
+                           * `DEBIT` - Debit
+        Card"
+      example: "PREPAID"
+    ReasonCode:
+      type: "string"
+      description: "Reason for requesting change of card status. <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required in case of below
+        scenarios. An error will be returned if present for any other scenarios.
+        <br/><br/> Scenario-1 - If request is for stop list withdrawal (by changing
+        the card status from `LOST`, `STOLEN`, `COUNTERFEIT`, `RETURNED`, `EXPIRED`,
+        `DAMAGED`, `EMERGENCY_REPLACEMENT`, `ERRONEOUS` to `NORMAL`). <br/>**Valid
+        values:**
+
+                           * `FOUND_CARD` - Found card
+
+                           * `CAPTURE_CARD` - Capture card
+
+                           * `BANK_DECISION` - Bank decision
+
+                           * `OVERDUE_CARD` - Overdue card
+
+                           * `STOPLIST_CARD`
+        - Stoplist card
+
+                           * `MISCELLANEOUS` - Miscellaneous
+
+                           * `UNBLOCKED_CARD` - Unblocked
+        card
+
+                           * `REPLACEMENT_CANCELLATION` - Replacement Cancellation <br/><br/>
+        Scenario-2 - If request is for activating paired card (by changing the card
+        status to `REPLACED`). <br/>**Valid values:**
+
+                           * `ERRONEOUS` - Erroneous
+        card
+
+                           * `LOST` - Card lost
+
+                           * `STOLEN` - Card stolen
+
+                           * `COUNTERFEIT` - Card
+        counterfeit
+
+                           * `OTHER` - Other
+
+                           * `DAMAGED` - Card damaged
+
+                           * `EMERGENCY_REPLACEMENT`
+        - Emergency replacement"
+      example: "FOUND_CARD"
+    RequestedCardStatus:
+      type: "string"
+      description: "The requested status of the card. <br/> **Valid values:**
+
+                           * `NORMAL` - Indicates request to activate the card to allow all operation
+        normally.<br/> - If the current status of the card is `NORMAL` but card
+        is currently not active and card plan activation mode is 'MANUAL' then card
+        activation process will be initiated.<br/> - If the current status of
+        the card is `BLOCKED` then card will be unblocked.<br/> - If the card
+        is currently added in stop list then stop list withdrawal process will be
+        initiated. Stop list withdrawal will be denied if status is configured
+        as sticky (can't be changed).<br/>
+
+                           * `REPLACED` - Indicates paired card
+        activation request.<br/> Supported only if `activatePairedCard` value
+        is `true` in the request and current status of the card is `NORMAL` or
+        `BLOCKED` and paired card status is `NOT_ACTIVATED`.
+
+                           * `BLOCKED` - Indicates
+        blocked Card<br/>
+
+                           * `LOST` - Indicates lost card. Initiate the request
+        to add the card to the stop list.<br/>
+
+                           * `STOLEN` - Indicates stolen card.
+        Initiate the request to add the card to the stop list.<br/>
+
+                           * `COUNTERFEIT`
+        - Indicates counterfeit card. Initiate the request to add the card to the
+        stop list.<br/>
+
+                           * `RETURNED` - Indicates returned card. Initiate the request
+        to add the card to the stop list.<br/>
+
+                           * `EXPIRED` - Indicates expired
+        card. Initiate the request to add the card to the stop list.<br/>
+
+                           * `DAMAGED`
+        - Indicates card is damaged. Initiate the request to add the card to the
+        stop list.<br/>
+
+                           * `EMERGENCY_REPLACEMENT` - Indicates emergency replacement
+        card. Initiate the request to add the card to the stop list.<br/>
+
+                           * `ERRONEOUS`
+        - Indicates card is erroneous. Initiate the request to add the card to the
+        stop list.<br/>"
+      example: "NORMAL"
+    CardIdentifiers:
+      description: "Card Identifiers"
+      type: "object"
+      properties:
+        number:
+          $ref: "#/components/schemas/CardNumber"
+        id:
+          $ref: "#/components/schemas/CardId"
+        relationship:
+          $ref: "#/components/schemas/CardRelationship"
+        clientCode:
+          $ref: "#/components/schemas/ClientCode"
+    CardStatusUpdateResult:
+      allOf:
+      - $ref: "#/components/schemas/CardIdentifiers"
+      description: "Linked Card Details"
+      type: "object"
+      properties:
+        status:
+          $ref: "#/components/schemas/CardStatus"
+        pinOverSms:
+          type: "boolean"
+          description: "Indicates whether PIN number of the card needs to be sent
+            through an SMS."
+          example: false
+        expiry:
+          $ref: "#/components/schemas/CardExpiry"
+        expiryDateTime:
+          $ref: "#/components/schemas/LvcExpiryDateTime"
+        productType:
+          $ref: "#/components/schemas/ProductType"
+    CardStatus:
+      type: "string"
+      description: "The current status of the card. <br/> **Valid values:** <br/>
+
+                           * `NORMAL` - Indicates normal card
+
+                           * `SUPERVISION` - Indicates supervision
+        card
+
+                           * `CANCELLED` - Indicates cancelled card
+
+                           * `REPLACED` - Indicates replaced
+        card
+
+                           * `LOST` - Indicates lost card
+
+                           * `STOLEN` - Indicates stolen card
+
+                           * `COUNTERFEIT` - Indicates counterfeit card
+
+                           * `RETURNED` - Indicates returned
+        card
+
+                           * `PROGRAM_CHANGE_OR_UPGRADE` - Indicates program change card
+
+                           * `RETURNED_CARD_RENEWAL`
+        - Indicates returned card renewal card
+
+                           * `NOT_ACTIVATED` - Indicates card
+        is not activated
+
+                           * `EXPIRED` - Indicates expired card
+
+                           * `INACTIVE` - Indicates
+        inactive card
+
+                           * `BLOCKED` - Indicates blocked Card
+
+                           * `DISPATCHED` - Indicates
+        card dispatched
+
+                           * `READY_FOR_SALE` - Indicates Ready for Sale Card
+
+                           * `TRANSFERRED_TO_OTHER_BRANCH`
+        - Indicates transferred to other branch card
+
+                           * `RETURNED_AND_SHREDDED` -
+        Indicates Returned to bank and shredded card
+
+                           * `DAMAGED` - indicates Card
+        is damaged
+
+                           * `EMERGENCY_REPLACEMENT` - Indicates emergency replacement card
+
+                           * `ERRONEOUS` - Indicates card is erroneous
+
+                           * `RETENTION` - Indicates retention
+        card
+
+                           * `NPA_RECLASSIFIED` - Indicates NPA Reclassified card
+
+                           * `TECHNOLOGY_UPGRADE`
+        - Indicates card technology upgrade Card
+
+                           * `REPLACED_INACTIVE` - Indicates
+        replaced-inactive card
+
+                           * `RENEWED_INACTIVE` - Indicates renewed-inactive
+        card"
+      example: "NORMAL"
+    CardRelationship:
+      type: "string"
+      example: "PRIMARY"
+      description: "An indicator at card level to describe type of client associated
+        with the card. <br/> **Valid values:**
+
+                           * `PRIMARY` - Indicates primary card
+
+                           * `ADD_ON` - Indicates add-on card
+
+                           * `SUPPLEMENTARY` - Indicates supplementary
+        card"
+    ClientCode:
+      type: "string"
+      description: "Unique code of the client"
+      minLength: 4
+      maxLength: 24
+      pattern: "[a-zA-Z0-9]+"
+      example: "0000215812722194"
+    CardNumber:
+      type: "string"
+      description: "Unique number (PAN) assigned to the card. This number might be
+        masked based on the API masking configuration settings of the institution
+        in the MI Issuing customer portal."
+      minLength: 12
+      maxLength: 22
+      pattern: "[0-9]+"
+      example: "5001878976540298"
+    CardId:
+      type: "string"
+      description: "Unique value to identify a card"
+      minLength: 32
+      maxLength: 32
+      pattern: "[A-Z0-9]+"
+      example: "C24B56D71AA2E015E053F482A80ABD00"
+    CardExpiry:
+      type: "string"
+      description: "Expiry date of the card in \"MM/YY\" format. This field is not
+        applicable for LVC cards. The expiry and expiryDateTime fields are mutually
+        exclusive, which means you can use any one of these fields to specify the
+        details."
+      pattern: "(0[1-9]|1[0-2])/[0-9]{2}"
+      example: "11/30"
+    LvcExpiryDateTime:
+      type: "string"
+      format: "date-time"
+      description: "Applicable only for LVC Card. The date/time after which LVC card
+        should be considered as expired or invalid.<br/> <br/> The expiry & expiryDateTime
+        fields are mutually exclusive. <br/>Expressed in ISO 8601 extended format.
+        Must be <br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm where [.sss] is optional
+        and can be 1 to 3 digits."
+      minLength: 20
+      maxLength: 29
+      example: "2022-07-04T12:09:56.450-07:00"
+    Remarks:
+      type: "string"
+      minLength: 1
+      maxLength: 1000
+      description: "Free text field that contains remarks or comments entered while
+        submitting the request."
+      pattern: "[^%<>\\\\[\\\\]^$]+"
+      example: "Request received by HelpDesk portal"
+    ErrorMessage:
+      required:
+      - "Description"
+      - "ReasonCode"
+      - "Recoverable"
+      - "Source"
+      type: "object"
+      properties:
+        Source:
+          type: "string"
+          description: "The application or component that generated this error."
+          minLength: 3
+          maxLength: 50
+          example: "MI-Issuing"
+        ReasonCode:
+          type: "string"
+          description: "Reason code is a unique constant identifying the error case
+            encountered during request processing."
+          minLength: 5
+          maxLength: 100
+          example: "MISSING_REQUIRED_FIELD"
+        Description:
+          type: "string"
+          description: "Human-readable short description of the reasonCode."
+          minLength: 10
+          maxLength: 250
+          example: "Missing Required Field '<Field-Name>'"
+        Details:
+          type: "string"
+          description: "Optional detailed description provides information about data
+            received and calculated during request processing. This helps the user
+            to diagnose errors."
+          minLength: 0
+          maxLength: 1000
+          example: "This is mandatory field while requesting for new card."
+        Recoverable:
+          type: "boolean"
+          description: "Recoverable flag indicates whether this error is always returned
+            for this request, or retrying could change the outcome. For example,
+            'true' or 'false'."
+          example: false
+    Errors:
+      required:
+      - "Error"
+      type: "object"
+      properties:
+        Error:
+          type: "array"
+          description: "Errors array wrapped in an error object"
+          items:
+            $ref: "#/components/schemas/ErrorMessage"
+    ErrorsInfo:
+      required:
+      - "Errors"
+      type: "object"
+      properties:
+        Errors:
+          $ref: "#/components/schemas/Errors"
+
+    CardUsageProfile:
+      type: "object"
+      description: "Response of this API, will be shared only in case of success.<br/>"
+      properties:
+        pagination:
+          $ref: "#/components/schemas/ResponsePagination"
+        controls:
+          type: "object"
+          properties:
+            acquirerControls:
+              type: "array"
+              description: "This block contains information about `Acquirer` card
+                control."
+              items:
+                $ref: "#/components/schemas/AcquirerControl"
+    CardControl:
+      allOf:
+      - $ref: "#/components/schemas/RequestValidityTime"
+      type: "object"
+      description: "This block contains information about `channel` and `acquirer`
+        card control. Either one or both from `channelControls` or `acquirerControls`
+        should be present."
+      properties:
+        acquirerControls:
+          description: "This block contains information about `acquirer` card control."
+          type: "array"
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          required:
+          - "isAllowed"
+          items:
+            $ref: "#/components/schemas/AcquirerCardControl"
+    AcquirerCardControl:
+      type: "object"
+      description: "This block contains information about `acquirer` card control
+        based on `Merchant Category Code`, `Merchant ID` and `Acquirer ID`. <br/>
+        This will enable card issuers to control usage of entity as per their program
+        offering.<br/> **Conditional Mandatory**<font color='red'>* </font> parameter
+        - Atleast one from `mcc`, `merchantId` or `acquirerId & merchantId` should
+        be present. If none of them is present then the request should not be processed
+        further."
+      required:
+      - "isAllowed"
+      allOf:
+      - $ref: "#/components/schemas/AcquirerCardControlMetadata"
+      properties:
+        isAllowed:
+          type: "boolean"
+          description: "This field indicates status of the control."
+          example: false
+    AcquirerControl:
+      type: "object"
+      description: "This block contains information about `acquirer` card control
+        based on `Merchant Category Code`, `Merchant ID` and `Acquirer ID`. <br/>"
+      allOf:
+      - $ref: "#/components/schemas/AcquirerCardControlMetadata"
+      properties:
+        isAllowed:
+          type: "boolean"
+          description: "This field indicates status of the control."
+          example: false
+        ruleAppliedAt:
+          $ref: "#/components/schemas/RuleAppliedAt"
+    ResponsePagination:
+      type: "object"
+      description: "Meta information of the result set returned in the current response
+        - <br> Scenarios - <br> - Given a valid request body, search returns the
+        first 5 items matching the search criteria, assuming a default limit of
+        5 <br> - Given a valid request body, search with limit as 3, returns first
+        3 items matching the search criteria <br> - Given a valid request body,
+        search with offset as 2 and limit as 5, returns items 3...7 matching the
+        search criteria <br> - Given a valid request body, search with offset as
+        3 returns, items 4...8 matching the search criteria, assuming a default
+        limit of 5."
+      required:
+      - "offset"
+      - "limit"
+      - "count"
+      - "total"
+      properties:
+        offset:
+          description: "The number of items you asked the start of the list to be
+            offset from"
+          type: "integer"
+          format: "int32"
+          minimum: 0
+          example: 25
+        limit:
+          description: "The number of items you asked the list to be limited to"
+          type: "integer"
+          format: "int32"
+          minimum: 1
+          example: 25
+        count:
+          description: "The number of items in this batch (the size of the item array)."
+          type: "number"
+          minimum: 0
+          example: 10
+        total:
+          description: "The total number of items in the collection"
+          type: "number"
+          minimum: 0
+          example: 35
+    ServiceReqNumber:
+      type: "object"
+      properties:
+        number:
+          type: "string"
+          description: "Service request number that is logged in the system if the
+            request is processed successfully by the system."
+          minLength: 1
+          maxLength: 11
+          example: "10051811635"
+        purpose:
+          $ref: "#/components/schemas/ControlRequestPurpose"
+    ControlRequestPurpose:
+      type: "string"
+      example: "MCC_CONTROL_APPLIED_AT_CARD_LEVEL"
+      description: "Purpose of service request. <br/> **Valid values:**
+
+                           * `MCC_CONTROL_APPLIED_AT_CARD_LEVEL`
+        - Indicates MCC control applied at card level
+
+                           * `MID_CONTROL_APPLIED_AT_CARD_LEVEL`
+        - Indicates Merchant control applied at card level
+
+                           * `MID_TID_CONTROL_APPLIED_AT_CARD_LEVEL`
+        - Indicates Terminal and Merchant combination control applied at card level"
+    RuleAppliedAt:
+      type: "string"
+      description: "This indicates the rule is applied at which level.<br/> **Possible
+        values:**
+
+                           * `PROGRAM` - Indicates rule is applied at program level.
+
+                           * `CARD` - Indicates rule is applied at card level."
+      example: "CARD"
+    AcquirerCardControlMetadata:
+      type: "object"
+      description: "This block contains information about `acquirer` card control,
+        based on `Merchant Category Code`, `Merchant ID` and `Acquirer ID`.<br/>"
+      properties:
+        mcc:
+          type: "string"
+          description: "Classification of business by the type of goods or services
+            it provides. All predefined values based on the business function are
+            stored in the system."
+          minLength: 4
+          maxLength: 4
+          pattern: "[0-9]+"
+          example: "5001"
+        merchantId:
+          type: "string"
+          description: "It is a unique identifier assigned to the merchant by the
+            Acquirer(Acceptor Merchant Id or MID)."
+          minLength: 15
+          maxLength: 15
+          pattern: "[^ ](.*)[^ ]"
+          example: "141234453673564"
+        acquirerId:
+          type: "number"
+          description: "Acquiring institution identification code(ISO-8583 DE-32)
+            is used to identify the partner submitting the requests. This field
+            is also significant in determining single or dual message operation
+            for a given partner."
+          minLength: 1
+          maxLength: 11
+          pattern: "[0-9]+"
+          example: "60300000063"
+    CardControlProfile:
+      type: "object"
+      properties:
+        serviceRequests:
+          type: "array"
+          description: "This contains a list of `Service Requests` that gets generated
+            on successful completion of the request.<br/><br/> Based upon the capacity
+            of the application this can be adjusted, Example: only 5 Service Request
+            can be processed at a time."
+          items:
+            $ref: "#/components/schemas/ServiceReqNumber"
+          example:
+          - number: "10051811637"
+            purpose: "MCC_CONTROL_APPLIED_AT_CARD_LEVEL"
+          - number: "10051811640"
+            purpose: "MID_CONTROL_APPLIED_AT_CARD_LEVEL"
+          - number: "10051811643"
+            purpose: "MID_TID_CONTROL_APPLIED_AT_CARD_LEVEL"
+
+  parameters:
+
+    CardID:
+      name: "card_id"
+      in: "path"
+      description: "A unique system-generated ID that is assigned to a card during
+        card issuance. This ID can be used instead of the card number while sharing
+        PCI sensitive data.
+
+                           * minLength: 32
+
+                           * maxLength: 32
+
+                           * pattern: [A-Z0-9]+"
+      required: true
+      schema:
+        type: "string"
+        minLength: 32
+        maxLength: 32
+        pattern: "[A-Z0-9]+"
+      example: "C24B56D71AA2E015E053F482A80ABD00"
+    CorrelationID:
+      name: "X-MC-Correlation-ID"
+      in: "header"
+      description: "Correlation ID, also known as Transit ID or Request ID, is a unique
+        identifier value attached to a particular transaction or event chain.The
+        Correlation ID also helps in auditing, debugging, and tracing the request
+        execution flow. <BR/> It is recommended to generate universally unique identifier
+        (UUID) in compliance with RFC 4122.<BR/> If the Correlation ID is not received
+        in the incoming request, the Mastercard Processing platform generates a
+        universally unique identifier (UUID) dynamically and assigns it to the request.
+        The Correlation ID is always added to the response header to provide end
+        to end traceability.
+
+                           * minLength: 6
+
+                           * maxLength: 36
+
+                           * pattern: [a-zA-Z0-9_-]+"
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+    Source:
+      name: "X-MC-Source"
+      in: "header"
+      description: "Value identifying the origin or source of a transaction. The list
+        of possible sample values are available in the database and shared in the
+        API_SOURCE_VALUES list under \"Card Management > Institution Parameter Setup
+        > System Codes [ISSS15]\". This field is used only for logging purpose.<br/>
+
+                           * minLength: 3
+
+                           * maxLength: 3
+
+                           * pattern: [A-Z0-9]+ <br/><br/> **Few
+        sample values:** <br/>
+
+                           * `IVR` - Interactive Voice Response
+
+                           * `MAP`
+        - Mobile Application
+
+                           * `ATM` - Automated Teller Machine
+
+                           * `NBN` - Net
+        Banking Application
+
+                           * `POS` - Point of Sale
+
+                           * `SCH` - Scheme
+
+                           * `CBS`
+        - Core Banking System
+
+                           * `SMS` - Short Message Service
+
+                           * `ACS` - Access
+        Control Server
+
+                           * `ONS` - On-Us Transaction
+
+                           * `OTH` - Other"
+      schema:
+        type: "string"
+        minLength: 3
+        maxLength: 3
+        pattern: "[A-Z0-9]+"
+      example: "MAP"
+    EndUserID:
+      name: "X-MC-Client-Application-User-ID"
+      in: "header"
+      description: "A unique identifier to track end user who is performing action
+        at the client's or consumer's end. <BR/>This field is used only for logging
+        purpose.
+
+                           * minLength: 3
+
+                           * maxLength: 50
+
+                           * pattern: [a-zA-Z0-9_-]+"
+      schema:
+        type: "string"
+        minLength: 3
+        maxLength: 50
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "S0648-IN"
+
+    IdempotencyKey:
+      name: "X-MC-Idempotency-Key"
+      in: "header"
+      required: true
+      description: "An idempotency key is a unique value that is generated by a client
+        and sent to an API along with a request. If a request should fail partway
+        through, the client retries with the same idempotency key value, and the
+        server uses it to look up the state of request and continue from where it
+        left off. Recommended to generate universally unique identifier (UUID) compliant
+        with `RFC 4122`.
+
+                           * minLength: 6
+
+                           * maxLength: 36
+
+                           * pattern: [a-zA-Z0-9_-]+"
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "bc57d177-4593-3449-8343-0d81a7a02947"
+    Fields:
+      in: "query"
+      name: "fields"
+      description: "The Fields parameter restricts the set of properties to be returned
+        for a field in the API response. These properties must be present in the
+        API response structure that is the JSON path. These properties can be added
+        as a comma-separated list."
+      required: false
+      schema:
+        type: "string"
+        minLength: 2
+        maxLength: 1000
+        pattern: "[a-zA-Z0-9.,]+"
+      examples:
+        Sample-1-[Path = credit > card > id]:
+          value: "credit.card.id"
+        Sample-2-[Path = card > id]:
+          value: "card.id"
+        Sample-3-[Path = acquirerControls > mcc ]:
+          value: "acquirerControls.mcc"
+    Limit:
+      in: "query"
+      name: "limit"
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 1000
+      required: false
+      description: "Maximum numbers of items to be returned in response"
+      example: 10
+    Offset:
+      in: "query"
+      name: "offset"
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 1000
+      required: false
+      description: "The number of items to skip before starting to collect the result."
+      example: 0
+    AcquirerControls:
+      in: "query"
+      name: "acquirer_controls"
+      required: false
+      description: "The acquirer_controls parameter restricts the set of data to be
+        returned in the API response. It returns allowed, disallowed or all acquirer
+        controls. By default it will return only disallowed acquirer controls."
+      schema:
+        type: "string"
+        minLength: 3
+        maxLength: 10
+        pattern: "allowed|disallowed|all"
+      example: "disallowed"
+
+  headers:
+
+    Response-Correlation-ID:
+      description: "Returns the request identifier (like UUID) received in client
+        request header or generated by the server."
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+
+    Response-Idempotency-Key:
+      description: "Echo back the idempotency key received in client request header,
+        only if the duplicate request is received with same idempotency key within
+        predefined time."
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+      example: "bc57d177-4593-3449-8343-0d81a7a02947"
+
+  requestBodies:
+
+    UpdatedCardStatusRequest:
+      description: "Updated card status and related details"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UpdatedCardStatus"
+      required: true
+
+    CardControlRequest:
+      description: "This contains all the fields that are required to process this
+        request."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CardControl"
+
+  responses:
+
+    UpdatedCardStatusDetailsResponse:
+      description: "The card status was successfully updated."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UpdatedCardStatusDetails"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    BadPostRequestError:
+      description: "The request failed due to invalid or missing value. The value
+        could be a header value, a query parameter value, or a request body property
+        value."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            MissingRequiredFieldExample:
+              $ref: "#/components/examples/MissingRequiredFieldExample"
+            InvalidFieldValueExample:
+              $ref: "#/components/examples/InvalidFieldValueExample"
+            InvalidFieldFormatExample:
+              $ref: "#/components/examples/InvalidFieldFormatExample"
+            InvalidFieldLengthExample:
+              $ref: "#/components/examples/InvalidFieldLengthExample"
+            CryptographyErrorExample:
+              $ref: "#/components/examples/CryptographyErrorExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    UnauthorizedError:
+      description: "Authentication information is missing or invalid."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            UnauthorizedExample:
+              $ref: "#/components/examples/UnauthorizedExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    ForbiddenError:
+      description: "Insufficient permissions for interacting with the resource."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            ForbiddenExample:
+              $ref: "#/components/examples/ForbiddenExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+
+    CardUsageProfileResponse:
+      description: "The response is successfully returned when the card usage control
+        information is successfully retrieved.<br/>"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CardUsageProfile"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    CardControlResponse:
+      description: "This indicates that the request has been fulfilled and resulted
+        in a new resource being created."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CardControlProfile"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+        X-MC-Idempotency-Key:
+          $ref: "#/components/headers/Response-Idempotency-Key"
+    BadGetRequestError:
+      description: "The request failed due to invalid or missing value. The value
+        could be a header value, a query parameter value, or a request body property
+        value."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            MissingRequiredFieldExample:
+              $ref: "#/components/examples/MissingRequiredFieldExample"
+            InvalidFieldValueExample:
+              $ref: "#/components/examples/InvalidFieldValueExample"
+            RecordNotFoundExample:
+              $ref: "#/components/examples/RecordNotFoundExample"
+            UniqueRecordNotFoundExample:
+              $ref: "#/components/examples/UniqueRecordNotFoundExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+
+  examples:
+
+    UnauthorizedExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "UNAUTHORIZED"
+            Description: "We couldn't recognize you"
+            Recoverable: false
+            Details: "The user does not have valid certificate for the target resource."
+    ForbiddenExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "AUTHORIZATION_ERROR"
+            Description: "It seems you don't have permission to access this API"
+            Recoverable: false
+            Details: "Please ensure that access has been granted to the user in customer
+              portal"
+    MissingRequiredFieldExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "MISSING_REQUIRED_FIELD"
+            Description: "Missing required field '<Field-Name>'"
+            Recoverable: false
+            Details: null
+    InvalidFieldValueExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_VALUE"
+            Description: "'<Field-Name>' field value '<Field-Value>' is invalid"
+            Recoverable: false
+    InvalidFieldFormatExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_FORMAT"
+            Description: "'<Field-Name>' field value '<Field-Value>' format is invalid"
+            Recoverable: false
+    InvalidFieldLengthExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_LENGTH"
+            Description: "'<Field-Name>' size must be between 1 and 3"
+            Recoverable: false
+    CryptographyErrorExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "CRYPTOGRAPHY_ERROR"
+            Description: "Error occurred while decryption of the encrypted request
+              payload"
+            Recoverable: false
+            Details: null
+
+
+    RecordNotFoundExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "RECORD_NOT_FOUND"
+            Description: "Record not found based on the given input."
+            Recoverable: false
+            Details: null
+    UniqueRecordNotFoundExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "UNIQUE_RECORD_NOT_FOUND"
+            Description: "Multiple records found for given search criteria."
+            Recoverable: false
+            Details: null

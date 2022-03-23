@@ -1,0 +1,182 @@
+{
+	"dataValidUntilTimestamp": "2020-07-04T12:09:56.450-07:00",
+	"application": {
+		"type": "PRIMARY",
+		"formNumber": null,
+		"makerChecker": null,
+		"memo": false
+	},
+	"branchCode": "3",
+	"primary": {
+		"clientCode": null,
+		"cardNumber": null,
+		"cardId": null
+	},
+	"addOn": {
+		"clientCode": null,
+		"relation": null
+	},
+	"client": {
+		"sourceSystem": {
+			"clientId": null,
+			"cbsReferenceNumber": null,
+			"cbsClientId": null
+		},
+		"profile": {
+			"title": "Mr",
+			"firstName": "Tom",
+			"middleName1": "Bob",
+			"middleName2": "Tom",
+			"lastName": "Smith",
+			"alternateName": "Johny Smith",
+			"maidenName": "Ria",
+			"gender": "Male",
+			"birthDate": "1991-06-21",
+			"birthCity": "London",
+			"birthCountry": "GB",
+			"education": "Graduate",
+			"maritalStatus": "Married",
+			"nationality": "GB"
+		},
+		"currentAddress": {
+			"line1": "House no. 45, second floor",
+			"line2": "Apartment no. 567, Pashan",
+			"line3": "Thorat place",
+			"line4": "Kunal road",
+			"city": "PUN",
+			"state": "MAH",
+			"country": "IN",
+			"zipCode": "411021",
+			"lodgingMode": "Owned"
+		},
+		"permanentAddress": {
+			"line1": "House no. 45, second floor",
+			"line2": "Apartment no. 567, Pashan",
+			"line3": "Kunal place",
+			"line4": "Near medical",
+			"city": "PUN",
+			"state": "MAH",
+			"country": "IN",
+			"zipCode": "411021",
+			"permanentAddressFrom": "2000-02-22"
+		},
+		"officeAddress": {
+			"line1": "House no. 45, second floor",
+			"line2": "Apartment no. 567, Pashan",
+			"line3": "ABC Road",
+			"line4": "Near bus stop",
+			"city": "PUN",
+			"state": "MAH",
+			"country": "IN",
+			"zipCode": "411021"
+		},
+		"currentContact": {
+			"phoneNumber1": "02025870567/68",
+			"phoneNumber2": "02025870547/62"
+		},
+		"permanentContact": {
+			"phoneNumber1": "02025870567/68",
+			"phoneNumber2": "02025870457/68"
+		},
+		"officeContact": {
+			"email": "user@example.com",
+			"mobile": {
+				"isd": "+91",
+				"number": "9058344422"
+			},
+			"phoneNumber1": "02025870577/88",
+			"phoneNumber2": "02025870577/87",
+			"extension": "2987"
+		},
+		"registeredContacts": {
+			"email": "user@example.com",
+			"mobile": {
+				"isd": "+91",
+				"number": "9058344422"
+			},
+			"fax": "+42342/453-5"
+		},
+		"preferences": {
+			"language": "en-US",
+			"mailingAddress": "CURRENT",
+			"statementDelivery": "Email",
+			"registerForDNCR": false,
+			"smsAlert": false,
+			"emailAlert": false
+		},
+		"kyc": {
+			"status": false,
+			"remark": null
+		},
+		"occupation": {
+			"employerName": "Mastercard",
+			"employerType": "Non Government",
+			"department": "IT",
+			"employeeId": "E03982",
+			"type": "Service",
+			"professionType": "Others",
+			"designation": "Others",
+			"employmentStatus": "PERMANENT",
+			"joiningDate": "2010-01-19",
+			"employmentDuration": 2,
+			"netAnnualIncome": 100000
+		},
+		"type": "Individual",
+		"vip": false,
+		"riskCategory": "LOW",
+		"cobrandNumber": "7654345TH",
+		"reuterReferenceNumber": "34567T8GJ"
+	},
+	"card": {
+		"numberless": null,
+		"instant": true,
+		"embossedName": "JOHNY SMITH",
+		"photoIndicator": "NORMAL",
+		"photoCode": null,
+		"pictureCode": null,
+		"deliveryMode": "Branch",
+		"alias": "{{V_CardAlias}}",
+		"corporateCode": null,
+		"programCode": "GPR",
+		"planCode": "SVC",
+		"promoPlanCode": null,
+		"encodedName": "JOHNY SMITH",
+		"lvcCard": {
+			"perTransactionLimit": null,
+			"totalTransactionLimit": null,
+			"velocity": null,
+			"validity": null
+		}
+	},
+	"account": {
+		"promoPlanCodes": [
+			"LOANPR",
+			"LOANH",
+			"LOANB"
+		]
+	},
+	"customFields": [
+		{
+			"name": "clientDateField1",
+			"value": "2021-09-21"
+		},
+		{
+			"name": "cardDataField1",
+			"value": "sample-data"
+		},
+		{
+			"name": "accountNumberField1",
+			"value": "234.78"
+		}
+	],
+	"travel": {
+		"type": null,
+		"startDate": null,
+		"endDate": null,
+		"country": null
+	},
+	"initialLoad": {
+		"currency": "INR",
+		"amount": "1000"
+	}
+}

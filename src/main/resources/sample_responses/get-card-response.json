@@ -1,0 +1,64 @@
+{
+	"card": {
+		"number": "5023450000000017",
+		"id": "CE0D1750A41F5605E05337905B0AABE6",
+		"packId": "000GPR0000000002",
+		"programCode": "GPR",
+		"planCode": "SVC",
+		"type": "STATIC_VIRTUAL_CARD",
+		"relationship": "PRIMARY",
+		"status": "NOT_ACTIVATED",
+		"programDesc": "GPR",
+		"planDesc": "SVC",
+		"embossedName": "PIYUSH PUJARA",
+		"photoIndicator": "NORMAL",
+		"productType": "PREPAID",
+		"expiry": "09/22",
+		"clientCode": "32323221271000002",
+		"dates": {
+			"generation": "2021-09-28T21:30:36+05:30",
+			"sale": "2021-09-28T10:30:00+05:30"
+		},
+		"delivery": {
+			"date": "2021-09-28T10:30:00+05:30"
+		},
+		"linkedCards": [
+			{
+				"number": "5023452000000021",
+				"id": "D735748EF61A19EAE05337905B0A2E1F",
+				"relationship": "PRIMARY",
+				"clientCode": "32323221271000002",
+				"expiry": "04/22",
+				"status": "NORMAL",
+				"programCode": "FREX",
+				"programDesc": "Digital Forex",
+				"productType": "PREPAID"
+			}
+		]
+	},
+	"accounts": [
+		{
+			"number": "2109283232321127531",
+			"default": true,
+			"currency": "INR"
+		}
+	],
+	"clients": [
+		{
+			"code": "32323221271000002",
+			"profile": {
+				"title": "Mr",
+				"firstName": "Johnyyyyyyyyy",
+				"lastName": "Smith",
+				"alternateName": "Johny Smith"
+			},
+			"registeredContacts": {
+				"email": "piyush.pujara@mastercard.com",
+				"mobile": {
+					"isd": "+91",
+					"number": "9889883232"
+				}
+			}
+		}
+	]
+}

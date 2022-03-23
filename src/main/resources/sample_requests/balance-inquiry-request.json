@@ -1,0 +1,17 @@
+{
+    "dataValidUntilTimestamp": "2022-02-08T10:40:33.077+05:30",
+    "transactionMetaData": {
+        "transmissionTimestamp": "2021-07-16T19:20:30.345+00:00",
+        "retrievalReferenceNumber": "025282371869",
+        "acquirer": {
+            "country": "IN",
+            "merchantId": null,
+            "location": null,
+            "terminalId": null,
+            "mcc": null
+        },
+        "traceAuditNumber": null,
+        "transactionTimestamp": "2021-07-16T19:20:30.897+01:00",
+        "remarks": "Request submitted based on the user request."
+    }
+}

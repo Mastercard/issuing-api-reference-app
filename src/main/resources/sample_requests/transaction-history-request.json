@@ -1,0 +1,23 @@
+{
+  "dataValidUntilTimestamp": "2021-12-13T12:09:56.450-07:00",                                       
+  "transactionMetaData": {
+    "retrievalReferenceNumber": null,
+    "traceAuditNumber": null,
+    "transactionTimestamp": "2021-07-16T19:20:30.123+01:00",
+    "transmissionTimestamp": "2021-07-16T19:20:30.123+00:00",
+    "remarks": "Request submitted based on the user request.",
+    "acquirer": {
+      "merchantId": "141234453673564",
+      "terminalId": "14123445",
+      "mcc": "5812",
+      "location": null,
+      "country": "IN"
+    }
+  },
+  "searchTransaction": {
+    "status": {
+      "authorization": "ALL",
+      "settlement": "ALL"
+	}
+  }
+}

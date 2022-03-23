@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Configuration status="INFO">
+
+	<!-- Conversion Characters -->
+	<!-- %d = date of the logging event -->
+	<!-- %t = name of the thread -->
+	<!-- %c = category of the logging event -->
+	<!-- %C = fully qualified class name (performance very low) -->
+	<!-- %F = file name where the logging request was issued (performance very low) -->
+	<!-- %L = line number from where the logging request was issued (performance very low) -->
+	<!-- %l = location information of the caller like calling method, ource the file name and line number (performance extremely low) -->
+	<!-- %M = method name where the logging request was issued (performance very low) -->
+	<!-- %m = application supplied message -->
+	<!-- %n = platform dependent line separator character -->
+	<!-- %x = ThreadContext Stack (formerly known as NDC) associated with the thread -->
+	<!-- %X = The value in the ThreadContext Map (formerly known as MDC) corresponding to the key -->
+
+
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy-MMM-dd HH:mm:ss,SSS} %-5p %c{1}(%L) [%X] - %m%n" />
+		</Console>
+		<RollingFile name="fileAppender" fileName="logs/mi-reference-app.log" filePattern="logs/mi-reference-app-%d{yyyy-MM-dd}-debug-%i.log.gz" ignoreExceptions="false" append="true">
+			<PatternLayout>
+				<pattern>%d{yyyy-MMM-dd HH:mm:ss,SSS} %-5p %c{1}(%L) [%X] - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="5 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" compressionLevel="1" />
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<AsyncRoot level="info">
+			<AppenderRef ref="Console" level="info" />
+		</AsyncRoot>
+
+		<AsyncLogger name="org.springframework" level="info" additivity="false">
+			<AppenderRef ref="Console" level="info" />
+			<AppenderRef ref="fileAppender" level="info" />
+		</AsyncLogger>
+				
+		<AsyncLogger name="com.mastercard" level="debug" additivity="false">
+			<AppenderRef ref="Console" level="debug" />
+			<AppenderRef ref="fileAppender" level="info" />
+		</AsyncLogger>
+
+		<AsyncLogger name="okhttp3.internal" level="warn" additivity="false">
+			<AppenderRef ref="Console" level="warn" />
+			<AppenderRef ref="fileAppender" level="warn" />
+		</AsyncLogger>		
+		
+	</Loggers>
+
+
+</Configuration>

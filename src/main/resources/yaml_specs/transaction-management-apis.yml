@@ -1,0 +1,1906 @@
+openapi: "3.0.3"
+info:
+  title: "Transaction Management API"
+  description: "The transaction management API allows users to process and manage
+    various financial and non-financial transactions and related activities."
+  contact:
+    name: "API Support"
+    url: "https://developer.mastercard.com/support"
+    email: "apisupport@mastercard.com"
+  version: "2.0.0"
+servers:
+- description: "Sandbox server"
+  url: "https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/transaction-management/"
+- description: "MEA MTF/UAT server"
+  url: "https://mtf.mea.api.mastercard.com/mi-issuing/transaction-management/"
+- description: "SA MTF/UAT server"
+  url: "https://mtf.sa.api.mi.mastercard.com/mi-issuing/transaction-management/"
+- description: "MEA Production server"
+  url: "https://mea.api.mastercard.com/mi-issuing/transaction-management/"
+- description: "SA Production server"
+  url: "https://sa.api.mi.mastercard.com/mi-issuing/transaction-management/"
+
+tags:
+- name: "BalanceInquiry"
+  description: "Get card balance"
+- name: "TransactionHistory"
+  description: "Get transactions history"
+- name: "TopupPrepaidCard"
+  description: "Top-up prepaid card account"
+
+paths:
+
+  /cards/{card_id}/balances/searches:
+    post:
+      tags:
+      - "BalanceInquiry"
+      summary: "Get card balance details"
+      description: "This API is used to retrieve balance of all accounts linked to
+        the card. It is applicable for prepaid and credit products.<br /> As per
+        system configuration, the applicable fee and tax are levied. Details of
+        the calculated fee and tax are sent in the response.<br /> Reversal is not
+        applicable for this API.<br /> The request parameters transactionTimestamp,
+        transmissionTimestamp are log only parameters.These parameters are not validated
+        against business rules.<br /> The request parameters merchant ID, terminal
+        ID, location and country that are required for closed loop program are log
+        only parameters.These parameters are not validated as per business rules.<br
+        /> When the API request is successful, it returns the 200 HTTP status code
+        containing the account balance details."
+      operationId: "getBalance"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      - $ref: "#/components/parameters/Fields"
+      requestBody:
+        $ref: "#/components/requestBodies/BalanceTransactionRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/BalanceDetailsResponse"
+        "400":
+          $ref: "#/components/responses/BadPostRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+
+  /cards/{card_id}/transactions/searches:
+    post:
+      tags:
+      - "TransactionHistory"
+      summary: "Get transactions history or mini statement or search specific transaction(s)"
+      description: "The Transaction History (aka Mini Statement) API retrieves historical
+        data of transactions performed using the card.<br /> These transactions
+        can be retrieved based on the date-range, number of transactions, status,
+        unique identifier and other criteria.<br /> The API is applicable for prepaid,
+        credit, debit products.<br /> As per configruation, system will levy the
+        applicable fee and tax. Details of calculated fee and tax are sent in response.<br
+        /> Reversal is not applicable for this API.<br /> Request parameters remarks,
+        transactionTimestamp, transmissionTimestamp are log only parameters.It wont
+        be validated against business rules.<br /> Request parameters location,
+        country required for closed loop program are log only parameters.It wont
+        be validated as per business rules.<br /> When the API request is successful,
+        the API returns 200 HTTP status code containing the retrieved transaction
+        details."
+      operationId: "getTransactionHistory"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      - $ref: "#/components/parameters/Offset"
+      - $ref: "#/components/parameters/Limit"
+      - $ref: "#/components/parameters/Fields"
+      requestBody:
+        $ref: "#/components/requestBodies/TransactionSearchRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/TransactionDetailsResponse"
+        "400":
+          $ref: "#/components/responses/BadPostRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+
+  /cards/{card_id}/topups:
+    post:
+      tags:
+      - "TopupPrepaidCard"
+      summary: "Top-up prepaid card account"
+      description: "This API is used to top up the account linked to a prepaid card.
+        As per system configuration, it will levy the applicable fee and tax. Request
+        parameters transmissionTimestamp, emvData are log only parameters. These
+        parameters are not validated against business rules.<br /> When the API
+        request is successful, it returns the 200 HTTP status code containing the
+        latest account balance.<br /> All the accounts topped up in the request
+        and details of calculated fee and tax on top of the top up amount, are sent
+        in the response. This API also supports reversal of top up amount."
+      operationId: "topupAccount"
+      x-mastercard-api-encrypted: true
+      parameters:
+      - $ref: "#/components/parameters/CorrelationID"
+      - $ref: "#/components/parameters/IdempotencyKey"
+      - $ref: "#/components/parameters/Source"
+      - $ref: "#/components/parameters/EndUserID"
+      - $ref: "#/components/parameters/CardID"
+      requestBody:
+        $ref: "#/components/requestBodies/TopupRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/TopupResponse"
+        "400":
+          $ref: "#/components/responses/BadPostRequestError"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+components:
+
+  schemas:
+
+    BalanceTransaction:
+      allOf:
+      - $ref: "#/components/schemas/RequestValidityTime"
+      type: "object"
+      description: "A set of parameters used to initiate the Balance Inquiry API."
+      properties:
+        transactionMetaData:
+          $ref: "#/components/schemas/ExtendedTransactionMetaData"
+    BalanceDetails:
+      type: "object"
+      description: "It contains the account balance details along with the balance
+        inquiry API transaction and fee information. Prepaid and credit balance
+        parameters are mutually exclusive."
+      properties:
+        transactionMetaData:
+          $ref: "#/components/schemas/AuthorizedTransactionDataWithFee"
+        prepaid:
+          $ref: "#/components/schemas/PrepaidBalance"
+        credit:
+          $ref: "#/components/schemas/CreditBalance"
+    PrepaidBalance:
+      type: "object"
+      properties:
+        card:
+          $ref: "#/components/schemas/PrepaidCardBalanceDetail"
+    CreditBalance:
+      type: "object"
+      properties:
+        card:
+          $ref: "#/components/schemas/CreditCardBalanceDetail"
+    RequestValidityTime:
+      description: "Validity of the API request. It protects the API from unauthorized
+        request or man-in-the-middle (MITM) attacks <br/>For example, if the validity
+        of the API request is set for a maximum of 5 minutes (including retry attempts),
+        and someone tries to post the same request after 5 minutes, then the system
+        rejects the API request without processing."
+      type: "object"
+      discriminator:
+        propertyName: _type
+      required:
+        - "dataValidUntilTimestamp"
+        - _type
+      properties:
+        _type:
+          type: string
+          description: A JSON discriminator to help the recipient identify the concrete type of access key reliably
+          example: RequestValidityTime
+        dataValidUntilTimestamp:
+          type: "string"
+          format: "date-time"
+          description: "The date and time after which the request is considered as
+            invalid. If the timestamp of the institution is greater than this timestamp,
+            the API request is considered as expired and is returned.<br/>The dataValidUntilTimestamp
+            parameter is converted into the institution time zone before comparing
+            it with the institution date and time. It is expressed in ISO 8601 extended
+            format. Must be either <br/> YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss]
+            (+|-) hh:mm where [.sss] is optional and can be 1 to 3 digits."
+          minLength: 20
+          maxLength: 29
+          example: "2020-07-04T12:09:56.450-07:00"
+    CardMetaData:
+      description: "A set of parameters that describes the meta-information of a card."
+      type: "object"
+      properties:
+        number:
+          $ref: "#/components/schemas/CardNumber"
+        id:
+          $ref: "#/components/schemas/CardId"
+    PrepaidCardBalanceDetail:
+      allOf:
+      - $ref: "#/components/schemas/CardMetaData"
+      description: "Prepaid card balance details."
+      type: "object"
+      properties:
+        accounts:
+          type: "array"
+          description: "List of account details."
+          items:
+            $ref: "#/components/schemas/PrepaidBalanceDetails"
+        rewardPoints:
+          type: "array"
+          description: "List of loyalty or reward points. The last three months reward
+            point details are sent in the response."
+          items:
+            $ref: "#/components/schemas/PrepaidRewardPoints"
+    PrepaidBalanceDetails:
+      description: "Prepaid card account balance details."
+      type: "object"
+      properties:
+        number:
+          $ref: "#/components/schemas/AccountNumber"
+        default:
+          type: "boolean"
+          description: "Indicates if the account is a default account."
+          example: false
+        currency:
+          $ref: "#/components/schemas/AccountCurrency"
+        balance:
+          $ref: "#/components/schemas/AccountBalance"
+    PrepaidRewardPoints:
+      description: "A set of parameters that describes the reward points offered by
+        a financial institution to the client when transacting on a prepaid card."
+      type: "object"
+      properties:
+        available:
+          type: "string"
+          description: "This parameter contains the reward points that are available
+            on the card. It is applicable only for the latest month."
+          minLength: 1
+          maxLength: 10
+          pattern: "[0-9]+"
+          example: "200"
+        month:
+          type: "string"
+          description: "Month and Year of reward point in MM-YYYY format. This is
+            not applicable for available reward points."
+          pattern: "(0[1-9]|1[0-2])-[0-9]{4}"
+          example: "04-2021"
+        earned:
+          $ref: "#/components/schemas/EarnedRewardPoints"
+        redeemed:
+          type: "string"
+          description: "This parameter contains the reward points that are redeemed."
+          minLength: 1
+          maxLength: 10
+          pattern: "[0-9]+"
+          example: "200"
+        expired:
+          type: "string"
+          description: "This parameter contains the reward points that are expired."
+          minLength: 1
+          maxLength: 10
+          pattern: "[0-9]+"
+          example: "200"
+    CreditCardBalanceDetail:
+      allOf:
+      - $ref: "#/components/schemas/CardMetaData"
+      description: "Credit card account balance and reward point details."
+      type: "object"
+      properties:
+        account:
+          $ref: "#/components/schemas/CreditBalanceDetail"
+        rewardPoints:
+          $ref: "#/components/schemas/CreditRewardPoints"
+    CreditBalanceDetail:
+      description: "Credit card balance and account details."
+      type: "object"
+      properties:
+        number:
+          $ref: "#/components/schemas/AccountNumber"
+        currency:
+          $ref: "#/components/schemas/AccountCurrency"
+        totalOutstanding:
+          $ref: "#/components/schemas/TotalOutstanding"
+        lastPayment:
+          $ref: "#/components/schemas/LastPayment"
+        limits:
+          $ref: "#/components/schemas/LimitDetails"
+        due:
+          $ref: "#/components/schemas/Due"
+    TotalOutstanding:
+      description: "A set a of parameter that describes amount that client owe to
+        financial institution by transacting on credit card."
+      type: "object"
+      properties:
+        withLoan:
+          type: "number"
+          description: "It is the amount client owe on the credit line utilised inclusive
+            of loan amount."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        withoutLoan:
+          type: "number"
+          description: "It is the amount client owe on the credit line utilised exclusive
+            of loan amount."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+    LastPayment:
+      description: "Last payment details."
+      type: "object"
+      properties:
+        amount:
+          type: "number"
+          description: "Last payment amount."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        timestamp:
+          type: "string"
+          format: "date-time"
+          description: "Last payment timestamp.<br /> It is expressed in ISO 8601
+            extended format in YYYY-MM-DDThh:mm:ssTZD."
+          example: "2021-07-16T19:20:30+01:00"
+    LimitDetails:
+      description: "A set of parameters that describes the various limit details that
+        financial institution has extended to a client on credit card."
+      type: "object"
+      properties:
+        available:
+          $ref: "#/components/schemas/Limit"
+        total:
+          $ref: "#/components/schemas/Limit"
+    Limit:
+      description: "Limit details"
+      type: "object"
+      properties:
+        credit:
+          type: "number"
+          description: "It is the maximum amount of credit a financial institution
+            extends to a client. A lending institution extends a credit limit on
+            a credit card."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        cash:
+          type: "number"
+          description: "It is the maximum cash which can be withdraw using credit
+            card. Withdrawn amount has to be repaid at a later date along with interest
+            and other charges."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+    Due:
+      description: "A set of parameters that describes the payment due details of
+        a credit card."
+      type: "object"
+      properties:
+        total:
+          type: "number"
+          description: "It is the amount due for payment as on the statement date.
+            It includes opening balance, new purchases, fees and finance charges
+            and excludes last payment or any other due credits."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        minimum:
+          type: "number"
+          description: "It is the minimum amount which needs to be paid on or before
+            the due date. It is a small portion of the outstanding every month."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        date:
+          type: "string"
+          format: "date-time"
+          description: "It is date on which dues are to be paid.<br /> It is expressed
+            in ISO 8601 extended format in YYYY-MM-DDThh:mm:ssTZD.<br /> It is not
+            applicable when value for parameter immediate is true."
+          example: "2021-07-16T19:20:30+01:00"
+        immediate:
+          type: "boolean"
+          description: "Indicates whether the payment due date for the card statement
+            is set as 'Immediate'. If the value in this field is true, it indicates
+            that the due date for card payment has passed and the minimum due amount
+            must be paid immediately."
+          example: false
+    CreditRewardPoints:
+      description: "It is a reward points earned by transacting on credit card."
+      type: "object"
+      properties:
+        available:
+          type: "string"
+          description: "Reward Points is a perk offered by financial institution to
+            clients each time they transact on card. This parameter contains the
+            available reward points on the card."
+          minLength: 1
+          maxLength: 10
+          pattern: "[0-9]+"
+          example: "200"
+    AccountNumber:
+      type: "string"
+      description: "Account number linked to the card."
+      minLength: 9
+      maxLength: 24
+      pattern: "[0-9]+"
+      example: "2207131581270233863"
+    AccountCurrency:
+      type: "string"
+      description: "Currency used to fund the account. It is expressed as a 3-letter
+        alphabetic currency code as defined in ISO 4217."
+      minLength: 3
+      maxLength: 3
+      pattern: "[A-Z]+"
+      example: "INR"
+    RetrievalReferenceNumber:
+      type: "string"
+      description: "It is a unique authorization reference number used with other
+        key data elements to uniquely identify and track all messages related to
+        a transaction. When raising a reversal request, the value must be same as
+        that of the original transaction.<br /> If the retrieval reference number
+        is not received in the API request, system generates a unique value. All
+        these details are sent in the API response."
+      minLength: 12
+      maxLength: 12
+      pattern: "[a-zA-Z0-9]+"
+      example: "323015465464"
+    TraceAuditNumber:
+      type: "string"
+      description: "System Trace Audit Number (STAN) is a number generated by a financial
+        institution to identify a transaction. A message initiator or processor
+        uses STAN to uniquely identify a transaction. <br />If the trace audit number
+        is not received in the API request, system generates a value. All these
+        details are sent in the API response."
+      minLength: 6
+      maxLength: 6
+      pattern: "[0-9]+"
+      example: "301001"
+    ShortRemarks:
+      type: "string"
+      minLength: 1
+      maxLength: 100
+      description: "Free text parameter that contains comments entered by an initiator
+        while submitting the request."
+      pattern: "[^%<>\\\\[\\\\]^$]+"
+      example: "Request submitted based on the user request."
+    CardNumber:
+      type: "string"
+      description: "Unique number (PAN) assigned to the card. This number might be
+        masked based on the API masking configuration settings of the institution
+        in the MI Issuing customer portal."
+      minLength: 12
+      maxLength: 22
+      pattern: "[0-9]+"
+      example: "5001878976540298"
+    CardId:
+      type: "string"
+      description: "Unique value to identify a card"
+      minLength: 32
+      maxLength: 32
+      pattern: "[A-Z0-9]+"
+      example: "C24B56D71AA2E015E053F482A80ABD00"
+    MerchantId:
+      type: "string"
+      description: "Unique ID assigned to the merchant by the Acquirer(Acceptor Merchant
+        Id). It is used for logging purpose and identifies the acquiring merchant
+        of the transaction.<br /> **Conditional Mandatory**<font color='red'>* </font>
+        parameter - Required for closed loop programs."
+      minLength: 15
+      maxLength: 15
+      pattern: "[^ ](.*)[^ ]"
+      example: "141234453673564"
+    TerminalId:
+      type: "string"
+      description: "It is a unique ID assigned to identify the payment terminal of
+        the acquirer (Acceptor Terminal ID) and is used for logging purpose.<br
+        /> **Conditional Mandatory**<font color='red'>* </font> parameter - Required
+        for closed loop programs."
+      minLength: 8
+      maxLength: 8
+      pattern: "[^ ](.*)[^ ]"
+      example: "14123445"
+    MerchantCategoryCode:
+      type: "string"
+      description: "Classification of business by the type of goods or services it
+        provides. All predefined values based on the business function are stored
+        in the system."
+      minLength: 4
+      maxLength: 4
+      pattern: "[0-9]+"
+      example: "5001"
+    AuthorizationId:
+      type: "string"
+      description: "A unique identifier of each transaction authorization(Authorization
+        identification response). It is assigned by the transaction authorizing
+        entity and used for internal auditing and tracking purpose."
+      minLength: 6
+      maxLength: 6
+      pattern: "[a-zA-Z0-9]+"
+      example: "A23444"
+    FeeAmount:
+      type: "number"
+      description: "Fee levied on transactions by the issuing entity."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "15"
+    FeeCurrency:
+      type: "string"
+      description: "Currency in which the transaction fee is levied to the client.
+        It is expressed as a 3-letter alphabetic currency code as defined in ISO
+        4217."
+      minLength: 3
+      maxLength: 3
+      pattern: "[A-Z]+"
+      example: "INR"
+    EarnedRewardPoints:
+      type: "string"
+      description: "Reward points earned on a transaction."
+      minLength: 1
+      maxLength: 10
+      pattern: "[0-9]+"
+      example: "200"
+    AuthenticationToken:
+      type: "string"
+      description: "One-time token to authorize a user for a single transaction that
+        is of a specific intent such as PURCHASE transaction. This token is automatically
+        generated and is valid until the date and time mentioned under tokenValidUntilTimesStamp."
+      minLength: 32
+      maxLength: 36
+      pattern: "[a-zA-Z0-9_-]+"
+      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+    TransactionTimestamp:
+      type: "string"
+      format: "date-time"
+      description: "The local or business date and time when the transaction was performed.
+        This is captured by financial institutions for transaction logging purpose.
+        It is expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD. If the
+        parameter is not received in the API request, system generates a unique
+        value. All these details are sent in the API response."
+      example: "2021-07-16T19:20:30+01:00"
+    TransmissionTimestamp:
+      type: "string"
+      format: "date-time"
+      description: "The transmission date and time when transaction was performed.
+        It contains the local date and time of transaction acquirer in UTC and is
+        expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD. If the parameter
+        is not received in the API request, system generates a unique value. All
+        these details are sent in the API response."
+      example: "2021-07-16T19:20:30+00:00"
+    LocationName:
+      type: "string"
+      description: "Name and location of the card acceptor used for logging purpose.
+        Positions from 1 to 23 indicate the street address, 24 to 36 indicate the
+        city, 37 to 38 indicate the state and 39 to 40 indicate the country.<br
+        /> **Conditional Mandatory**<font color='red'>* </font> parameter - Required
+        for closed loop programs."
+      minLength: 40
+      maxLength: 40
+      pattern: "[^ ](.*)"
+      example: "Test Merchant Asia              PUNEMHIN"
+    AcquirerCountry:
+      type: "string"
+      description: "It is the transaction acquirer country code used for logging purpose.
+        It is expressed as a 2-letter (alpha-2) country code as defined in ISO 3166.<br
+        /> **Conditional Mandatory**<font color='red'>* </font> parameter - Required
+        for closed loop programs."
+      maxLength: 2
+      minLength: 2
+      example: "IN"
+      pattern: "[A-Z]+"
+    EncryptedPinBlock:
+      description: "Encrypted card PIN block with encrypted 3-DES or AES key."
+      type: "object"
+      properties:
+        encryptedBlock:
+          type: "string"
+          description: "It is the PIN block in encrypted format. Both encryptedBlock
+            and encryptedKey are mutually inclusive. <br/> **Supported formats:**
+
+                           * `ISO 9564-1 Format 0` - PIN Block generated with ISO 9564-1 **Format-0**.
+            The generated PIN Block is encrypted using **3-DES** key
+
+                           * `ISO 9564-1
+            Format 4` - PIN Block generated with ISO 9564-1 **Format-4**. The generated
+            PIN Block is encrypted using **AES** key. Not supported, reserved for
+            future use."
+          minLength: 16
+          maxLength: 32
+          pattern: "[A-F0-9]+"
+          example: "7E5883929BFB4C197285781D4A5ABE0C"
+        encryptedKey:
+          type: "string"
+          description: "One-time use 3-DES or AES session key encrypted using payShield
+            HSM RSA public key. <br/> **Conditional Mandatory**<font color='red'>*
+            </font> field - Required if encryptedPinBlock field is present in the
+            request."
+          minLength: 32
+          maxLength: 512
+          pattern: "[a-zA-Z0-9]+"
+          example: "761c774372f410dee6ac4dd4a06e4dee6f7f26104de41...a5ae627ea35ccde74b3ce93cadfc6c0fa6c7bda574"
+        algorithm:
+          $ref: "#/components/schemas/EncryptionAlgorithm"
+    EncryptionAlgorithm:
+      type: "string"
+      description: "Cryptographic encryption algorithm that is used to generate the
+        encryption key and encrypt the PIN block. Currently only 3-DES encryption
+        algorithm is supported. If value is not provided in the input, then default
+        3-DES algorithm is considered. <br/> **Valid values:**
+
+                           * `3DES` - 3-DES
+        encryption(default value)
+
+                           * `AES` - AES encryption(Not supported, reserved
+        for future use)"
+      example: "3DES"
+    TransactionMetaData:
+      description: "A set of parameters that describes the meta-information of a transaction."
+      type: "object"
+      properties:
+        retrievalReferenceNumber:
+          $ref: "#/components/schemas/RetrievalReferenceNumber"
+        traceAuditNumber:
+          $ref: "#/components/schemas/TraceAuditNumber"
+        transactionTimestamp:
+          $ref: "#/components/schemas/TransactionTimestamp"
+        transmissionTimestamp:
+          $ref: "#/components/schemas/TransmissionTimestamp"
+    ExtendedTransactionMetaData:
+      allOf:
+      - $ref: "#/components/schemas/TransactionMetaData"
+      discriminator:
+        propertyName: _type
+      description: "Additional set of parameters that describes the meta-information
+        of a transaction along with authentication and acquirer details."
+      type: "object"
+      required:
+        - _type
+      properties:
+        _type:
+          type: string
+          description: A JSON discriminator to help the recipient identify the concrete type of access key reliably
+          example: ExtendedTransactionMetaData
+        remarks:
+          $ref: "#/components/schemas/ShortRemarks"
+        acquirer:
+          $ref: "#/components/schemas/AcquirerMetaData"
+        authentication:
+          $ref: "#/components/schemas/TransactionAuthenticationMetaData"
+    AcquirerMetaData:
+      description: "A set of parameters that describes the meta-information of an
+        acquirer. The parameters merchantId, terminalId, location, and country are
+        mutually inclusive and used for logging purpose."
+      type: "object"
+      properties:
+        merchantId:
+          $ref: "#/components/schemas/MerchantId"
+        terminalId:
+          $ref: "#/components/schemas/TerminalId"
+        mcc:
+          $ref: "#/components/schemas/MerchantCategoryCode"
+        location:
+          $ref: "#/components/schemas/LocationName"
+        country:
+          $ref: "#/components/schemas/AcquirerCountry"
+    FeeDetail:
+      description: "A set of parameters that describes the fee and taxes levied on
+        a transaction."
+      type: "object"
+      properties:
+        amount:
+          $ref: "#/components/schemas/FeeAmount"
+        tax:
+          $ref: "#/components/schemas/TaxDetail"
+    FeeWithCurrency:
+      allOf:
+      - $ref: "#/components/schemas/FeeDetail"
+      description: "A set of parameters that describes the fee and taxes levied on
+        a transaction along with the fee currency."
+      type: "object"
+      properties:
+        currency:
+          $ref: "#/components/schemas/FeeCurrency"
+    TaxDetail:
+      description: "Details of tax levied by the issuing entity on the transaction."
+      type: "object"
+      properties:
+        service:
+          type: "number"
+          description: "It is service tax levied by issuing entity on the transaction
+            fee amount."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "1"
+        gst:
+          type: "number"
+          description: "It is goods and service tax (GST) levied by issuing entity
+            on the transaction fee amount."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "1"
+    TransactionAuthenticationMetaData:
+      description: "A set of parameters containing the transaction authentication
+        details.Pin and token parameters are mutually exclusive."
+      type: "object"
+      properties:
+        pin:
+          $ref: "#/components/schemas/EncryptedPinBlock"
+        token:
+          $ref: "#/components/schemas/AuthenticationToken"
+    AuthorizedTransactionDataWithFee:
+      allOf:
+      - $ref: "#/components/schemas/AuthorizedTransactionMetaData"
+      description: "A set of parameters that describes the meta-information of a transaction
+        along with the fee details."
+      type: "object"
+      properties:
+        fee:
+          $ref: "#/components/schemas/FeeWithCurrency"
+    AuthorizedTransactionMetaData:
+      allOf:
+      - $ref: "#/components/schemas/TransactionMetaData"
+      description: "A set of parameters that describes the meta-information of a transaction."
+      type: "object"
+      properties:
+        authorizationId:
+          $ref: "#/components/schemas/AuthorizationId"
+    AccountBalance:
+      description: "Ledger and available balance details."
+      type: "object"
+      properties:
+        ledger:
+          type: "number"
+          description: "Opening balance of an account, which remains same throughout
+            the day. It is also referred to as the current balance and is different
+            than the available balance."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+        available:
+          type: "number"
+          description: "Balance which the client can utilize for performing transactions."
+          format: "double"
+          multipleOf: 1.0E-5
+          minimum: 1
+          maximum: 9.99999999999999E9
+          example: "75000"
+    ErrorMessage:
+      required:
+      - "Description"
+      - "ReasonCode"
+      - "Recoverable"
+      - "Source"
+      type: "object"
+      properties:
+        Source:
+          type: "string"
+          description: "The application or component that generated this error."
+          minLength: 3
+          maxLength: 50
+          example: "MI-Issuing"
+        ReasonCode:
+          type: "string"
+          description: "Reason code is a unique constant identifying the error case
+            encountered during request processing."
+          minLength: 5
+          maxLength: 100
+          example: "MISSING_REQUIRED_FIELD"
+        Description:
+          type: "string"
+          description: "Human-readable short description of the reasonCode."
+          minLength: 10
+          maxLength: 250
+          example: "Missing Required Field '<Field-Name>'"
+        Details:
+          type: "string"
+          description: "Optional detailed description provides information about data
+            received and calculated during request processing. This helps the user
+            to diagnose errors."
+          minLength: 0
+          maxLength: 1000
+          example: "This is mandatory field while requesting for new card."
+        Recoverable:
+          type: "boolean"
+          description: "Recoverable flag indicates whether this error is always returned
+            for this request, or retrying could change the outcome. For example,
+            'true' or 'false'."
+          example: false
+    Errors:
+      required:
+      - "Error"
+      type: "object"
+      properties:
+        Error:
+          type: "array"
+          description: "Errors array wrapped in an error object"
+          items:
+            $ref: "#/components/schemas/ErrorMessage"
+    ErrorsInfo:
+      required:
+      - "Errors"
+      type: "object"
+      properties:
+        Errors:
+          $ref: "#/components/schemas/Errors"
+
+
+    TransactionSearch:
+      allOf:
+      - $ref: "#/components/schemas/RequestValidityTime"
+      type: "object"
+      description: "Transaction history search criteria."
+      properties:
+        transactionMetaData:
+          $ref: "#/components/schemas/ExtendedTransactionMetaData"
+        searchTransaction:
+          $ref: "#/components/schemas/SearchTransactionMetaData"
+    SearchTransactionMetaData:
+      description: "A set of parameters for searching transaction"
+      type: "object"
+      properties:
+        dateRange:
+          $ref: "#/components/schemas/DateRange"
+        status:
+          $ref: "#/components/schemas/LifeCycleStatus"
+        transaction:
+          $ref: "#/components/schemas/SearchUniqueTransaction"
+    SearchUniqueTransaction:
+      type: "object"
+      description: "A set of parameters to search the unique transction. When searching
+        the unique transaction parameters then date range block is mandatory."
+      properties:
+        retrievalReferenceNumber:
+          $ref: "#/components/schemas/SearchRetrievalReferenceNumber"
+        traceAuditNumber:
+          $ref: "#/components/schemas/SearchTraceAuditNumber"
+        authorizationId:
+          $ref: "#/components/schemas/SearchAuthorizationId"
+    LifeCycleStatus:
+      type: "object"
+      description: "Authorization and Settlement status based searching details."
+      properties:
+        authorization:
+          $ref: "#/components/schemas/AuthorizationStatus"
+        settlement:
+          $ref: "#/components/schemas/SearchSettlementStatus"
+    TransactionDetails:
+      type: "object"
+      description: "It contains the retrieved transaction details along with fee information."
+      properties:
+        pagination:
+          $ref: "#/components/schemas/ResponsePagination"
+        transactionMetaData:
+          $ref: "#/components/schemas/AuthorizedTransactionDataWithFee"
+        transactions:
+          type: "array"
+          description: "List of transactions."
+          items:
+            $ref: "#/components/schemas/TransactionHistory"
+    TransactionHistory:
+      description: "Transaction Information."
+      type: "object"
+      properties:
+        type:
+          $ref: "#/components/schemas/TransactionTypeDetails"
+        amount:
+          $ref: "#/components/schemas/TransactionAmount"
+        currency:
+          $ref: "#/components/schemas/TransactionCurrency"
+        settlementStatus:
+          $ref: "#/components/schemas/TransactionSettlementStatus"
+        processingTimestamp:
+          $ref: "#/components/schemas/ProcessingTimestamp"
+        localTimestamp:
+          $ref: "#/components/schemas/TransactionLocalTimestamp"
+        microfilmReferenceNumber:
+          $ref: "#/components/schemas/MicrofilmReferenceNumber"
+        retrievalReferenceNumber:
+          $ref: "#/components/schemas/TransactionRetrievalReferenceNumber"
+        traceAuditNumber:
+          $ref: "#/components/schemas/TransactionTraceAuditNumber"
+        response:
+          $ref: "#/components/schemas/TransactionReponseDetails"
+        acquirer:
+          $ref: "#/components/schemas/TransactionAcquirerDetails"
+        conversionRate:
+          $ref: "#/components/schemas/ConversionRate"
+        billing:
+          $ref: "#/components/schemas/BillingDetails"
+        rewardPoints:
+          $ref: "#/components/schemas/TransactionRewardPoints"
+    TransactionTypeDetails:
+      description: "Transaction type details."
+      type: "object"
+      properties:
+        label:
+          type: "string"
+          description: "It is a short description of the transaction being performed.<br
+            /> It is generated by appending reversal indicator, abbreviation from
+            \"Transaction Type [CESM06]\" screen and card acceptor name-location."
+          minLength: 1
+          maxLength: 500
+          pattern: "[^ ](.*)[^ ]"
+          example: "Rev-PUR/Misc Retail 1234 Main Street Vegas 902101234 ind"
+        description:
+          type: "string"
+          description: "It is type of transaction being performed for eg. Purchase,
+            Cash Withdrawal etc.<br /> All the valid values are configured on \"
+            Processing Center > Setup > Master Parameters > Transaction Type [CESM06]\"
+            screen."
+          minLength: 1
+          maxLength: 100
+          pattern: "[^ ](.*)[^ ]"
+          example: "Purchase/Auth Completion"
+        abbreviation:
+          type: "string"
+          description: "It is a abbreviation of transaction type.<br /> All the valid
+            values are configured on \"Processing Center > Setup > Master Parameters
+            > Transaction Type [CESM06]\" screen."
+          minLength: 1
+          maxLength: 50
+          pattern: "[A-Za-z0-9 ]+"
+          example: "PUR"
+        indicator:
+          $ref: "#/components/schemas/TransactionTypeIndicator"
+        sign:
+          $ref: "#/components/schemas/TransactionSign"
+    TransactionReponseDetails:
+      description: "Transaction response details."
+      type: "object"
+      properties:
+        code:
+          type: "string"
+          description: "It is a response code (ISO 8583) of transaction as per action
+            codes defined in system. It denotes whether the transaction was approved
+            or rejected."
+          minLength: 1
+          maxLength: 3
+          pattern: "[0-9]+"
+          example: "000"
+        description:
+          type: "string"
+          description: "It is description of response code as per action codes defined
+            in system."
+          minLength: 1
+          maxLength: 200
+          pattern: "[A-Za-z0-9 ]+"
+          example: "APPROVED"
+        category:
+          type: "string"
+          description: "It is a category of response code as per action codes defined
+            in system. <br/> **Valid values:**
+
+                           * `BUSINESS_DECLINE` - Business
+            declined transcation
+
+                           * `CUSTOMER_RELATED_DECLINE` - Customer related
+            declined transaction
+
+                           * `SUCCESSFUL` - Approved transaction"
+          minLength: 50
+          maxLength: 50
+          pattern: "[A-Za-z0-9 ]+"
+          example: "SUCCESSFUL"
+        authorizationId:
+          $ref: "#/components/schemas/AuthorizationId"
+    TransactionAcquirerDetails:
+      description: "Transaction acquirer details."
+      type: "object"
+      properties:
+        merchantId:
+          $ref: "#/components/schemas/TransactionMerchantId"
+        terminalId:
+          $ref: "#/components/schemas/TransactionTerminalId"
+        mcc:
+          $ref: "#/components/schemas/MerchantCategoryCode"
+        location:
+          $ref: "#/components/schemas/TransactionLocationName"
+        countryCode:
+          $ref: "#/components/schemas/TransactionAcquirerCountry"
+        captureTimestamp:
+          $ref: "#/components/schemas/TransactionCaptureTimestamp"
+    TransactionRewardPoints:
+      description: "Reward points detail."
+      type: "object"
+      properties:
+        earned:
+          $ref: "#/components/schemas/EarnedRewardPoints"
+    MicrofilmReferenceNumber:
+      type: "string"
+      description: "Microfilm reference number (aka Acquirer Reference Number, ARN)
+        is a generated for each posted transaction that is used to identify unequivocally
+        the transactions of cards. It is usually referred during dispute posting.
+        This code contains the acquirer BIN, processing date (YDDD), sequence number
+        and LUHN key (check digit)."
+      minLength: 23
+      maxLength: 23
+      pattern: "[0-9]+"
+      example: "02222421019012000000026"
+    TransactionRetrievalReferenceNumber:
+      type: "string"
+      description: "It is a unique authorization reference number used with other
+        key data elements to uniquely identify and track all messages related to
+        a transaction."
+      minLength: 12
+      maxLength: 12
+      pattern: "[a-zA-Z0-9]+"
+      example: "323015465464"
+    TransactionTraceAuditNumber:
+      type: "string"
+      description: "System Trace Audit Number (STAN) is a number generated by a financial
+        institution to identify a transaction. A message initiator or processor
+        uses STAN to uniquely identify a transaction."
+      minLength: 6
+      maxLength: 6
+      pattern: "[0-9]+"
+      example: "301001"
+    ResponsePagination:
+      type: "object"
+      description: "Meta information of the result set returned in the current response
+        - <br> Scenarios - <br> - Given a valid request body, search returns the
+        first 5 items matching the search criteria, assuming a default limit of
+        5 <br> - Given a valid request body, search with limit as 3, returns first
+        3 items matching the search criteria <br> - Given a valid request body,
+        search with offset as 2 and limit as 5, returns items 3...7 matching the
+        search criteria <br> - Given a valid request body, search with offset as
+        3 returns, items 4...8 matching the search criteria, assuming a default
+        limit of 5."
+      required:
+      - "offset"
+      - "limit"
+      - "count"
+      - "total"
+      properties:
+        offset:
+          description: "The number of items you asked the start of the list to be
+            offset from"
+          type: "integer"
+          format: "int32"
+          minimum: 0
+          example: 25
+        limit:
+          description: "The number of items you asked the list to be limited to"
+          type: "integer"
+          format: "int32"
+          minimum: 1
+          example: 25
+        count:
+          description: "The number of items in this batch (the size of the item array)."
+          type: "number"
+          minimum: 0
+          example: 10
+        total:
+          description: "The total number of items in the collection"
+          type: "number"
+          minimum: 0
+          example: 35
+    MarkupFee:
+      type: "number"
+      description: "It is fee levied by issuing entity for converting transaction
+        amount into billing amount."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "15"
+    TransactionAmount:
+      type: "number"
+      description: "The amount with which the transaction is initiated."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "15"
+    TransactionCurrency:
+      type: "string"
+      description: "It is a currency of the transaction. It is expressed as a 3-letter
+        alphabetic currency code as defined in ISO 4217."
+      minLength: 3
+      maxLength: 3
+      pattern: "[A-Z]+"
+      example: "INR"
+    BillingAmount:
+      type: "number"
+      description: "The amount with which the client is billed."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "15"
+    BillingCurrency:
+      type: "string"
+      description: "The currency in which client is billed. It is expressed as a 3-letter
+        alphabetic currency code as defined in ISO 4217."
+      minLength: 3
+      maxLength: 3
+      pattern: "[A-Z]+"
+      example: "INR"
+    ProcessingTimestamp:
+      type: "string"
+      format: "date-time"
+      description: "The processing date or Issuer transaction timestamp.<br /> It
+        is expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD."
+      example: "2021-07-16T19:20:30+01:00"
+    TransactionLocalTimestamp:
+      type: "string"
+      format: "date-time"
+      description: "The local or business date and time when the transaction was performed.
+        This is captured by financial institution for transaction logging purpose.
+        It is expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD."
+      example: "2021-07-16T19:20:30+01:00"
+    TransactionSign:
+      type: "string"
+      description: "It is an indicator to denote debit or credit sign of transaction.
+        <br/> **Valid values:**
+
+                           * `DR` - Debit transaction
+
+                           * `CR` - Credit transaction"
+      example: "DR"
+    TransactionTypeIndicator:
+      type: "string"
+      description: "It is an indicator to denote original or reversal type of transaction.
+        <br/> **Valid values:**
+
+                           * `ORIGINAL` - Original transaction
+
+                           * `REVERSAL`
+        - Reversal transaction"
+      pattern: "[A-Z]+"
+      example: "REVERSAL"
+    AuthorizationStatus:
+      type: "string"
+      description: "It is an authorization status of transaction. <br/> **Valid values:**
+
+                           * `DECLINED` - Rejected or Declined transaction
+
+                           * `APPROVED` - Successful
+        or Approved transaction
+
+                           * `ALL` - ALL transaction"
+      pattern: "[A-Z]+"
+      example: "ALL"
+    SearchSettlementStatus:
+      type: "string"
+      description: "It is a settlement status of transaction. <br/> **Valid values:**
+
+                           * `POSTED` - Posted transaction
+
+                           * `UNPOSTED` - Unposted transaction
+
+                           * `ALL` - All transaction"
+      pattern: "[A-Z]+"
+      example: "ALL"
+    TransactionSettlementStatus:
+      type: "string"
+      description: "It is a settlement status of transaction. <br/> **Valid values:**
+
+                           * `POSTED` - Posted transaction
+
+                           * `UNPOSTED` - Unposted transaction"
+      pattern: "[A-Z]+"
+      example: "POSTED"
+    ConversionRate:
+      type: "number"
+      description: "It is the rate used by system to convert transaction amount into
+        billing amount."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "1.2"
+    TransactionMerchantId:
+      type: "string"
+      description: "Unique ID assigned to the merchant by the Acquirer(Acceptor Merchant
+        Id). It is used for logging purpose and identifies the acquiring merchant
+        of the transaction."
+      minLength: 15
+      maxLength: 15
+      pattern: "[^\\s](.*)"
+      example: "141234453673564"
+    TransactionTerminalId:
+      type: "string"
+      description: "It is a unique ID assigned to identify the payment terminal of
+        the acquirer (Acceptor Terminal ID)."
+      minLength: 8
+      maxLength: 8
+      pattern: "[^\\s](.*)"
+      example: "14123445"
+    TransactionLocationName:
+      type: "string"
+      description: "It is card acceptor name and location. Positions from 1 to 23
+        indicate the street address, 24 to 36 indicate the city, 37 to 38 indicate
+        the state and 39 to 40 indicate the country."
+      minLength: 40
+      maxLength: 40
+      pattern: "[^ ](.*)"
+      example: "Test Merchant Asia              PUNEMHIN"
+    TransactionAcquirerCountry:
+      type: "string"
+      description: "It is a transaction acquirer country code. It is expressed as
+        a 2-letter (alpha-2) country code as defined in ISO 3166."
+      maxLength: 2
+      minLength: 2
+      example: "IN"
+      pattern: "[A-Z]+"
+    TransactionCaptureTimestamp:
+      type: "string"
+      format: "date-time"
+      description: "The capture date of transaction or Acquirer transaction timestamp.<br
+        /> It is expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD."
+      example: "2021-07-16T19:20:30+01:00"
+    SearchTraceAuditNumber:
+      type: "string"
+      description: "A System Trace Audit Number (STAN) is a number generated by the
+        financial institution to identify a transaction. A message initiator or
+        processor uses STAN to uniquely identify a transaction. When searching with
+        trace audit number, date range block is mandatory."
+      minLength: 6
+      maxLength: 6
+      pattern: "[0-9]+"
+      example: "301001"
+    SearchRetrievalReferenceNumber:
+      type: "string"
+      description: "A set of parameters to search unique transction. When searching
+        with unique transaction parameters then date range block is mandatory."
+      minLength: 12
+      maxLength: 12
+      pattern: "[a-zA-Z0-9]+"
+      example: "323015465464"
+    SearchAuthorizationId:
+      type: "string"
+      description: "It is a unique identifier of each transaction authorization(Authorization
+        identification response). It is assigned by the transaction authorizing
+        entity and used for internal auditing and tracking purpose. When searching
+        with authorization id, date range block is mandatory."
+      minLength: 6
+      maxLength: 6
+      pattern: "[a-zA-Z0-9]+"
+      example: "A23444"
+    FeeWithMarkup:
+      allOf:
+      - $ref: "#/components/schemas/FeeDetail"
+      description: "A set of parameters that describes the markup, fee, and taxes
+        levied on a transaction."
+      type: "object"
+      properties:
+        markup:
+          $ref: "#/components/schemas/MarkupFee"
+    DateRange:
+      type: "object"
+      description: "Input date range to apply filter."
+      properties:
+        from:
+          type: "string"
+          format: "date"
+          description: "From Date.<br /> Expressed in ISO 8601 extended format in
+            YYYY-MM-DD .<br /> Must be used together with toDate field.<br /> fromDate
+            cannot be greater than toDate field.<br />"
+          example: "2021-07-16"
+        to:
+          type: "string"
+          format: "date"
+          description: "To Date.<br /> Expressed in ISO 8601 extended format in YYYY-MM-DD.<br
+            /> Must be used together with toDate field.<br /> toDate cannot be smaller
+            than fromDate field.<br />"
+          example: "2021-07-16"
+    BillingDetails:
+      description: "Set of parameters that describe the billing information of an
+        account. It also contains the markup details along with fee and taxes that
+        are levied on a transaction."
+      type: "object"
+      properties:
+        amount:
+          $ref: "#/components/schemas/BillingAmount"
+        currency:
+          $ref: "#/components/schemas/BillingCurrency"
+        fee:
+          $ref: "#/components/schemas/FeeWithMarkup"
+
+    TopupTransaction:
+      allOf:
+      - $ref: "#/components/schemas/RequestValidityTime"
+      type: "object"
+      description: "Details to initiate the top up transaction."
+      properties:
+        transactionMetaData:
+          $ref: "#/components/schemas/FinancialTransactionMetaData"
+        topupTransaction:
+          $ref: "#/components/schemas/TopupTransactionMetaData"
+    TopupTransactionMetaData:
+      description: "A set of parameters that describes the meta-information of a top
+        up transaction."
+      type: "object"
+      properties:
+        initialTopup:
+          type: "boolean"
+          description: "Indicates if the client is initiating top up on card for the
+            first time."
+          example: false
+        travel:
+          $ref: "#/components/schemas/ExtendedTopupTravelDetails"
+        topups:
+          type: "array"
+          description: "List of account to top up."
+          minItems: 1
+          maxItems: 6
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/TopupDetails"
+    TopupDetails:
+      type: "object"
+      description: "A set of parameters that describes the top up transaction details."
+      required:
+      - "currency"
+      - "amount"
+      properties:
+        currency:
+          $ref: "#/components/schemas/TransactionCurrency"
+        amount:
+          $ref: "#/components/schemas/TransactionAmount"
+        conversionRate:
+          $ref: "#/components/schemas/TopupConversionRate"
+        billing:
+          $ref: "#/components/schemas/TopupBillingDetails"
+        account:
+          $ref: "#/components/schemas/TopupAccountNumber"
+    Topup:
+      description: "It contains the account balance details along with Topup API transaction
+        and fee information."
+      type: "object"
+      properties:
+        transactionMetaData:
+          $ref: "#/components/schemas/ExtendedAuthorizedTransactionData"
+        topups:
+          type: "array"
+          description: "List of account balances."
+          items:
+            $ref: "#/components/schemas/TopupAccountDetails"
+    ExtendedTopupTravelDetails:
+      allOf:
+      - $ref: "#/components/schemas/TopupTravelDetails"
+      description: "A set of parameters that describes the travel details. Parameters
+        newTrip, type, startDate, endDate, and country are mutually inclusive."
+      type: "object"
+      properties:
+        newTrip:
+          type: "boolean"
+          description: "Indicates if top up is initiated for a new trip or an active
+            trip. Valid values are as configured in the Card Management > Program
+            Setup >Travel Type Configuration section of the MI Issuing customer
+            portal. <br />**Conditional Mandatory**<font color='red'>* </font> parameter
+            - Required if the value check box for TRAVEL_TYPE_MANDATE Type ID is
+            selected from the Card Management > Institution Parameter Setup > System
+            Codes. <br />Parameters newTrip, type, startDate, endDate, country are
+            mutually inclusive. <br /> The API request is rejected if parameter
+            value is sent when the value check box is not set for TRAVEL_TYPE_MANDATE
+            Type ID is selected from the Card Management > Institution Parameter
+            Setup > System Codes."
+          example: false
+    AccountBalanceDetails:
+      description: "Prepaid card account information with balance."
+      type: "object"
+      properties:
+        number:
+          $ref: "#/components/schemas/AccountNumber"
+        currency:
+          $ref: "#/components/schemas/AccountCurrency"
+        balance:
+          $ref: "#/components/schemas/AccountBalance"
+    TopupAccountDetails:
+      type: "object"
+      description: "Topup data."
+      properties:
+        currency:
+          $ref: "#/components/schemas/TransactionCurrency"
+        amount:
+          $ref: "#/components/schemas/TransactionAmount"
+        conversionRate:
+          $ref: "#/components/schemas/ConversionRate"
+        billing:
+          $ref: "#/components/schemas/BillingDetails"
+        account:
+          $ref: "#/components/schemas/AccountBalanceDetails"
+    TopupAccountNumber:
+      type: "string"
+      description: "The account number linked to the card.<br /> **Conditional Mandatory**<font
+        color='red'>* </font> parameter - Required for GPR product or multicurrency
+        account."
+      minLength: 9
+      maxLength: 24
+      pattern: "[0-9]+"
+      example: "2207131581270233863"
+    TopupConversionRate:
+      type: "number"
+      description: "It is the conversion rate used by a third party to convert the
+        top up transaction amount into billing amount.<br /> **Conditional Mandatory**<font
+        color='red'>* </font> parameter - Required if transaction and billing currency
+        is different."
+      format: "double"
+      multipleOf: 1.0E-5
+      minimum: 1
+      maximum: 9.99999999999999E9
+      example: "1.2"
+    EmvRequestCryptogram:
+      type: "string"
+      description: "EMV chip card transaction data used for card authentication(ARQC)."
+      minLength: 1
+      maxLength: 999
+      pattern: "[A-F0-9]+"
+      example: "5F2A020356820258008407A0000000041010950500000000009A031911159C01009F02060000000015009F10120110250000044000DAC100000000000000009F1A0208409F2608AFA989E946D5E7299F2701809F3303E0E8E89F34031E03009F360200039F37040C886796"
+    OriginalTraceAuditNumber:
+      type: "string"
+      description: "System Trace Audit Number (STAN) is a number generated by a financial
+        institution to identify a transaction. A message initiator or processor
+        uses STAN to uniquely identify a transaction. **Conditional Mandatory**<font
+        color='red'>* </font> parameter - Required for reversal request."
+      minLength: 6
+      maxLength: 6
+      pattern: "[0-9]+"
+      example: "301001"
+    EmvResponseCryptogram:
+      type: "string"
+      description: "EMV chip card transaction data(ARPC)."
+      minLength: 1
+      maxLength: 999
+      pattern: "[A-F0-9]+"
+      example: "5F2A020356820258008407A0000000041010950500000000009A031911159C01009F02060000000015009F10120110250000044000DAC100000000000000009F1A0208409F2608AFA989E946D5E7299F2701809F3303E0E8E89F34031E03009F360200039F37040C886796"
+    ReversalTransactionMetaData:
+      description: "A set of parameters that describes reversal transaction details.<br
+        /> **Conditional Mandatory**<font color='red'>* </font> parameter - Required
+        for reversal request."
+      type: "object"
+      properties:
+        originalTraceAuditNumber:
+          $ref: "#/components/schemas/OriginalTraceAuditNumber"
+    FinancialTransactionMetaData:
+      allOf:
+      - $ref: "#/components/schemas/ExtendedTransactionMetaData"
+      description: "Additional set of parameters that describes the meta-information
+        of a transaction along with reversal and EMV details."
+      type: "object"
+      properties:
+        emvRequestCryptogram:
+          $ref: "#/components/schemas/EmvRequestCryptogram"
+        reversal:
+          $ref: "#/components/schemas/ReversalTransactionMetaData"
+    ExtendedAuthorizedTransactionData:
+      allOf:
+      - $ref: "#/components/schemas/AuthorizedTransactionMetaData"
+      description: "A set of parameters that describes the meta-information of a transaction
+        along with EMV details."
+      type: "object"
+      properties:
+        emvResponseCryptogram:
+          $ref: "#/components/schemas/EmvResponseCryptogram"
+    TopupTravelDetails:
+      description: "Travel Information for which the top up request is raised. All
+        parameters are mutually Inclusive."
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          minLength: 1
+          maxLength: 6
+          pattern: "[A-Z0-9](([_])?[A-Z0-9])+"
+          description: "Indicates the purpose of travel. It helps to audit the purpose
+            of the top up request by indicating the type of travel such as business,
+            leisure, and so on. <br />Valid values are as configured in the Card
+            Management > Program Setup >Travel Type Configuration section of the
+            MI Issuing customer portal. <br />**Conditional Mandatory**<font color='red'>*
+            </font> field - Required if the travel wise load limit check box is
+            selected for a transaction type in the Card Management > Institution
+            Parameter Setup > Credit transactions for load section. <br />The API
+            request is rejected if parameter value is sent when the value of travel
+            wise load limit check box is not selected for a transaction type in
+            the Card Management > Institution Parameter Setup > Credit transactions
+            for load section. <br />Parameters such as newTrip, type, startDate,
+            endDate, and country are mutually inclusive."
+          example: "LEISURE"
+        startDate:
+          type: "string"
+          format: "date"
+          description: "Start date of the client's travel or trip. Parameters such
+            as newTrip, type, startDate, endDate, and country are mutually inclusive.
+            <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
+          example: "2021-07-22"
+        endDate:
+          type: "string"
+          format: "date"
+          description: "End date of the client's travel or trip. Parameters such as
+            newTrip, type, startDate, endDate, and country are mutually inclusive.
+            <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
+          example: "2021-08-12"
+        country:
+          type: "string"
+          minLength: 2
+          maxLength: 2
+          description: "Country code of the client's travel or trip. It is expressed
+            as a 2-letter (alpha-2) country code as defined in ISO 3166. Parameters
+            such as newTrip, type, startDate, endDate, and country are mutually
+            inclusive."
+          example: "GB"
+          pattern: "[A-Z]+"
+    TopupBillingDetails:
+      description: "A set of parameters that describes the top up billing information
+        of an account."
+      type: "object"
+      properties:
+        amount:
+          $ref: "#/components/schemas/BillingAmount"
+        currency:
+          $ref: "#/components/schemas/BillingCurrency"
+
+  parameters:
+
+    CardID:
+      name: "card_id"
+      in: "path"
+      description: "A unique system-generated ID that is assigned to a card during
+        card issuance. This ID can be used instead of the card number while sharing
+        PCI sensitive data.
+
+                           * minLength: 32
+
+                           * maxLength: 32
+
+                           * pattern: [A-Z0-9]+"
+      required: true
+      schema:
+        type: "string"
+        minLength: 32
+        maxLength: 32
+        pattern: "[A-Z0-9]+"
+      example: "C24B56D71AA2E015E053F482A80ABD00"
+    CorrelationID:
+      name: "X-MC-Correlation-ID"
+      in: "header"
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+      description: "Correlation ID, also known as Transit ID or Request ID, is a unique
+        identifier value attached to a particular transaction or event chain."
+
+    Source:
+      name: "X-MC-Source"
+      in: "header"
+      description: "Value identifying the origin or source of a transaction. The list
+        of possible sample values are available in the database and shared in the
+        API_SOURCE_VALUES list under \"Card Management > Institution Parameter Setup
+        > System Codes [ISSS15]\". This field is used only for logging purpose.<br/>
+
+                           * minLength: 3
+
+                           * maxLength: 3
+
+                           * pattern: [A-Z0-9]+ <br/><br/> **Few
+        sample values:** <br/>
+
+                           * `IVR` - Interactive Voice Response
+
+                           * `MAP`
+        - Mobile Application
+
+                           * `ATM` - Automated Teller Machine
+
+                           * `NBN` - Net
+        Banking Application
+
+                           * `POS` - Point of Sale
+
+                           * `SCH` - Scheme
+
+                           * `CBS`
+        - Core Banking System
+
+                           * `SMS` - Short Message Service
+
+                           * `ACS` - Access
+        Control Server
+
+                           * `ONS` - On-Us Transaction
+
+                           * `OTH` - Other"
+      schema:
+        type: "string"
+        minLength: 3
+        maxLength: 3
+        pattern: "[A-Z0-9]+"
+      example: "MAP"
+    EndUserID:
+      name: "X-MC-Client-Application-User-ID"
+      in: "header"
+      description: "A unique identifier to track end user who is performing action
+        at the client's or consumer's end. <BR/>This field is used only for logging
+        purpose.
+
+                           * minLength: 3
+
+                           * maxLength: 50
+
+                           * pattern: [a-zA-Z0-9_-]+"
+      schema:
+        type: "string"
+        minLength: 3
+        maxLength: 50
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "S0648-IN"
+    Fields:
+      in: "query"
+      name: "fields"
+      description: "The Fields parameter restricts the set of properties to be returned
+        for a field in the API response. These properties must be present in the
+        API response structure that is the JSON path. These properties can be added
+        as a comma-separated list."
+      required: false
+      schema:
+        type: "string"
+        minLength: 2
+        maxLength: 1000
+        pattern: "[a-zA-Z0-9.,]+"
+      examples:
+        Sample-1-[Path = credit > card > id]:
+          value: "credit.card.id"
+        Sample-2-[Path = card > id]:
+          value: "card.id"
+
+    Limit:
+      in: "query"
+      name: "limit"
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+        maximum: 1000
+      required: false
+      description: "Maximum numbers of items to be returned in response"
+      example: 10
+    Offset:
+      in: "query"
+      name: "offset"
+      schema:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+        maximum: 1000
+      required: false
+      description: "The number of items to skip before starting to collect the result."
+      example: 0
+
+    IdempotencyKey:
+      name: "X-MC-Idempotency-Key"
+      in: "header"
+      required: true
+      description: "An idempotency key is a unique value that is generated by a client
+        and sent to an API along with a request. If a request should fail partway
+        through, the client retries with the same idempotency key value, and the
+        server uses it to look up the state of request and continue from where it
+        left off. Recommended to generate universally unique identifier (UUID) compliant
+        with `RFC 4122`.
+
+                           * minLength: 6
+
+                           * maxLength: 36
+
+                           * pattern: [a-zA-Z0-9_-]+"
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+        pattern: "[a-zA-Z0-9_-]+"
+      example: "bc57d177-4593-3449-8343-0d81a7a02947"
+
+  headers:
+
+    Response-Correlation-ID:
+      description: "Returns the request identifier (like UUID) received in client
+        request header or generated by the server."
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+
+    Response-Idempotency-Key:
+      description: "Echo back the idempotency key received in client request header,
+        only if the duplicate request is received with same idempotency key within
+        predefined time."
+      schema:
+        type: "string"
+        minLength: 6
+        maxLength: 36
+      example: "bc57d177-4593-3449-8343-0d81a7a02947"
+
+  requestBodies:
+
+    BalanceTransactionRequest:
+      description: "Balance inquiry transaction information."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BalanceTransaction"
+
+    TransactionSearchRequest:
+      description: "It contains search criteria on which transactions are retrieved"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TransactionSearch"
+
+    TopupRequest:
+      description: "It contains account and top up related information."
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TopupTransaction"
+
+  responses:
+
+    BalanceDetailsResponse:
+      description: "The card balances were successfully retrieved."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BalanceDetails"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    BadPostRequestError:
+      description: "The request failed due to invalid or missing value. The value
+        could be a header value, a query parameter value, or a request body property
+        value."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            MissingRequiredFieldExample:
+              $ref: "#/components/examples/MissingRequiredFieldExample"
+            InvalidFieldValueExample:
+              $ref: "#/components/examples/InvalidFieldValueExample"
+            InvalidFieldFormatExample:
+              $ref: "#/components/examples/InvalidFieldFormatExample"
+            InvalidFieldLengthExample:
+              $ref: "#/components/examples/InvalidFieldLengthExample"
+            CryptographyErrorExample:
+              $ref: "#/components/examples/CryptographyErrorExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    UnauthorizedError:
+      description: "Authentication information is missing or invalid."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            UnauthorizedExample:
+              $ref: "#/components/examples/UnauthorizedExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+    ForbiddenError:
+      description: "Insufficient permissions for interacting with the resource."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorsInfo"
+          examples:
+            ForbiddenExample:
+              $ref: "#/components/examples/ForbiddenExample"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+
+    TransactionDetailsResponse:
+      description: "The transactions were successfully retrieved for a given details."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TransactionDetails"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+
+    TopupResponse:
+      description: "Topup transation processed successfully."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Topup"
+      headers:
+        X-MC-Correlation-ID:
+          $ref: "#/components/headers/Response-Correlation-ID"
+        X-MC-Idempotency-Key:
+          $ref: "#/components/headers/Response-Idempotency-Key"
+
+  examples:
+
+    UnauthorizedExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "UNAUTHORIZED"
+            Description: "We couldn't recognize you"
+            Recoverable: false
+            Details: "The user does not have valid certificate for the target resource."
+    ForbiddenExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "AUTHORIZATION_ERROR"
+            Description: "It seems you don't have permission to access this API"
+            Recoverable: false
+            Details: "Please ensure that access has been granted to the user in customer
+              portal"
+    MissingRequiredFieldExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "MISSING_REQUIRED_FIELD"
+            Description: "Missing required field '<Field-Name>'"
+            Recoverable: false
+            Details: null
+    InvalidFieldValueExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_VALUE"
+            Description: "'<Field-Name>' field value '<Field-Value>' is invalid"
+            Recoverable: false
+    InvalidFieldFormatExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_FORMAT"
+            Description: "'<Field-Name>' field value '<Field-Value>' format is invalid"
+            Recoverable: false
+    InvalidFieldLengthExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "INVALID_FIELD_LENGTH"
+            Description: "'<Field-Name>' size must be between 1 and 3"
+            Recoverable: false
+    CryptographyErrorExample:
+      value:
+        Errors:
+          Error:
+          - Source: "MI-Issuing"
+            ReasonCode: "CRYPTOGRAPHY_ERROR"
+            Description: "Error occurred while decryption of the encrypted request
+              payload"
+            Recoverable: false
+            Details: null

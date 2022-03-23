@@ -1,0 +1,55 @@
+# ignore all files matching below patterns.
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+logs/
+
+# Temporary files
+*.versionsBackup
+
+# compiled output
+build/
+tmp/
+classes/
+bin/
+target/
+build/
+tmp/
+generated-sources/
+
+#*.ini
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+.settings/
+/.settings
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+###Eclipse ###
+*.project
+*.classpath

@@ -1,0 +1,21 @@
+{
+"dataValidUntilTimestamp": "2020-09-04T12:09:56.450-07:00",
+  "client": {
+    "profile": {
+      "title": "Mr",
+      "firstName": "Johnyyyyyyyyy",
+      "middleName1": null,
+      "middleName2":null,
+      "lastName": "Smith",
+      "alternateName": "Johny Smith",
+      "maidenName": null,
+      "gender": "Male",
+      "birthDate": "1992-03-03",
+      "birthCity": "London",
+      "birthCountry": "IN",
+      "education": "SSC",
+      "maritalStatus": "Married",
+      "nationality": "IN"
+    }
+  }
+}
