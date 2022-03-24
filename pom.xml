@@ -11,8 +11,6 @@
 	<url>https://github.com/Mastercard/issuing-api-reference-app</url>
 	
 	<properties>
-		<sonar.organization>mastercard</sonar.organization>
-		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<openapitools.version>4.3.1</openapitools.version>
 		<java.version>1.8</java.version>
 		<client-encryption-version>1.7.1</client-encryption-version>
@@ -36,6 +34,20 @@
 		<mockito-core-version>2.23.4</mockito-core-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<lombok-version>1.18.22</lombok-version>
+
+		<sonar.organization>mastercard</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.exclusions>
+            **/IssuingApiClientReferenceAppMain.java,
+            **/com/mastercard/developer/issuing/client/main/*,
+            **/com/mastercard/developer/issuing/client/helper/*,
+            **/com/mastercard/developers/issuing/exception/*,
+            **/com/mastercard/developers/interceptors/*,
+            **/com/mastercard/developers/encryption/*,
+            **/com/mastercard/developers/encryption/rsa/*,
+        </sonar.coverage.exclusions>
+        <sonar.projectKey>Mastercard_issuing-api-reference-app</sonar.projectKey>
+		
 	</properties>
 
 	<dependencies>
