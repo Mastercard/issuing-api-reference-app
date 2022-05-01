@@ -19,48 +19,49 @@ import java.util.Map;
 /** The Class RequestContext. */
 public class RequestContext {
 
-  private RequestContext() {}
+    private RequestContext() {
+    }
 
-  /** The thread context. */
-  /**
-   * private static ThreadLocal<HashMap<String, Object>> threadContext = new
-   * ThreadLocal<HashMap<String, Object>>() { @Override protected HashMap<String, Object>
-   * initialValue() { return new HashMap<>(); } };
-   */
-  private static ThreadLocal<HashMap<String, Object>> threadContext =
-      ThreadLocal.withInitial(HashMap::new);
+    /** The thread context. */
+    /**
+     * private static ThreadLocal<HashMap<String, Object>> threadContext = new ThreadLocal<HashMap<String, Object>>() { @Override protected
+     * HashMap<String, Object> initialValue() { return new HashMap<>(); } };
+     */
+    private static ThreadLocal<HashMap<String, Object>> threadContext = ThreadLocal.withInitial(HashMap::new);
 
-  /**
-   * Gets the context map.
-   *
-   * @return the context map
-   */
-  public static Map<String, Object> getContextMap() {
-    return threadContext.get();
-  }
+    /**
+     * Gets the context map.
+     *
+     * @return the context map
+     */
+    public static Map<String, Object> getContextMap() {
+        return threadContext.get();
+    }
 
-  /**
-   * Gets the.
-   *
-   * @param key the key
-   * @return the object
-   */
-  public static Object get(String key) {
-    return threadContext.get().get(key);
-  }
+    /**
+     * Gets the.
+     *
+     * @param key the key
+     * @return the object
+     */
+    public static Object get(String key) {
+        return threadContext.get()
+                            .get(key);
+    }
 
-  /**
-   * Put.
-   *
-   * @param key the key
-   * @param value the value
-   */
-  public static void put(String key, Object value) {
-    threadContext.get().put(key, value);
-  }
+    /**
+     * Put.
+     *
+     * @param key   the key
+     * @param value the value
+     */
+    public static void put(String key, Object value) {
+        threadContext.get()
+                     .put(key, value);
+    }
 
-  /** Clear. */
-  public static void clear() {
-    threadContext.remove();
-  }
+    /** Clear. */
+    public static void clear() {
+        threadContext.remove();
+    }
 }

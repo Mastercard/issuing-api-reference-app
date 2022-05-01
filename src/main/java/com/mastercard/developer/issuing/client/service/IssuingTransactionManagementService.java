@@ -15,9 +15,11 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
+import java.time.format.DateTimeParseException;
+
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.generated.apis.BalanceInquiryApi;
-import com.mastercard.developer.issuing.generated.apis.TopupPrepaidCardApi;
+import com.mastercard.developer.issuing.generated.apis.TopUpApi;
 import com.mastercard.developer.issuing.generated.apis.TransactionHistoryApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
@@ -27,217 +29,203 @@ import com.mastercard.developer.issuing.generated.models.Topup;
 import com.mastercard.developer.issuing.generated.models.TopupTransaction;
 import com.mastercard.developer.issuing.generated.models.TransactionDetails;
 import com.mastercard.developer.issuing.generated.models.TransactionSearch;
+
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
 public class IssuingTransactionManagementService extends IssuingBaseService {
 
-  /** The Constant SERVICE_CONTEXT. */
-  private static final String SERVICE_CONTEXT = "/transaction-management";
+    /** The Constant SERVICE_CONTEXT. */
+    private static final String SERVICE_CONTEXT = "/transaction-management";
 
-  /** The Constant CARD_ID. */
-  private static final String CARD_ID = "card-id";
+    /** The Constant CARD_ID. */
+    private static final String CARD_ID = "card-id";
 
-  /** The Constant TOPUP_PREPAID_CARD. */
-  private static final String TOPUP_PREPAID_CARD = "topup-prepaid-card";
+    /** The Constant TOPUP_PREPAID_CARD. */
+    private static final String TOPUP_PREPAID_CARD = "topup-prepaid-card";
 
-  /** The Constant TRANSACTION_HISTORY. */
-  private static final String TRANSACTION_HISTORY = "transaction-history";
+    /** The Constant TRANSACTION_HISTORY. */
+    private static final String TRANSACTION_HISTORY = "transaction-history";
 
-  /** The Constant BALANCE_INQUIRY. */
-  private static final String BALANCE_INQUIRY = "balance-inquiry";
+    /** The Constant BALANCE_INQUIRY. */
+    private static final String BALANCE_INQUIRY = "balance-inquiry";
 
-  /** The scenarios. */
-  protected String[] scenarios = {TOPUP_PREPAID_CARD, TRANSACTION_HISTORY, BALANCE_INQUIRY};
+    /** The scenarios. */
+    protected String[] scenarios = { TOPUP_PREPAID_CARD, TRANSACTION_HISTORY, BALANCE_INQUIRY };
 
-  /** The api client. */
-  private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
+    /** The api client. */
+    private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
 
-  /**
-   * Gets the scenarios.
-   *
-   * @return the scenarios
-   */
-  public String[] getScenarios() {
-    return scenarios;
-  }
-
-  /**
-   * Call apis.
-   *
-   * @param scenarios the scenarios
-   */
-  public void callApis(String[] scenarios) {
-    if (scenarios == null || scenarios.length == 0) {
-      scenarios = getScenarios();
+    /**
+     * Gets the scenarios.
+     *
+     * @return the scenarios
+     */
+    public String[] getScenarios() {
+        return scenarios;
     }
 
-    for (String scenario : scenarios) {
+    /**
+     * Call apis.
+     *
+     * @param scenarios the scenarios
+     */
+    public void callApis(String[] scenarios) {
+        if (scenarios == null || scenarios.length == 0) {
+            scenarios = getScenarios();
+        }
 
-      switch (scenario) {
-        case TOPUP_PREPAID_CARD:
-          logScenario(scenario);
-          topupPrepaidCard();
-          break;
-        case TRANSACTION_HISTORY:
-          logScenario(scenario);
-          transactionHistory();
-          break;
-        case BALANCE_INQUIRY:
-          logScenario(scenario);
-          balanceInquiry();
-          break;
-        default:
-          break;
-      }
+        for (String scenario : scenarios) {
+
+            switch (scenario) {
+            case TOPUP_PREPAID_CARD:
+                logScenario(scenario);
+                Topup topup = topupPrepaidCard();
+                ApiClientHelper.saveResponseObject(scenario, topup);
+                break;
+            case TRANSACTION_HISTORY:
+                logScenario(scenario);
+                TransactionDetails transactionDetails = transactionHistory();
+                ApiClientHelper.saveResponseObject(scenario, transactionDetails);
+                break;
+            case BALANCE_INQUIRY:
+                logScenario(scenario);
+                BalanceDetails balanceDetails = balanceInquiry();
+                ApiClientHelper.saveResponseObject(scenario, balanceDetails);
+                break;
+            default:
+                break;
+            }
+        }
     }
-  }
 
-  /** Topup prepaid card. */
-  public Topup topupPrepaidCard() {
-    Topup response = null;
-    try {
-      TopupPrepaidCardApi topupPrepaidCardApi = new TopupPrepaidCardApi(apiClient);
+    /** Topup prepaid card. */
+    public Topup topupPrepaidCard() {
+        Topup response = null;
+        try {
+            TopUpApi topUpApi = new TopUpApi(apiClient);
 
-      String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
-      TopupTransaction request =
-          ApiClientHelper.getRequestObject(TOPUP_PREPAID_CARD, TopupTransaction.class);
+            String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
+            TopupTransaction request = ApiClientHelper.getRequestObject(TOPUP_PREPAID_CARD, TopupTransaction.class);
 
-      /** Prerequisite - Create Token and set token * */
-      /** Step 1: Set request validity time */
-      request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
+            /** Prerequisite - Create Token and set token * */
+            /** Step 1: Set request validity time */
+            request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
 
-      String xMCCorrelationID = randomUUID();
-      String xMCIdempotencyKey = randomUUID();
+            /** Set request header values */
+            String xMCIdempotencyKey = randomUUID();
+            String xMCCorrelationID = randomUUID();
+            String xMCBankCode = null;
+            String xMCSource = null;
+            String xMCClientApplicationUserID = null;
 
-      String xMCSource = null;
+            response = topUpApi.topupAccount(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource,
+                    xMCClientApplicationUserID);
 
-      String xMCClientApplicationUserID = null;
+            if (response.getTransactionMetaData() != null) {
+                log.debug("topupPrepaidCard response getAuthorizationId={} ", response.getTransactionMetaData()
+                                                                                      .getAuthorizationId());
+            }
 
-      response =
-          topupPrepaidCardApi.topupAccount(
-              xMCIdempotencyKey,
-              cardId,
-              request,
-              xMCCorrelationID,
-              xMCSource,
-              xMCClientApplicationUserID);
-      if (response.getTransactionMetaData() != null) {
-        log.debug(
-            "topupPrepaidCard response getAuthorizationId={} ",
-            response.getTransactionMetaData().getAuthorizationId());
-      }
-
-    } catch (ApiException exception) {
-      log.error(
-          "Exception occurred while calling topupPrepaidCard API: " + exception.getMessage(),
-          exception);
+        } catch (ApiException exception) {
+            log.error("Exception occurred while calling topupPrepaidCard API: " + exception.getMessage(), exception);
+        } catch (DateTimeParseException dateTimeParseException) {
+            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+        }
+        return response;
     }
-    return response;
-  }
 
-  /** Transaction history. */
-  public TransactionDetails transactionHistory() {
-    TransactionDetails response = null;
-    try {
-      TransactionHistoryApi transactionHistoryApi = new TransactionHistoryApi(apiClient);
+    /** Transaction history. */
+    public TransactionDetails transactionHistory() {
+        TransactionDetails response = null;
+        try {
+            TransactionHistoryApi transactionHistoryApi = new TransactionHistoryApi(apiClient);
 
-      String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
-      TransactionSearch request =
-          ApiClientHelper.getRequestObject(TRANSACTION_HISTORY, TransactionSearch.class);
+            String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
+            TransactionSearch request = ApiClientHelper.getRequestObject(TRANSACTION_HISTORY, TransactionSearch.class);
 
-      /**
-       * Optional - Create Token and set token, required only if configured as mandatory in CSR
-       * portal *
-       */
-      request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
+            /**
+             * Optional - Create Token and set token, required only if configured as mandatory in CSR portal *
+             */
+            request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
 
-      String xMCCorrelationID = randomUUID();
+            /** Set request header values */
+            String xMCCorrelationID = randomUUID();
+            String xMCBankCode = null;
+            String xMCSource = null;
+            String xMCClientApplicationUserID = null;
 
-      String xMCSource = null;
+            /** Set request query parameter values */
+            Integer offset = null;
+            Integer limit = null;
+            String fields = null;
+            response = transactionHistoryApi.getHistory(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID, offset,
+                    limit, fields);
 
-      String xMCClientApplicationUserID = null;
+            if (response.getTransactionMetaData() != null) {
+                log.debug("transactionHistory response getAuthorizationId={} ", response.getTransactionMetaData()
+                                                                                        .getAuthorizationId());
+            }
 
-      Integer offset = null;
-      Integer limit = null;
-      String fields = null;
-      response =
-          transactionHistoryApi.getTransactionHistory(
-              cardId,
-              request,
-              xMCCorrelationID,
-              xMCSource,
-              xMCClientApplicationUserID,
-              offset,
-              limit,
-              fields);
-      if (response.getTransactionMetaData() != null) {
-        log.debug(
-            "transactionHistory response getAuthorizationId={} ",
-            response.getTransactionMetaData().getAuthorizationId());
-      }
-
-    } catch (ApiException exception) {
-      log.error(
-          "Exception occurred while calling transactionHistory API: " + exception.getMessage(),
-          exception);
+        } catch (ApiException exception) {
+            log.error("Exception occurred while calling transactionHistory API: " + exception.getMessage(), exception);
+        } catch (DateTimeParseException dateTimeParseException) {
+            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+        }
+        return response;
     }
-    return response;
-  }
 
-  /** Balance inquiry. */
-  public BalanceDetails balanceInquiry() {
-    BalanceDetails response = null;
-    try {
-      BalanceInquiryApi balanceInquiryApi = new BalanceInquiryApi(apiClient);
+    /** Balance inquiry. */
+    public BalanceDetails balanceInquiry() {
+        BalanceDetails response = null;
+        try {
+            BalanceInquiryApi balanceInquiryApi = new BalanceInquiryApi(apiClient);
 
-      String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
-      BalanceTransaction request =
-          ApiClientHelper.getRequestObject(BALANCE_INQUIRY, BalanceTransaction.class);
+            String cardId = ApiClientHelper.getRequestObject(CARD_ID, String.class);
+            BalanceTransaction request = ApiClientHelper.getRequestObject(BALANCE_INQUIRY, BalanceTransaction.class);
 
-      /** Prerequisite - Create Token and set token * */
-      request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
+            /** Prerequisite - Create Token and set token * */
+            request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
 
-      String xMCCorrelationID = randomUUID();
+            /** Set request header values */
+            String xMCIdempotencyKey = randomUUID();
+            String xMCCorrelationID = randomUUID();
+            String xMCBankCode = null;
+            String xMCSource = null;
+            String xMCClientApplicationUserID = null;
+            String fields = null;
 
-      String xMCSource = null;
+            response = balanceInquiryApi.getBalance(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource,
+                    xMCClientApplicationUserID, fields);
 
-      String xMCClientApplicationUserID = null;
-
-      String fields = null;
-
-      response =
-          balanceInquiryApi.getBalance(
-              cardId, request, xMCCorrelationID, xMCSource, xMCClientApplicationUserID, fields);
-      if (response.getTransactionMetaData() != null) {
-        log.debug(
-            "balanceInquiry response getAuthorizationId={} ",
-            response.getTransactionMetaData().getAuthorizationId());
-      }
-    } catch (ApiException exception) {
-      log.error(
-          "Exception occurred while calling balanceInquiry API: " + exception.getMessage(),
-          exception);
+            if (response.getTransactionMetaData() != null) {
+                log.debug("balanceInquiry response getAuthorizationId={} ", response.getTransactionMetaData()
+                                                                                    .getAuthorizationId());
+            }
+        } catch (ApiException exception) {
+            log.error("Exception occurred while calling balanceInquiry API: " + exception.getMessage(), exception);
+        } catch (DateTimeParseException dateTimeParseException) {
+            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+        }
+        return response;
     }
-    return response;
-  }
 
-  /**
-   * Gets the api client.
-   *
-   * @return the api client
-   */
-  public ApiClient getApiClient() {
-    return apiClient;
-  }
+    /**
+     * Gets the api client.
+     *
+     * @return the api client
+     */
+    public ApiClient getApiClient() {
+        return apiClient;
+    }
 
-  /**
-   * Sets the api client.
-   *
-   * @param apiClient the new api client
-   */
-  public void setApiClient(ApiClient apiClient) {
-    this.apiClient = apiClient;
-  }
+    /**
+     * Sets the api client.
+     *
+     * @param apiClient the new api client
+     */
+    public void setApiClient(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
 }

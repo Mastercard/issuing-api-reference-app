@@ -15,138 +15,138 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
-import com.mastercard.developer.exception.ReferenceAppGenericException;
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.client.helper.PinBlockTDEAEncrypter;
-import com.mastercard.developer.issuing.generated.apis.AuthenticationTokenApi;
+import com.mastercard.developer.issuing.exception.ReferenceAppGenericException;
+import com.mastercard.developer.issuing.generated.apis.UserAuthenticationApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.models.CardSecret;
 import com.mastercard.developer.issuing.generated.models.ClientAuthentication;
 import com.mastercard.developer.issuing.generated.models.EncryptedPinBlock;
 import com.mastercard.developer.issuing.generated.models.TokenDetails;
+
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
 public class IssuingAuthorizationManagementService extends IssuingBaseService {
 
-  /** The Constant SERVICE_CONTEXT. */
-  private static final String SERVICE_CONTEXT = "/authorization-management";
+    /** The Constant SERVICE_CONTEXT. */
+    private static final String SERVICE_CONTEXT = "/authorization-management";
 
-  /** The Constant AUTHENTICATION_TOKEN. */
-  private static final String AUTHENTICATION_TOKEN = "authentication-token";
+    /** The Constant AUTHENTICATION_TOKEN. */
+    private static final String AUTHENTICATION_TOKEN = "authentication-token";
 
-  /** The scenarios. */
-  private static final String[] SCENARIOS = {AUTHENTICATION_TOKEN};
+    /** The scenarios. */
+    private static final String[] SCENARIOS = { AUTHENTICATION_TOKEN };
 
-  /** The api client. */
-  private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
+    /** The api client. */
+    private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
 
-  /**
-   * Gets the scenarios.
-   *
-   * @return the scenarios
-   */
-  public String[] getScenarios() {
-    return SCENARIOS;
-  }
-
-  /**
-   * Call apis.
-   *
-   * @param scenarios the scenarios
-   * @throws Exception the exception
-   */
-  public void callApis(String[] scenarios) throws ReferenceAppGenericException {
-
-    if (scenarios == null || scenarios.length == 0) {
-      scenarios = getScenarios();
+    /**
+     * Gets the scenarios.
+     *
+     * @return the scenarios
+     */
+    public String[] getScenarios() {
+        return SCENARIOS;
     }
-    for (String scenario : scenarios) {
 
-      switch (scenario) {
-        case AUTHENTICATION_TOKEN:
-          logScenario(scenario);
-          createToken("PIN_RESET");
-          break;
-        default:
-          break;
-      }
+    /**
+     * Call apis.
+     *
+     * @param scenarios the scenarios
+     * @throws Exception the exception
+     */
+    public void callApis(String[] scenarios) throws ReferenceAppGenericException {
+
+        if (scenarios == null || scenarios.length == 0) {
+            scenarios = getScenarios();
+        }
+        for (String scenario : scenarios) {
+
+            switch (scenario) {
+            case AUTHENTICATION_TOKEN:
+                logScenario(scenario);
+                TokenDetails tokenDetails = createToken("BALANCE_INQUIRY");
+                ApiClientHelper.saveResponseObject(scenario, tokenDetails);
+                break;
+            default:
+                break;
+            }
+        }
     }
-  }
 
-  /**
-   * Creates the token.
-   *
-   * @param intent the intent
-   * @return the string
-   * @throws Exception the exception
-   */
-  public TokenDetails createToken(String intent) throws ReferenceAppGenericException {
-    String token = null;
-    TokenDetails response = null;
-    try {
-      AuthenticationTokenApi authenticationTokenApi = new AuthenticationTokenApi(apiClient);
+    /**
+     * Creates the token.
+     *
+     * @param intent the intent
+     * @return the string
+     * @throws Exception the exception
+     */
+    public TokenDetails createToken(String intent) throws ReferenceAppGenericException {
+        String token = null;
+        TokenDetails response = null;
+        try {
+            UserAuthenticationApi userAuthenticationApi = new UserAuthenticationApi(apiClient);
 
-      String cardId = ApiClientHelper.getRequestObject("card-id", String.class);
-      ClientAuthentication request =
-          ApiClientHelper.getRequestObject(AUTHENTICATION_TOKEN, ClientAuthentication.class);
+            String cardId = ApiClientHelper.getRequestObject("card-id", String.class);
+            String cardNumber = ApiClientHelper.getRequestObject("card-number", String.class);
 
-      /** Update intent */
-      request.setIntent(intent);
+            ClientAuthentication request = ApiClientHelper.getRequestObject(AUTHENTICATION_TOKEN, ClientAuthentication.class);
 
-      if (!intent.equalsIgnoreCase("PIN_RESET")) {
-        String clearPin = "1234";
-        PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
-        EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardId);
-        CardSecret cardSecret = new CardSecret();
-        cardSecret.setPin(encryptedPinBlock);
-        request.setCard(cardSecret);
+            /** Update intent */
+            request.setIntent(intent);
 
-        // Remove client attributes
-        request.setClient(null);
-      }
+            if (!intent.equalsIgnoreCase("PIN_RESET")) {
+                String clearPin = "1234";
+                PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
+                EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardNumber);
+                CardSecret cardSecret = new CardSecret();
+                cardSecret.setPin(encryptedPinBlock);
+                request.setCard(cardSecret);
 
-      /** Step 1: Set request validity time */
-      request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
+                // Remove client attributes
+                request.setClient(null);
+            }
 
-      String xMCCorrelationID = randomUUID();
+            /** Step 1: Set request validity time */
+            request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
 
-      /** values */
-      String xMCSource = null;
+            /** Set request header values */
+            String xMCIdempotencyKey = randomUUID();
+            String xMCCorrelationID = randomUUID();
+            String xMCBankCode = null;
+            String xMCSource = null;
+            String xMCClientApplicationUserID = null;
+            
+            response = userAuthenticationApi.createToken(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
+            token = response.getToken();
 
-      String xMCClientApplicationUserID = null;
+            log.info("Received token = {}", token);
 
-      response =
-          authenticationTokenApi.createToken(
-              cardId, request, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
-      token = response.getToken();
-
-      log.info("Received token = {}", token);
-
-    } catch (Exception exception) {
-      log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
-      throw new ReferenceAppGenericException(
-          "Exception occurred while calling an API: ", exception);
+        } catch (Exception exception) {
+            log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
+            throw new ReferenceAppGenericException("Exception occurred while calling an API: ", exception);
+        }
+        return response;
     }
-    return response;
-  }
 
-  /**
-   * Gets the api client.
-   *
-   * @return the api client
-   */
-  public ApiClient getApiClient() {
-    return apiClient;
-  }
+    /**
+     * Gets the api client.
+     *
+     * @return the api client
+     */
+    public ApiClient getApiClient() {
+        return apiClient;
+    }
 
-  /**
-   * Sets the api client.
-   *
-   * @param apiClient the new api client
-   */
-  public void setApiClient(ApiClient apiClient) {
-    this.apiClient = apiClient;
-  }
+    /**
+     * Sets the api client.
+     *
+     * @param apiClient the new api client
+     */
+    public void setApiClient(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
 }

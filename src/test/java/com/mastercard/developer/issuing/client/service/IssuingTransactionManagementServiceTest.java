@@ -17,90 +17,95 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Type;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
 import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
 import com.mastercard.developer.issuing.generated.models.BalanceDetails;
 import com.mastercard.developer.issuing.generated.models.Topup;
 import com.mastercard.developer.issuing.generated.models.TransactionDetails;
-import java.lang.reflect.Type;
+
 import okhttp3.Call;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /** The Class IssuingTransactionManagementServiceTest. */
 public class IssuingTransactionManagementServiceTest {
 
-  /** The service. */
-  private IssuingTransactionManagementService service = new IssuingTransactionManagementService();
+    /** The service. */
+    private IssuingTransactionManagementService service = new IssuingTransactionManagementService();
 
-  /** The api client mock. */
-  @Mock protected ApiClient apiClientMock;
+    /** The api client mock. */
+    @Mock
+    protected ApiClient apiClientMock;
 
-  /** The mock call. */
-  @Mock protected Call mockCall;
+    /** The mock call. */
+    @Mock
+    protected Call mockCall;
 
-  /**
-   * Sets the up.
-   *
-   * @throws ApiException the api exception
-   */
-  @Before
-  public void setUp() throws ApiException {
-    MockitoAnnotations.initMocks(this);
-    MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
-  }
+    /**
+     * Sets the up.
+     *
+     * @throws ApiException the api exception
+     */
+    @Before
+    public void setUp() throws ApiException {
+	MockitoAnnotations.initMocks(this);
+	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+    }
 
-  /**
-   * Test topup prepaid card.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testTopupPrepaidCard() throws Exception {
-    /** Mock Response Object */
-    Topup response = new Topup();
-    ApiResponse apiResponse = new ApiResponse(200, null, response);
-    when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+    /**
+     * Test topup prepaid card.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testTopupPrepaidCard() throws Exception {
+	/** Mock Response Object */
+	Topup response = new Topup();
+	ApiResponse apiResponse = new ApiResponse(200, null, response);
+	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    Topup actualResponse = service.topupPrepaidCard();
+	Topup actualResponse = service.topupPrepaidCard();
 
-    assertEquals(response, actualResponse);
-  }
+	assertEquals(response, actualResponse);
+    }
 
-  /**
-   * Test transaction history.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testTransactionHistory() throws Exception {
-    /** Mock Response Object */
-    TransactionDetails response = new TransactionDetails();
-    ApiResponse apiResponse = new ApiResponse(200, null, response);
-    when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+    /**
+     * Test transaction history.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testTransactionHistory() throws Exception {
+	/** Mock Response Object */
+	TransactionDetails response = new TransactionDetails();
+	ApiResponse apiResponse = new ApiResponse(200, null, response);
+	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    TransactionDetails actualResponse = service.transactionHistory();
+	TransactionDetails actualResponse = service.transactionHistory();
 
-    assertEquals(response, actualResponse);
-  }
+	assertEquals(response, actualResponse);
+    }
 
-  /**
-   * Test balance inquiry.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testBalanceInquiry() throws Exception {
-    /** Mock Response Object */
-    BalanceDetails response = new BalanceDetails();
-    ApiResponse apiResponse = new ApiResponse(200, null, response);
-    when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+    /**
+     * Test balance inquiry.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testBalanceInquiry() throws Exception {
+	/** Mock Response Object */
+	BalanceDetails response = new BalanceDetails();
+	ApiResponse apiResponse = new ApiResponse(200, null, response);
+	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    BalanceDetails actualResponse = service.balanceInquiry();
+	BalanceDetails actualResponse = service.balanceInquiry();
 
-    assertEquals(response, actualResponse);
-  }
+	assertEquals(response, actualResponse);
+    }
 }

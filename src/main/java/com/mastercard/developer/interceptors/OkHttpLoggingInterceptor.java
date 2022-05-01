@@ -15,8 +15,13 @@
  */
 package com.mastercard.developer.interceptors;
 
-import com.mastercard.developer.issuing.client.helper.RequestContext;
 import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.ThreadContext;
+
+import com.mastercard.developer.issuing.client.helper.RequestContext;
+
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -27,114 +32,119 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.GzipSource;
 import okio.Okio;
-import org.apache.logging.log4j.ThreadContext;
 
 /** The Constant log. */
 @Log4j2
 public class OkHttpLoggingInterceptor implements Interceptor {
 
-  /**
-   * Edge device or entry application generated UUID that can be passed to downstream systems and
-   * applications to track the activity end-to-end.
-   */
-  public static final String CORRELATION_ID = "X-MC-Correlation-ID";
+    /**
+     * Edge device or entry application generated UUID that can be passed to downstream systems and applications to track the activity end-to-end.
+     */
+    public static final String CORRELATION_ID = "X-MC-Correlation-ID";
 
-  /** The Constant CONTENT_ENCODING. */
-  public static final String CONTENT_ENCODING = "content-encoding";
+    /** The Constant CONTENT_ENCODING. */
+    public static final String CONTENT_ENCODING = "content-encoding";
 
-  /**
-   * Instantiates a new ok http logging interceptor.
-   *
-   * @param name the name
-   */
-  public OkHttpLoggingInterceptor(String name) {
-    log.debug("OkHttpLoggingInterceptor ({}) instance created.", name);
-  }
-
-  /**
-   * Intercept.
-   *
-   * @param chain the chain
-   * @return the response
-   * @throws IOException Signals that an I/O exception has occurred.
-   */
-  @Override
-  public Response intercept(Chain chain) throws IOException {
-    Request request = chain.request();
-
-    long t1 = System.nanoTime();
-
-    String correlationId = request.header(CORRELATION_ID);
-    ThreadContext.put(CORRELATION_ID, correlationId);
-
-    String reqLogged = (String) RequestContext.get("reqLogged");
-    String reqMethod = request.method();
-
-    String format = "Clear";
-    if ("true".equalsIgnoreCase(reqLogged)) {
-      log.info(
-          "OkHttp --> Sending request  [{}] {} with headers - \n{}",
-          reqMethod,
-          request.url(),
-          request.headers());
-      format = "Encrypted";
+    /**
+     * Instantiates a new ok http logging interceptor.
+     *
+     * @param name the name
+     */
+    public OkHttpLoggingInterceptor(String name) {
+        log.debug("OkHttpLoggingInterceptor ({}) instance created.", name);
     }
 
-    if (reqMethod.equalsIgnoreCase("POST") || reqMethod.equalsIgnoreCase("PUT")) {
-      Buffer requestBuffer = new Buffer();
-      request.body().writeTo(requestBuffer);
-      log.debug("OkHttp -- {} Request Body: {}\n", format, requestBuffer.readUtf8());
-      RequestContext.put("reqLogged", "true");
+    /**
+     * Intercept.
+     *
+     * @param chain the chain
+     * @return the response
+     * @throws IOException Signals that an I/O exception has occurred.
+     */
+    @Override
+    public Response intercept(Chain chain) throws IOException {
+        Request request = chain.request();
+
+        long t1 = System.nanoTime();
+
+        String correlationId = request.header(CORRELATION_ID);
+        ThreadContext.put(CORRELATION_ID, correlationId);
+
+        String reqLogged = (String) RequestContext.get("reqLogged");
+        String reqMethod = request.method();
+
+        String format = "Clear";
+        if ("true".equalsIgnoreCase(reqLogged)) {
+            log.info("OkHttp --> Sending request  [{}] {} with headers - \n{}", reqMethod, request.url(), request.headers());
+            format = "Encrypted";
+        }
+
+        if (reqMethod.equalsIgnoreCase("POST") || reqMethod.equalsIgnoreCase("PUT")) {
+            Buffer requestBuffer = new Buffer();
+            request.body()
+                   .writeTo(requestBuffer);
+            log.debug("OkHttp -- {} Request Body: {}\n", format, requestBuffer.readUtf8());
+            RequestContext.put("reqLogged", "true");
+        }
+
+        Response response = chain.proceed(request);
+
+        String correlationIdReceived = response.header(CORRELATION_ID);
+        ThreadContext.put(CORRELATION_ID, correlationIdReceived);
+
+        if (StringUtils.isNoneBlank(correlationId) && !correlationId.equalsIgnoreCase(correlationIdReceived)) {
+            log.info(
+                    "OkHttp <-- ERROR - Received correlationId '{}' in response  is different from the correlationId '{}' sent in request headers - \n{}",
+                    correlationIdReceived, correlationId);
+
+        }
+        int responseCode = response.code();
+        String respLogged = (String) RequestContext.get("respLogged");
+
+        long t2 = System.nanoTime();
+
+        if (!"true".equalsIgnoreCase(respLogged)) {
+            log.info("OkHttp <-- Received [{}] response for {} in {} ms with headers - \n{}", responseCode, request.url(),
+                    Math.round((t2 - t1) / 1e6d), response.headers());
+        }
+
+        String content = null;
+        ResponseBody body = response.body();
+        if (body != null) {
+            MediaType contentType = body.contentType();
+            String contentEncoding = response.header(CONTENT_ENCODING);
+            if ("gzip".equals(contentEncoding)) {
+                BufferedSource buffer = Okio.buffer(new GzipSource(body.source()));
+                content = buffer.readUtf8();
+                ResponseBody wrappedBody = ResponseBody.create(content, contentType);
+                response = response.newBuilder()
+                                   .removeHeader(CONTENT_ENCODING)
+                                   .body(wrappedBody)
+                                   .build();
+            } else {
+                content = body.string();
+                ResponseBody wrappedBody = ResponseBody.create(content, contentType);
+                response = response.newBuilder()
+                                   .body(wrappedBody)
+                                   .build();
+            }
+        }
+
+        boolean success = responseCode >= 200 && responseCode < 300;
+        if (!"true".equalsIgnoreCase(respLogged)) {
+            // First time logging
+            if (success) {
+                log.debug("OkHttp -- Encrypted Response Body: {}\n", content);
+                RequestContext.put("respLogged", "true");
+            } else {
+                log.debug("OkHttp -- Response Body: {}\n", content);
+            }
+        }
+
+        if ("true".equalsIgnoreCase(respLogged) && success) {
+            log.debug("OkHttp -- Clear Response Body: {}\n", content);
+            RequestContext.clear();
+        }
+        return response;
     }
-
-    Response response = chain.proceed(request);
-
-    int responseCode = response.code();
-    String respLogged = (String) RequestContext.get("respLogged");
-
-    long t2 = System.nanoTime();
-
-    if (!"true".equalsIgnoreCase(respLogged)) {
-      log.info(
-          "OkHttp <-- Received [{}] response for {} in {} ms with headers - \n{}",
-          responseCode,
-          request.url(),
-          Math.round((t2 - t1) / 1e6d),
-          response.headers());
-    }
-
-    String content = null;
-    ResponseBody body = response.body();
-    if (body != null) {
-      MediaType contentType = body.contentType();
-      String contentEncoding = response.header(CONTENT_ENCODING);
-      if ("gzip".equals(contentEncoding)) {
-        BufferedSource buffer = Okio.buffer(new GzipSource(body.source()));
-        content = buffer.readUtf8();
-        ResponseBody wrappedBody = ResponseBody.create(content, contentType);
-        response = response.newBuilder().removeHeader(CONTENT_ENCODING).body(wrappedBody).build();
-      } else {
-        content = body.string();
-        ResponseBody wrappedBody = ResponseBody.create(content, contentType);
-        response = response.newBuilder().body(wrappedBody).build();
-      }
-    }
-
-    boolean success = responseCode >= 200 && responseCode < 300;
-    if (!"true".equalsIgnoreCase(respLogged)) {
-      // First time logging
-      if (success) {
-        log.debug("OkHttp -- Encrypted Response Body: {}\n", content);
-        RequestContext.put("respLogged", "true");
-      } else {
-        log.debug("OkHttp -- Response Body: {}\n", content);
-      }
-    }
-
-    if ("true".equalsIgnoreCase(respLogged) && success) {
-      log.debug("OkHttp -- Clear Response Body: {}\n", content);
-      RequestContext.clear();
-    }
-    return response;
-  }
 }

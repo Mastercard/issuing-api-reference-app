@@ -13,20 +13,23 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Type;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
 import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
 import com.mastercard.developer.issuing.generated.models.TokenDetails;
-import java.lang.reflect.Type;
+
 import okhttp3.Call;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 /**
  * The Class IssuingAuthorizationManagementServiceTest.
@@ -35,41 +38,42 @@ import org.mockito.MockitoAnnotations;
  */
 public class IssuingAuthorizationManagementServiceTest {
 
-  /** The service. */
-  private IssuingAuthorizationManagementService service =
-      new IssuingAuthorizationManagementService();
+    /** The service. */
+    private IssuingAuthorizationManagementService service = new IssuingAuthorizationManagementService();
 
-  /** The api client mock. */
-  @Mock protected ApiClient apiClientMock;
+    /** The api client mock. */
+    @Mock
+    protected ApiClient apiClientMock;
 
-  /** The mock call. */
-  @Mock protected Call mockCall;
+    /** The mock call. */
+    @Mock
+    protected Call mockCall;
 
-  /**
-   * Sets the up.
-   *
-   * @throws ApiException the api exception
-   */
-  @Before
-  public void setUp() throws ApiException {
-    MockitoAnnotations.initMocks(this);
-    MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
-  }
+    /**
+     * Sets the up.
+     *
+     * @throws ApiException the api exception
+     */
+    @Before
+    public void setUp() throws ApiException {
+	MockitoAnnotations.initMocks(this);
+	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+    }
 
-  /**
-   * Test create token.
-   *
-   * @throws Exception the exception
-   */
-  @Test
-  public void testCreateToken() throws Exception {
-    /** Mock Response Object */
-    TokenDetails response = new TokenDetails();
-    ApiResponse apiResponse = new ApiResponse(200, null, response);
-    when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+    /**
+     * Test create token.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void testCreateToken() throws Exception {
+	/** Mock Response Object */
+	TokenDetails response = new TokenDetails();
+	ApiResponse apiResponse = new ApiResponse(200, null, response);
+	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    TokenDetails actualResponse = service.createToken("PIN_RESET");
+	TokenDetails actualResponse = service.createToken("PIN_RESET");
 
-    assertEquals(response, actualResponse);
-  }
+	assertEquals(response, actualResponse);
+    }
 }

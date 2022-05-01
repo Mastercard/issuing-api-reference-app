@@ -17,55 +17,59 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.mastercard.developer.issuing.generated.invokers.ApiClient;
-import com.mastercard.developer.issuing.generated.invokers.ApiException;
-import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
-import com.mastercard.developer.issuing.generated.models.UpdatedCardStatusDetails;
 import java.lang.reflect.Type;
-import okhttp3.Call;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.mastercard.developer.issuing.generated.invokers.ApiClient;
+import com.mastercard.developer.issuing.generated.invokers.ApiException;
+import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
+import com.mastercard.developer.issuing.generated.models.UpdatedCardStatusDetails;
+
+import okhttp3.Call;
+
 /** The Class IssuingCardControlsServiceTest. */
 public class IssuingCardControlsServiceTest {
 
-  /** The service. */
-  private IssuingCardControlsService service = new IssuingCardControlsService();
+    /** The service. */
+    private IssuingCardControlsService service = new IssuingCardControlsService();
 
-  /** The api client mock. */
-  @Mock protected ApiClient apiClientMock;
+    /** The api client mock. */
+    @Mock
+    protected ApiClient apiClientMock;
 
-  /** The mock call. */
-  @Mock protected Call mockCall;
+    /** The mock call. */
+    @Mock
+    protected Call mockCall;
 
-  /**
-   * Sets the up.
-   *
-   * @throws ApiException the api exception
-   */
-  @Before
-  public void setUp() throws ApiException {
-    MockitoAnnotations.initMocks(this);
-    MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
-  }
+    /**
+     * Sets the up.
+     *
+     * @throws ApiException the api exception
+     */
+    @Before
+    public void setUp() throws ApiException {
+	MockitoAnnotations.initMocks(this);
+	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+    }
 
-  /**
-   * Test update card status.
-   *
-   * @throws ApiException the api exception
-   */
-  @Test
-  public void testUpdateCardStatus() throws ApiException {
-    /** Mock Response Object */
-    UpdatedCardStatusDetails response = new UpdatedCardStatusDetails();
-    ApiResponse apiResponse = new ApiResponse(200, null, response);
-    when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+    /**
+     * Test update card status.
+     *
+     * @throws ApiException the api exception
+     */
+    @Test
+    public void testUpdateCardStatus() throws ApiException {
+	/** Mock Response Object */
+	UpdatedCardStatusDetails response = new UpdatedCardStatusDetails();
+	ApiResponse apiResponse = new ApiResponse(200, null, response);
+	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-    UpdatedCardStatusDetails actualResponse =
-        service.updateCardStatus("update-card-status-blocked");
+	UpdatedCardStatusDetails actualResponse = service.updateCardStatus("update-card-status-blocked");
 
-    assertEquals(response, actualResponse);
-  }
+	assertEquals(response, actualResponse);
+    }
 }

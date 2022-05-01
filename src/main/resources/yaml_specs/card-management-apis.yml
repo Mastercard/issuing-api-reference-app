@@ -1,2652 +1,2722 @@
-
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
-  title: "Card Management API"
-  description: "The card management API allows users to manage the life cycle of clients
-    and their cards seamlessly."
+  title: Card Management API
+  description: >-
+    The card management API allows users to manage the life cycle of clients and
+    their cards seamlessly.
   contact:
-    name: "API Support"
-    url: "https://developer.mastercard.com/support"
-    email: "apisupport@mastercard.com"
-  version: "2.0.0"
+    name: API Support
+    url: 'https://developer.mastercard.com/support'
+    email: apisupport@mastercard.com
+  version: 2.0.0
 servers:
-- description: "Sandbox server"
-  url: "https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/card-management/"
-- description: "MEA MTF/UAT server"
-  url: "https://mtf.mea.api.mastercard.com/mi-issuing/card-management/"
-- description: "SA MTF/UAT server"
-  url: "https://mtf.sa.api.mi.mastercard.com/mi-issuing/card-management/"
-- description: "MEA Production server"
-  url: "https://mea.api.mastercard.com/mi-issuing/card-management/"
-- description: "SA Production server"
-  url: "https://sa.api.mi.mastercard.com/mi-issuing/card-management/"
-
+  - description: Sandbox server
+    url: 'https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/card-management/'
+  - description: MEA MTF/UAT server
+    url: 'https://mtf.mea.api.mastercard.com/mi-issuing/card-management/'
+  - description: SA MTF/UAT server
+    url: 'https://mtf.sa.api.mi.mastercard.com/mi-issuing/card-management/'
+  - description: MEA Production server
+    url: 'https://mea.api.mastercard.com/mi-issuing/card-management/'
+  - description: SA Production server
+    url: 'https://sa.api.mi.mastercard.com/mi-issuing/card-management/'
 tags:
-- name: "GetCard"
-  description: "Get card details"
-- name: "SearchCards"
-  description: "Search cards"
-- name: "UpdatePin"
-  description: "Update card PIN"
-- name: "GetClient"
-  description: "Get Client details"
-- name: "UpdateClient"
-  description: "Update client details"
-
+  - name: Card
+    description: Card management
+  - name: Client
+    description: Client management
 paths:
-
-  /cards/{card_id}:
+  '/cards/{card_id}':
     get:
       tags:
-      - "GetCard"
-      summary: "Get card details by card ID"
-      description: "This API allows users to fetch detailed information of a single
-        card such as number, CVV, expiry date, card id, packId, alias, plan code,
+        - Card
+      summary: '**Get Card** - Get card details by card ID'
+      description: >-
+        This API allows users to fetch detailed information of a single card
+        such as number, CVV, expiry date, card id, packId, alias, plan code,
         product type, program code, status and indicator based on its unique ID.
         <br/> It also returns the basic information of the client, linked cards
-        and accounts. <br />Field selection - <br />It is useful in to select few
-        specific fields in response to save some bandwidth.<br/> /cards/{card_id}?field=card.id,card.number,card.status"
-      operationId: "getCard"
+        and accounts. <br />Field selection - <br />It is useful in to select
+        few specific fields in response to save some bandwidth.<br/>
+        /cards/{card_id}?field=card.id,card.number,card.status
+      operationId: getCard
       x-mastercard-api-encrypted: true
       parameters:
-      - $ref: "#/components/parameters/CorrelationID"
-      - $ref: "#/components/parameters/Source"
-      - $ref: "#/components/parameters/EndUserID"
-      - $ref: "#/components/parameters/CardID"
-      - $ref: "#/components/parameters/Fields"
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/CardID'
+        - $ref: '#/components/parameters/Fields'
       responses:
-        "200":
-          $ref: "#/components/responses/CardProfileResponse"
-        "400":
-          $ref: "#/components/responses/BadGetRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-
+        '200':
+          $ref: '#/components/responses/CardProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadGetRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
   /cards/searches:
     post:
       tags:
-      - "SearchCards"
-      summary: "Search cards based on input search criteria"
-      description: "This API allows users to search cards based on multiple form factors
-        such card number, pack Id, alias or client code, registered mobile number
-        and account number. In API response a list of cards along with its associated
-        parameters such as card number, id, pack Id, status, indicator, alias, plan
-        code, product type and program code is returned. <br /><br />To carry out
-        cards search at least one of the request parameters card.number, card.packId,
-        card.alias, client.code, client.mobile.number, account.number is mandatory.<br/><br/>If
-        this API is consumed by platform specific vendors (ACS, SMS providers) then
-        parameter card.number is mandatory in the request.<br/><br/>Parameter card.alias
-        should be used only if card alias functionality is enabled for the institution
-        or bank. <br/>In case alias uniqueness is not defined at institution level
-        then parameters productType, planCode or/and programCode should be used
-        to refine the search further else UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>Also
-        If input form factor(s) fails to resolve to single client (i.e. multiple
-        clients are found) then also UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>In
-        case of success API returns 200 as HTTP status code. <BR/> <BR/> **Default
-        Sorting order: ** generation date (aka opening date) <BR/> **Default Pagination
-        limit: ** 10 (Maximum 10 records will be returned) <BR/>"
-      operationId: "searchCards"
+        - Card
+      summary: '**Search Cards** - Find cards based on input search criteria'
+      description: >-
+        This API allows users to search cards based on multiple form factors
+        such card number, pack Id, alias or client code, registered mobile
+        number and account number. In API response a list of cards along with
+        its associated parameters such as card number, id, pack Id, status,
+        indicator, alias, plan code, product type and program code is returned.
+        <br /><br />To carry out cards search at least one of the request
+        parameters card.number, card.packId, card.alias, client.code,
+        client.mobile.number, account.number is mandatory.<br/><br/>If this API
+        is consumed by platform specific vendors (ACS, SMS providers) then
+        parameter card.number is mandatory in the request.<br/><br/>Parameter
+        card.alias should be used only if card alias functionality is enabled
+        for the institution or bank. <br/>In case alias uniqueness is not
+        defined at institution level then parameters productType, planCode
+        or/and programCode should be used to refine the search further else
+        UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>Also If input form
+        factor(s) fails to resolve to single client (i.e. multiple clients are
+        found) then also UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>In
+        case of success API returns 200 as HTTP status code. <BR/> <BR/>
+        **Default Sorting order: ** generation date (aka opening date) <BR/>
+        **Default Pagination limit: ** 10 (Maximum 10 records will be returned)
+        <BR/>
+      operationId: searchCards
       x-mastercard-api-encrypted: true
       parameters:
-      - $ref: "#/components/parameters/CorrelationID"
-      - $ref: "#/components/parameters/Source"
-      - $ref: "#/components/parameters/EndUserID"
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
       requestBody:
-        $ref: "#/components/requestBodies/CardSearchCriteriaRequest"
+        $ref: '#/components/requestBodies/CardSearchCriteriaRequest'
       responses:
-        "200":
-          $ref: "#/components/responses/CardSearchResultResponse"
-        "400":
-          $ref: "#/components/responses/BadPostRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-
-  /cards/{card_id}/pins:
+        '200':
+          $ref: '#/components/responses/CardSearchResultResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  '/cards/{card_id}/pins':
     put:
       tags:
-      - "UpdatePin"
-      summary: "Set or Update card PIN"
-      description: "This API is used to set or update the card PIN. The prerequisite
-        required for consuming this API is the authentication token generated using
-        the Authentication Token API with intent parameter as 'PIN_SET' or 'PIN_CHANGE'."
-      operationId: "updatePin"
+        - Card
+      summary: >-
+        **Set/Update Card PIN** - Change Card PIN using one-time use
+        Authenticated Token
+      description: >-
+        This API is used to set or update the card PIN. The prerequisite
+        required for consuming this API is the authentication token generated
+        using the Authentication Token API with intent parameter as 'PIN_SET' or
+        'PIN_CHANGE'.
+      operationId: updatePin
       x-mastercard-api-encrypted: true
       parameters:
-      - $ref: "#/components/parameters/CorrelationID"
-      - $ref: "#/components/parameters/Source"
-      - $ref: "#/components/parameters/EndUserID"
-      - $ref: "#/components/parameters/CardID"
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/CardID'
       requestBody:
-        $ref: "#/components/requestBodies/UpdatePinRequest"
+        $ref: '#/components/requestBodies/UpdatePinRequest'
       responses:
-        "200":
-          $ref: "#/components/responses/UpdatePinResponse"
-        "400":
-          $ref: "#/components/responses/BadPostRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-
-  /clients/{client_code}:
+        '200':
+          $ref: '#/components/responses/UpdatePinResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  '/clients/{client_code}':
     get:
       tags:
-      - "GetClient"
-      summary: "Get client details by client code"
-      description: "This API allows users to fetch all details of a single client
-        such as code, first name, last name, etc. <br /><br />Field selection -
-        <br />It is useful in to select few specific fields in response to save
-        some bandwidth.<br/> /clients/{client_code}?field=id,firsName,lastName<br
-        />"
-      operationId: "getClient"
+        - Client
+      summary: '**Get Client** - Get client details by client code'
+      description: >-
+        This API allows users to fetch all details of a single client such as
+        code, first name, last name, etc. <br /><br />Field selection - <br />It
+        is useful in to select few specific fields in response to save some
+        bandwidth.<br/> /clients/{client_code}?field=id,firsName,lastName<br />
+      operationId: getClient
       x-mastercard-api-encrypted: true
       parameters:
-      - $ref: "#/components/parameters/CorrelationID"
-      - $ref: "#/components/parameters/Source"
-      - $ref: "#/components/parameters/EndUserID"
-      - $ref: "#/components/parameters/ClientCode"
-      - $ref: "#/components/parameters/Fields"
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/ClientCode'
+        - $ref: '#/components/parameters/Fields'
       responses:
-        "200":
-          $ref: "#/components/responses/ClientProfileResponse"
-        "400":
-          $ref: "#/components/responses/BadGetRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
-
+        '200':
+          $ref: '#/components/responses/ClientProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadGetRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
     put:
       tags:
-      - "UpdateClient"
-      summary: "Update client details"
-      description: "This API allows users to update details like name, address, contacts,
-        preferences, occupation, kyc, etc. of a existing client. User should call
-        get client API to fetch all details and update required details and call
-        this update client API."
-      operationId: "updateClient"
+        - Client
+      summary: '**Update Client** - Update all details of a client'
+      description: >-
+        This API allows users to update details like name, address, contacts,
+        preferences, occupation, kyc, etc. of a existing client. User should
+        call get client API to fetch all details and update required details and
+        call this update client API.
+      operationId: updateClient
       x-mastercard-api-encrypted: true
       parameters:
-      - $ref: "#/components/parameters/CorrelationID"
-      - $ref: "#/components/parameters/Source"
-      - $ref: "#/components/parameters/EndUserID"
-      - $ref: "#/components/parameters/ClientCode"
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/ClientCode'
       requestBody:
-        $ref: "#/components/requestBodies/UpdatedClientRequest"
+        $ref: '#/components/requestBodies/UpdatedClientRequest'
       responses:
-        "200":
-          $ref: "#/components/responses/ServiceRequestDetailsResponse"
-        "400":
-          $ref: "#/components/responses/BadPostRequestError"
-        "401":
-          $ref: "#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "#/components/responses/ForbiddenError"
-
+        '200':
+          $ref: '#/components/responses/ServiceRequestDetailsResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
 components:
-
   schemas:
-
     CardProfile:
-      type: "object"
+      type: object
       properties:
         card:
-          $ref: "#/components/schemas/CardDetails"
+          $ref: '#/components/schemas/CardDetails'
         accounts:
-          type: "array"
-          description: "List of accounts linked to the card returned"
+          type: array
+          description: List of accounts linked to the card returned
           items:
-            $ref: "#/components/schemas/BaseAccount"
+            $ref: '#/components/schemas/BaseAccount'
         clients:
-          type: "array"
-          description: "List of clients linked to the card returned"
+          type: array
+          description: List of clients linked to the card returned
           items:
-            $ref: "#/components/schemas/ClientBasicInfo"
+            $ref: '#/components/schemas/ClientBasicInfo'
     CardDetails:
-      type: "object"
+      type: object
       required:
-      - "number"
-      - "id"
-      - "packId"
-      - "status"
-      - "relationship"
-      - "planCode"
-      - "productType"
-      - "programCode"
+        - number
+        - id
+        - packId
+        - status
+        - relationship
+        - planCode
+        - productType
+        - programCode
       allOf:
-      - $ref: "#/components/schemas/CardWithSecrets"
+        - $ref: '#/components/schemas/CardWithSecrets'
       properties:
         pairedCardNumber:
-          $ref: "#/components/schemas/PairedCardNumber"
+          $ref: '#/components/schemas/PairedCardNumber'
         clientCode:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         dates:
-          $ref: "#/components/schemas/CardDates"
+          $ref: '#/components/schemas/CardDates'
         parentAgent:
-          $ref: "#/components/schemas/ParentAgent"
+          $ref: '#/components/schemas/ParentAgent'
         staffId:
-          $ref: "#/components/schemas/StaffId"
+          $ref: '#/components/schemas/StaffId'
         corporate:
-          $ref: "#/components/schemas/CorporateClientBasicInfo"
+          $ref: '#/components/schemas/CorporateClientBasicInfo'
         delivery:
-          $ref: "#/components/schemas/CardDelivery"
+          $ref: '#/components/schemas/CardDelivery'
         travel:
-          $ref: "#/components/schemas/TravelDetails"
+          $ref: '#/components/schemas/TravelDetails'
         linkedCards:
-          type: "array"
-          description: "It also returns the basic information of all the cards (across
-            all product lines, ordered by activation date and return max 50 cards)
-            owned by the client linked to the requested card and primary card linked
-            to the requested card."
+          type: array
+          description: >-
+            It also returns the basic information of all the cards (across all
+            product lines, ordered by activation date and return max 50 cards)
+            owned by the client linked to the requested card and primary card
+            linked to the requested card.
           items:
-            $ref: "#/components/schemas/LinkedCardIdentifiers"
+            $ref: '#/components/schemas/LinkedCardIdentifiers'
           example:
-          - number: "5001878976540310"
-            id: "D34B56D71AA2E015E053F482A80ACD00"
-            relationship: "PRIMARY"
-            clientCode: "0000215812722194"
-            pairedCardNumber: "5001878976540298"
-            expiry: "11/25"
-            status: "NORMAL"
-            programCode: "GPR12"
-            programDesc: "BASIC GPR"
-            productType: "PREPAID"
-          - number: "5001878976540315"
-            id: "D34B56D71AA2E015E053F482A80ACD00"
-            relationship: "SUPPLEMENTARY"
-            clientCode: "0000215812722194"
-            expiry: "11/25"
-            status: "NORMAL"
-            programCode: "LOANPR"
-            programDesc: "LOANPR"
-            productType: "CREDIT"
-          - number: "5001878976540311"
-            id: "E34B56D71AA2E015E053F482A80ACD00"
-            relationship: "SUPPLEMENTARY"
-            clientCode: "0000215812722194"
-            expiry: "06/21"
-            status: "REPLACED"
-            programCode: "GPR12"
-            programDesc: "BASIC GPR"
-            productType: "PREPAID"
-          - number: "5001878976540401"
-            id: "S34B56D71AA2E015E053F482A80ACD00"
-            relationship: "ADD_ON"
-            clientCode: "0000315812722188"
-            expiry: "06/24"
-            status: "LOST"
-            programCode: "LOANPR"
-            programDesc: "LOANPR"
-            productType: "CREDIT"
+            - number: '5001878976540310'
+              id: D34B56D71AA2E015E053F482A80ACD00
+              relationship: PRIMARY
+              clientCode: 0000215812722194
+              pairedCardNumber: '5001878976540298'
+              expiry: 11/25
+              status: NORMAL
+              programCode: GPR12
+              programDesc: BASIC GPR
+              productType: PREPAID
+            - number: '5001878976540315'
+              id: D34B56D71AA2E015E053F482A80ACD00
+              relationship: SUPPLEMENTARY
+              clientCode: 0000215812722194
+              expiry: 11/25
+              status: NORMAL
+              programCode: LOANPR
+              programDesc: LOANPR
+              productType: CREDIT
+            - number: '5001878976540311'
+              id: E34B56D71AA2E015E053F482A80ACD00
+              relationship: SUPPLEMENTARY
+              clientCode: 0000215812722194
+              expiry: 06/21
+              status: REPLACED
+              programCode: GPR12
+              programDesc: BASIC GPR
+              productType: PREPAID
+            - number: '5001878976540401'
+              id: S34B56D71AA2E015E053F482A80ACD00
+              relationship: ADD_ON
+              clientCode: 0000315812722188
+              expiry: 06/24
+              status: LOST
+              programCode: LOANPR
+              programDesc: LOANPR
+              productType: CREDIT
         customFields:
-          $ref: "#/components/schemas/CardCustomFields"
+          $ref: '#/components/schemas/CardCustomFields'
     ProductType:
-      type: "string"
-      description: "Type of product. It is also useful to identify a unique card if
-        multiple cards are linked to a card number alias. <br/> **Valid values:**
+      type: string
+      description: >-
+        Type of product. It is also useful to identify a unique card if multiple
+        cards are linked to a card number alias. <br/> **Valid values:**
 
-                           * `PREPAID` - Prepaid Card
+        * `PREPAID` - Prepaid Card
 
-                           * `CREDIT` - Credit Card
+        * `CREDIT` - Credit Card
 
-                           * `DEBIT` - Debit
-        Card"
-      example: "PREPAID"
+        * `DEBIT` - Debit Card
+      example: PREPAID
     BaseSearchCard:
-      description: "Base Search Card"
-      type: "object"
+      description: Base Search Card
+      type: object
       properties:
         number:
-          $ref: "#/components/schemas/CardNumber"
+          $ref: '#/components/schemas/CardNumber'
         id:
-          $ref: "#/components/schemas/CardId"
+          $ref: '#/components/schemas/CardId'
         packId:
-          $ref: "#/components/schemas/CardPackId"
+          $ref: '#/components/schemas/CardPackId'
         alias:
-          $ref: "#/components/schemas/CardAlias"
+          $ref: '#/components/schemas/CardAlias'
         programCode:
-          $ref: "#/components/schemas/ProgramCode"
+          $ref: '#/components/schemas/ProgramCode'
         planCode:
-          $ref: "#/components/schemas/CardPlanCode"
+          $ref: '#/components/schemas/CardPlanCode'
     BaseCard:
       allOf:
-      - $ref: "#/components/schemas/BaseSearchCard"
-      description: "Base Card information"
-      type: "object"
+        - $ref: '#/components/schemas/BaseSearchCard'
+      description: Base Card information
+      type: object
       properties:
         type:
-          $ref: "#/components/schemas/CardType"
+          $ref: '#/components/schemas/CardType'
         relationship:
-          $ref: "#/components/schemas/CardRelationship"
+          $ref: '#/components/schemas/CardRelationship'
         status:
-          $ref: "#/components/schemas/CardStatus"
+          $ref: '#/components/schemas/CardStatus'
     Card:
       allOf:
-      - $ref: "#/components/schemas/BaseCard"
-      description: "Card information (excluding PCI sensitive information)"
-      type: "object"
+        - $ref: '#/components/schemas/BaseCard'
+      description: Card information (excluding PCI sensitive information)
+      type: object
       properties:
         programDesc:
-          $ref: "#/components/schemas/ProgramDesc"
+          $ref: '#/components/schemas/ProgramDesc'
         planDesc:
-          $ref: "#/components/schemas/CardPlanDesc"
+          $ref: '#/components/schemas/CardPlanDesc'
         promoPlanCode:
-          $ref: "#/components/schemas/CardPromoPlanCode"
+          $ref: '#/components/schemas/CardPromoPlanCode'
         promoPlanDesc:
-          $ref: "#/components/schemas/CardPromoPlanDesc"
+          $ref: '#/components/schemas/CardPromoPlanDesc'
         embossedName:
-          $ref: "#/components/schemas/EmbossedName"
+          $ref: '#/components/schemas/EmbossedName'
         photoIndicator:
-          $ref: "#/components/schemas/PhotoIndicator"
+          $ref: '#/components/schemas/PhotoIndicator'
         productType:
-          $ref: "#/components/schemas/ProductType"
+          $ref: '#/components/schemas/ProductType'
     CardWithSecrets:
       allOf:
-      - $ref: "#/components/schemas/Card"
-      description: "Card information"
-      type: "object"
+        - $ref: '#/components/schemas/Card'
+      description: Card information
+      type: object
       properties:
         cvv:
-          $ref: "#/components/schemas/Cvv"
+          $ref: '#/components/schemas/Cvv'
         expiry:
-          $ref: "#/components/schemas/CardExpiry"
+          $ref: '#/components/schemas/CardExpiry'
         expiryDateTime:
-          $ref: "#/components/schemas/LvcExpiryDateTime"
+          $ref: '#/components/schemas/LvcExpiryDateTime'
     CardDates:
-      description: "Card dates information"
-      type: "object"
+      description: Card dates information
+      type: object
       properties:
         generation:
-          $ref: "#/components/schemas/DateTimeType"
+          $ref: '#/components/schemas/DateTimeType'
         sale:
-          $ref: "#/components/schemas/DateTimeType"
+          $ref: '#/components/schemas/DateTimeType'
         activation:
-          $ref: "#/components/schemas/DateTimeType"
+          $ref: '#/components/schemas/DateTimeType'
     CardIdentifiers:
-      description: "Card Identifiers"
-      type: "object"
+      description: Card Identifiers
+      type: object
       properties:
         number:
-          $ref: "#/components/schemas/CardNumber"
+          $ref: '#/components/schemas/CardNumber'
         id:
-          $ref: "#/components/schemas/CardId"
+          $ref: '#/components/schemas/CardId'
         relationship:
-          $ref: "#/components/schemas/CardRelationship"
+          $ref: '#/components/schemas/CardRelationship'
         clientCode:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
     LinkedCardIdentifiers:
       allOf:
-      - $ref: "#/components/schemas/CardIdentifiers"
-      description: "All the cards owned by the current client and primary card linked
-        to the requested card."
-      type: "object"
+        - $ref: '#/components/schemas/CardIdentifiers'
+      description: >-
+        All the cards owned by the current client and primary card linked to the
+        requested card.
+      type: object
       properties:
         expiry:
-          $ref: "#/components/schemas/CardExpiry"
+          $ref: '#/components/schemas/CardExpiry'
         status:
-          $ref: "#/components/schemas/CardStatus"
+          $ref: '#/components/schemas/CardStatus'
         pairedCardNumber:
-          $ref: "#/components/schemas/PairedCardNumber"
+          $ref: '#/components/schemas/PairedCardNumber'
         programCode:
-          $ref: "#/components/schemas/ProgramCode"
+          $ref: '#/components/schemas/ProgramCode'
         programDesc:
-          $ref: "#/components/schemas/ProgramDesc"
+          $ref: '#/components/schemas/ProgramDesc'
         productType:
-          $ref: "#/components/schemas/ProductType"
+          $ref: '#/components/schemas/ProductType'
     Mobile:
-      type: "object"
-      description: "Mobile number details"
+      type: object
+      description: Mobile number details
       properties:
         isd:
-          type: "string"
-          description: "ISD code is defined as the country code to call a mobile subscriber
-            directly from outside the country. For example, +91 for India and +971
-            for UAE. <BR/>If not provided, then the institution ISD code is populated."
-          pattern: "[+]?[0-9-]+"
+          type: string
+          description: >-
+            ISD code is defined as the country code to call a mobile subscriber
+            directly from outside the country. For example, +91 for India and
+            +971 for UAE. <BR/>If not provided, then the institution ISD code is
+            populated.
+          pattern: '[+]?[0-9-]+'
           minLength: 1
           maxLength: 4
-          example: "+91"
+          example: '+91'
         number:
-          type: "string"
-          description: "Mobile number excluding ISD Code. <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required when SMS alert is activated or
-            ISD value is provided."
-          pattern: "[0-9]+"
+          type: string
+          description: >-
+            Mobile number excluding ISD Code. <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required when SMS
+            alert is activated or ISD value is provided.
+          pattern: '[0-9]+'
           minLength: 4
           maxLength: 15
-          example: "9058344422"
+          example: '9058344422'
     RegisteredContacts:
-      type: "object"
+      type: object
       properties:
         email:
-          $ref: "#/components/schemas/Email"
+          $ref: '#/components/schemas/Email'
         mobile:
-          $ref: "#/components/schemas/Mobile"
+          $ref: '#/components/schemas/Mobile'
         fax:
-          type: "string"
-          description: "Fax Number. <BR/> This field is required if configured as
-            **Business Mandatory**<font color='red'>* </font>."
-          pattern: "[+]?[/A-Za-z0-9-]+"
+          type: string
+          description: >-
+            Fax Number. <BR/> This field is required if configured as **Business
+            Mandatory**<font color='red'>* </font>.
+          pattern: '[+]?[/A-Za-z0-9-]+'
           minLength: 1
           maxLength: 80
-          example: "+42342/453-5"
+          example: +42342/453-5
     CardType:
-      type: "string"
-      description: "The type indicates the card category. <br/> **Valid values:**
-
-                           * `EMV_CARD`
-
-                           * `MAGNETIC_STRIPE_CARD`
-
-                           * `STATIC_VIRTUAL_CARD`
-
-                           * `LIMITED_VALIDITY_VIRTUAL_CARD`
-
-                           * `NFC_PAYPASS`
-
-                           * `NFC_EMV_PAYPASS`
-
-                           * `NFC_MAG_STRIPE_PAYPASS`
-
-                           * `MOBILE`
-
-                           * `NFC_PAYWAVE`
-
-                           * `NFC_EMV_PAYWAVE`
-
-                           * `NFC_MAG_STRIPE_PAYWAVE`
-
-                           * `ATM_ADMIN_CARD`
-
-                           * `EXPRESSPAY_MAG_STRIPE`
-
-                           * `EXPRESSPAY_EMV`
-
-                           * `RUPAY_NFC_EMV`"
-      example: "EMV_CARD"
+      type: string
+      description: |-
+        The type indicates the card category. <br/> **Valid values:**
+        * `EMV_CARD`
+        * `MAGNETIC_STRIPE_CARD`
+        * `STATIC_VIRTUAL_CARD`
+        * `LIMITED_VALIDITY_VIRTUAL_CARD`
+        * `NFC_PAYPASS`
+        * `NFC_EMV_PAYPASS`
+        * `NFC_MAG_STRIPE_PAYPASS`
+        * `MOBILE`
+        * `NFC_PAYWAVE`
+        * `NFC_EMV_PAYWAVE`
+        * `NFC_MAG_STRIPE_PAYWAVE`
+        * `ATM_ADMIN_CARD`
+        * `EXPRESSPAY_MAG_STRIPE`
+        * `EXPRESSPAY_EMV`
+        * `RUPAY_NFC_EMV`
+      example: EMV_CARD
     PhotoIndicator:
-      type: "string"
-      description: "Indicates whether picture or photo should be printed on the card
-        or default template to be applied. <br/> In case of LVC card request, valid
+      type: string
+      description: >-
+        Indicates whether picture or photo should be printed on the card or
+        default template to be applied. <br/> In case of LVC card request, valid
         value is only `NORMAL`. <br/> **Valid values:**
 
-                           * `NORMAL` - Normal card
+        * `NORMAL` - Normal card
 
-                           * `PHOTO` - Photo card
+        * `PHOTO` - Photo card
 
-                           * `PICTURE` - Picture card"
-      example: "PICTURE"
+        * `PICTURE` - Picture card
+      example: PICTURE
     CardStatus:
-      type: "string"
-      description: "The current status of the card. <br/> **Valid values:** <br/>
+      type: string
+      description: >-
+        The current status of the card. <br/> **Valid values:** <br/>
 
-                           * `NORMAL` - Indicates normal card
+        * `NORMAL` - Indicates normal card
 
-                           * `SUPERVISION` - Indicates supervision
+        * `SUPERVISION` - Indicates supervision card
+
+        * `CANCELLED` - Indicates cancelled card
+
+        * `REPLACED` - Indicates replaced card
+
+        * `LOST` - Indicates lost card
+
+        * `STOLEN` - Indicates stolen card
+
+        * `COUNTERFEIT` - Indicates counterfeit card
+
+        * `RETURNED` - Indicates returned card
+
+        * `PROGRAM_CHANGE_OR_UPGRADE` - Indicates program change card
+
+        * `RETURNED_CARD_RENEWAL` - Indicates returned card renewal card
+
+        * `NOT_ACTIVATED` - Indicates card is not activated
+
+        * `EXPIRED` - Indicates expired card
+
+        * `INACTIVE` - Indicates inactive card
+
+        * `BLOCKED` - Indicates blocked Card
+
+        * `DISPATCHED` - Indicates card dispatched
+
+        * `READY_FOR_SALE` - Indicates Ready for Sale Card
+
+        * `TRANSFERRED_TO_OTHER_BRANCH` - Indicates transferred to other branch
         card
 
-                           * `CANCELLED` - Indicates cancelled card
+        * `RETURNED_AND_SHREDDED` - Indicates Returned to bank and shredded card
 
-                           * `REPLACED` - Indicates replaced
-        card
+        * `DAMAGED` - indicates Card is damaged
 
-                           * `LOST` - Indicates lost card
+        * `EMERGENCY_REPLACEMENT` - Indicates emergency replacement card
 
-                           * `STOLEN` - Indicates stolen card
+        * `ERRONEOUS` - Indicates card is erroneous
 
-                           * `COUNTERFEIT` - Indicates counterfeit card
+        * `RETENTION` - Indicates retention card
 
-                           * `RETURNED` - Indicates returned
-        card
+        * `NPA_RECLASSIFIED` - Indicates NPA Reclassified card
 
-                           * `PROGRAM_CHANGE_OR_UPGRADE` - Indicates program change card
+        * `TECHNOLOGY_UPGRADE` - Indicates card technology upgrade Card
 
-                           * `RETURNED_CARD_RENEWAL`
-        - Indicates returned card renewal card
+        * `REPLACED_INACTIVE` - Indicates replaced-inactive card
 
-                           * `NOT_ACTIVATED` - Indicates card
-        is not activated
-
-                           * `EXPIRED` - Indicates expired card
-
-                           * `INACTIVE` - Indicates
-        inactive card
-
-                           * `BLOCKED` - Indicates blocked Card
-
-                           * `DISPATCHED` - Indicates
-        card dispatched
-
-                           * `READY_FOR_SALE` - Indicates Ready for Sale Card
-
-                           * `TRANSFERRED_TO_OTHER_BRANCH`
-        - Indicates transferred to other branch card
-
-                           * `RETURNED_AND_SHREDDED` -
-        Indicates Returned to bank and shredded card
-
-                           * `DAMAGED` - indicates Card
-        is damaged
-
-                           * `EMERGENCY_REPLACEMENT` - Indicates emergency replacement card
-
-                           * `ERRONEOUS` - Indicates card is erroneous
-
-                           * `RETENTION` - Indicates retention
-        card
-
-                           * `NPA_RECLASSIFIED` - Indicates NPA Reclassified card
-
-                           * `TECHNOLOGY_UPGRADE`
-        - Indicates card technology upgrade Card
-
-                           * `REPLACED_INACTIVE` - Indicates
-        replaced-inactive card
-
-                           * `RENEWED_INACTIVE` - Indicates renewed-inactive
-        card"
-      example: "NORMAL"
+        * `RENEWED_INACTIVE` - Indicates renewed-inactive card
+      example: NORMAL
     CardRelationship:
-      type: "string"
-      example: "PRIMARY"
-      description: "An indicator at card level to describe type of client associated
-        with the card. <br/> **Valid values:**
+      type: string
+      example: PRIMARY
+      description: >-
+        An indicator at card level to describe type of client associated with
+        the card. <br/> **Valid values:**
 
-                           * `PRIMARY` - Indicates primary card
+        * `PRIMARY` - Indicates primary card
 
-                           * `ADD_ON` - Indicates add-on card
+        * `ADD_ON` - Indicates add-on card
 
-                           * `SUPPLEMENTARY` - Indicates supplementary
-        card"
+        * `SUPPLEMENTARY` - Indicates supplementary card
     BaseAccount:
-      type: "object"
+      type: object
       properties:
         number:
-          $ref: "#/components/schemas/AccountNumber"
+          $ref: '#/components/schemas/AccountNumber'
         default:
-          type: "boolean"
-          description: "Indicates given account is default account or not"
+          type: boolean
+          description: Indicates given account is default account or not
           example: false
         currency:
-          type: "string"
-          description: "Currency of the account. <br> Values - 3 letter alphabetic
-            currency codes in `ISO 4217` <br/>"
+          type: string
+          description: >-
+            Currency of the account. <br> Values - 3 letter alphabetic currency
+            codes in `ISO 4217` <br/>
           minLength: 3
           maxLength: 3
-          example: "INR"
+          example: INR
     CardDelivery:
-      description: "Card Delivery information"
-      type: "object"
+      description: Card Delivery information
+      type: object
       properties:
         date:
-          $ref: "#/components/schemas/DateTimeType"
+          $ref: '#/components/schemas/DateTimeType'
         mode:
-          $ref: "#/components/schemas/DeliveryMode"
+          $ref: '#/components/schemas/DeliveryMode'
         receivedBy:
-          type: "string"
-          description: "Branch Code / Name of the card delivery receiver.<br/>"
+          type: string
+          description: Branch Code / Name of the card delivery receiver.<br/>
           minLength: 1
           maxLength: 25
-          example: "Eric"
+          example: Eric
     DeliveryMode:
-      type: "string"
-      description: "Client's preferred delivery mode. Application request with instant
-        card true, delivery mode should be `Branch`. <br/> Valid values are configured
-        on \"Card Management > Institution Parameter Setup > System Codes [ISSS15]\"
-            screen for \"Type Id=DELIVERY_MODE\".<br/> **Few sample values:**
-         `Branch`, `Payment system department`, `Mail`"
-      example: "Branch"
+      type: string
+      description: >-
+        Client's preferred delivery mode. Application request with instant card
+        true, delivery mode should be `Branch`. <br/> Valid values are
+        configured on "Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]" screen for "Type Id=DELIVERY_MODE". <br/> **Few sample
+        values:** `Branch`, `Payment system department`, `Mail`
+      example: Branch
     TravelDetails:
-      description: "Travel Information, Applicable only if the client has a prepaid
-        card."
-      type: "object"
+      description: 'Travel Information, Applicable only if the client has a prepaid card.'
+      type: object
       properties:
         type:
-          type: "string"
+          type: string
           minLength: 1
           maxLength: 6
-          pattern: "[A-Z0-9](([_])?[A-Z0-9])+"
-          description: "Indicates the purpose of travel for which the client will
-            be using the card. For example, medical reasons, cultural trip, and
-            business trip and so on. <BR/> Valid values are as configured on portal
-            in Card Management > Program Setup >Travel Type Configuration section.
-            <BR/> This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
-          example: "LEISUR"
+          pattern: '[A-Z0-9](([_])?[A-Z0-9])+'
+          description: >-
+            Indicates the purpose of travel for which the client will be using
+            the card. For example, medical reasons, cultural trip, and business
+            trip and so on. <BR/> Valid values are as configured on portal in
+            Card Management > Program Setup >Travel Type Configuration section.
+            <BR/> This field is required if configured as **Business
+            Mandatory**<font color='red'>* </font>.
+          example: LEISUR
         startDate:
-          type: "string"
-          format: "date"
-          description: "Start date of the planned travel. <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required if travel type is provided. <br/>
-            Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "2021-07-22"
+          type: string
+          format: date
+          description: >-
+            Start date of the planned travel. <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required if travel
+            type is provided. <br/> Format - It is expressed in ISO 8601 -
+            `YYYY-MM-DD`
+          example: '2021-07-22'
         endDate:
-          type: "string"
-          format: "date"
-          description: "End date of the planned travel. <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required if travel type is provided. <br/>
-            Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "2021-08-12"
+          type: string
+          format: date
+          description: >-
+            End date of the planned travel. <BR/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required if travel type is provided.
+            <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
+          example: '2021-08-12'
         country:
-          type: "string"
+          type: string
           minLength: 2
           maxLength: 2
-          description: "Country Code where client is traveling to. <BR/> Expressed
-            as a 2-letter (alpha-2) country code as defined in ISO 3166. <BR/> **Conditional
-            Mandatory**<font color='red'>* </font> field - Required if travel type
-            is provided."
-          example: "GB"
-          pattern: "[A-Z]+"
+          description: >-
+            Country Code where client is traveling to. <BR/> Expressed as a
+            2-letter (alpha-2) country code as defined in ISO 3166. <BR/>
+            **Conditional Mandatory**<font color='red'>* </font> field -
+            Required if travel type is provided.
+          example: GB
+          pattern: '[A-Z]+'
     CardCustomFields:
-      type: "array"
-      description: "Card Custom fields array (not recommended to be used)"
+      type: array
+      description: Card Custom fields array (not recommended to be used)
       items:
-        $ref: "#/components/schemas/CardCustomField"
+        $ref: '#/components/schemas/CardCustomField'
       minItems: 0
       maxItems: 15
       example:
-      - name: "cardDateField1"
-        value: "2021-09-21"
-      - name: "cardDataField1"
-        value: "sample-data"
-      - name: "cardNumberField1"
-        value: "234.78"
+        - name: cardDateField1
+          value: '2021-09-21'
+        - name: cardDataField1
+          value: sample-data
+        - name: cardNumberField1
+          value: '234.78'
     CardCustomField:
-      type: "object"
+      type: object
       properties:
         name:
-          type: "string"
-          description: "Custom field name like: `cardDateField1`, `cardDataField1`,
-            `cardNumberField1`. <BR/> Only 5 fields of each type are supported like
-            cardDateField2, cardDateField3, cardDateField4, cardDateField5. <BR/>
-            This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
-          pattern: "((card)(Date|Data|Number)Field[1-5]?)"
-          example: "cardDataField2"
+          type: string
+          description: >-
+            Custom field name like: `cardDateField1`, `cardDataField1`,
+            `cardNumberField1`. <BR/> Only 5 fields of each type are supported
+            like cardDateField2, cardDateField3, cardDateField4, cardDateField5.
+            <BR/> This field is required if configured as **Business
+            Mandatory**<font color='red'>* </font>.
+          pattern: '((card)(Date|Data|Number)Field[1-5]?)'
+          example: cardDataField2
         value:
-          type: "string"
-          description: "Custom field value.
+          type: string
+          description: >-
+            Custom field value.
 
-                           * In case of date value, it must be expressed
-            in ISO 8601 format - YYYY-MM-DD. For example, 2022-01-16
+            * In case of date value, it must be expressed in ISO 8601 format -
+            YYYY-MM-DD. For example, 2022-01-16
 
-                           * In case of
-            data, it could be a free text that may contain alphanumeric letters
-            or special characters mentioned in the pattern field.
+            * In case of data, it could be a free text that may contain
+            alphanumeric letters or special characters mentioned in the pattern
+            field.
 
-                           * In case of number
-            value, it is recommended to provide a number having maximum 12 digits
-            before decimal and up to 5 digits after decimal. For example: 999999999999.99999"
+            * In case of number value, it is recommended to provide a number
+            having maximum 12 digits before decimal and up to 5 digits after
+            decimal. For example: 999999999999.99999
           minLength: 1
           maxLength: 100
-          pattern: "[a-zA-Z0-9 ,&.'-]+"
-          example: "M4334"
+          pattern: '[a-zA-Z0-9 ,&.''-]+'
+          example: M4334
     CorporateClientBasicInfo:
-      type: "object"
+      type: object
       properties:
         code:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         name:
-          type: "string"
-          description: "Name of the corporate."
+          type: string
+          description: Name of the corporate.
           minLength: 1
           maxLength: 100
-          pattern: "[^ ][a-zA-Z.' ]+[^ ]"
-          example: "Mastercard"
+          pattern: '[^ ][a-zA-Z.'' ]+[^ ]'
+          example: Mastercard
     ClientBasicInfo:
-      type: "object"
+      type: object
       properties:
         code:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         profile:
-          $ref: "#/components/schemas/BasicProfile"
+          $ref: '#/components/schemas/BasicProfile'
         registeredContacts:
-          $ref: "#/components/schemas/RegisteredContacts"
+          $ref: '#/components/schemas/RegisteredContacts'
     BasicProfile:
-      description: "Set of Personally Identifiable Information (PII) associated with
-        a given client."
-      type: "object"
+      description: >-
+        Set of Personally Identifiable Information (PII) associated with a given
+        client.
+      type: object
       properties:
         title:
-          $ref: "#/components/schemas/Title"
+          $ref: '#/components/schemas/Title'
         firstName:
-          type: "string"
-          description: "First name of the client. <br/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required while creating new client."
+          type: string
+          description: >-
+            First name of the client. <br/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required while creating new client.
           minLength: 1
           maxLength: 100
-          pattern: "([^ ])(?!.*[-]{2})([a-zA-Z.' ]+)([^ ])"
-          example: "John"
+          pattern: '([^ ])(?!.*[-]{2})([a-zA-Z.'' ]+)([^ ])'
+          example: John
         middleName1:
-          type: "string"
-          description: "Middle name 1 of the client. <br/> This field is required
-            if configured as **Business Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Middle name 1 of the client. <br/> This field is required if
+            configured as **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 100
-          pattern: "([^ ])(?!.*[-]{2})([a-zA-Z.' ]+)([^ ])"
-          example: "Bob"
+          pattern: '([^ ])(?!.*[-]{2})([a-zA-Z.'' ]+)([^ ])'
+          example: Bob
         middleName2:
-          type: "string"
-          description: "Middle name 2 of the client. Not applicable for Add-on client.
-            <br/> This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+          type: string
+          description: >-
+            Middle name 2 of the client. Not applicable for Add-on client. <br/>
+            This field is required if configured as **Business Mandatory**<font
+            color='red'>* </font>.
           minLength: 1
           maxLength: 100
-          pattern: "([^ ])(?!.*[-]{2})([a-zA-Z.' ]+)([^ ])"
-          example: "Tom"
+          pattern: '([^ ])(?!.*[-]{2})([a-zA-Z.'' ]+)([^ ])'
+          example: Tom
         lastName:
-          type: "string"
-          description: "Last name of the client. <br/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required while creating new client."
+          type: string
+          description: >-
+            Last name of the client. <br/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required while creating new client.
           minLength: 1
           maxLength: 100
-          pattern: "([^ ])(?!.*[-]{2})([a-zA-Z.' ]+)([^ ])"
-          example: "Smith"
+          pattern: '([^ ])(?!.*[-]{2})([a-zA-Z.'' ]+)([^ ])'
+          example: Smith
         alternateName:
-          $ref: "#/components/schemas/AlternateName"
+          $ref: '#/components/schemas/AlternateName'
     Title:
-      type: "string"
-      description: "The title or salutation that is added before the name of client.
-        <br/> <br/> **Conditional Mandatory**<font color='red'>* </font> field -
-        Required while creating new client. <br/> The valid values are configured
-        on \"Card Management > Institution Parameter Setup > System Codes [ISSS15]\"
-        screen for \"Type Id=TITLE\". **Sample values**: Mr, Mrs, Miss, Dr, Chief,
-        Sir, Ms"
-      example: "Mr"
+      type: string
+      description: >-
+        The title or salutation that is added before the name of client. <br/>
+        <br/> **Conditional Mandatory**<font color='red'>* </font> field -
+        Required while creating new client. <br/> The valid values are
+        configured on "Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]" screen for "Type Id=TITLE". **Sample values**: Mr, Mrs,
+        Miss, Dr, Chief, Sir, Ms
+      example: Mr
     ClientCode:
-      type: "string"
-      description: "Unique code of the client"
+      type: string
+      description: Unique code of the client
       minLength: 4
       maxLength: 24
-      pattern: "[a-zA-Z0-9]+"
-      example: "0000215812722194"
+      pattern: '[a-zA-Z0-9]+'
+      example: 0000215812722194
     ParentAgent:
-      type: "string"
-      description: "Parent Agent"
+      type: string
+      description: Parent Agent
       minLength: 1
       maxLength: 25
-      example: "APAC12_agent"
+      example: APAC12_agent
     StaffId:
-      type: "string"
-      description: "Staff Id. Id of the staff or employee who does the agreement with
-        client."
+      type: string
+      description: >-
+        Staff Id. Id of the staff or employee who does the agreement with
+        client.
       minLength: 1
       maxLength: 10
-      example: "7823722232"
+      example: '7823722232'
     AccountNumber:
-      type: "string"
-      description: "Account number linked to the card."
+      type: string
+      description: Account number linked to the card.
       minLength: 9
       maxLength: 24
-      pattern: "[0-9]+"
-      example: "2207131581270233863"
+      pattern: '[0-9]+'
+      example: '2207131581270233863'
     CardNumber:
-      type: "string"
-      description: "Unique number (PAN) assigned to the card. This number might be
-        masked based on the API masking configuration settings of the institution
-        in the MI Issuing customer portal."
+      type: string
+      description: >-
+        Unique number (PAN) assigned to the card. This number might be masked
+        based on the API masking configuration settings of the institution in
+        the MI Issuing customer portal.
       minLength: 12
       maxLength: 22
-      pattern: "[0-9]+"
-      example: "5001878976540298"
+      pattern: '[0-9]+'
+      example: '5001878976540298'
     PairedCardNumber:
-      type: "string"
-      description: "Unique number (PAN) of the card that is paired with this card."
+      type: string
+      description: Unique number (PAN) of the card that is paired with this card.
       minLength: 12
       maxLength: 22
-      pattern: "[0-9]+"
-      example: "5001878976540310"
+      pattern: '[0-9]+'
+      example: '5001878976540310'
     CardId:
-      type: "string"
-      description: "Unique value to identify a card"
+      type: string
+      description: Unique value to identify a card
       minLength: 32
       maxLength: 32
-      pattern: "[A-Z0-9]+"
-      example: "C24B56D71AA2E015E053F482A80ABD00"
+      pattern: '[A-Z0-9]+'
+      example: C24B56D71AA2E015E053F482A80ABD00
     CardExpiry:
-      type: "string"
-      description: "Expiry date of the card in \"MM/YY\" format. This field is not
-        applicable for LVC cards. The expiry and expiryDateTime fields are mutually
-        exclusive, which means you can use any one of these fields to specify the
-        details."
-      pattern: "(0[1-9]|1[0-2])/[0-9]{2}"
-      example: "11/30"
+      type: string
+      description: >-
+        Expiry date of the card in "MM/YY" format. This field is not applicable
+        for LVC cards. The expiry and expiryDateTime fields are mutually
+        exclusive, which means you can use any one of these fields to specify
+        the details.
+      pattern: '(0[1-9]|1[0-2])/[0-9]{2}'
+      example: 11/30
     LvcExpiryDateTime:
-      type: "string"
-      format: "date-time"
-      description: "Applicable only for LVC Card. The date/time after which LVC card
-        should be considered as expired or invalid.<br/> <br/> The expiry & expiryDateTime
-        fields are mutually exclusive. <br/>Expressed in ISO 8601 extended format.
-        Must be <br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm where [.sss] is optional
-        and can be 1 to 3 digits."
+      type: string
+      format: date-time
+      description: >-
+        Applicable only for LVC Card. The date/time after which LVC card should
+        be considered as expired or invalid.<br/> <br/> The expiry &
+        expiryDateTime fields are mutually exclusive. <br/>Expressed in ISO 8601
+        extended format. Must be <br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm where
+        [.sss] is optional and can be 1 to 3 digits.
       minLength: 20
       maxLength: 29
-      example: "2022-07-04T12:09:56.450-07:00"
+      example: '2022-07-04T12:09:56.450-07:00'
     ProgramCode:
-      type: "string"
-      description: "Program code of a card"
+      type: string
+      description: Program code of a card
       minLength: 1
       maxLength: 10
-      pattern: "[A-Z0-9](([_])?[A-Z0-9])+"
-      example: "LOANPR"
+      pattern: '[A-Z0-9](([_])?[A-Z0-9])+'
+      example: LOANPR
     ProgramDesc:
-      type: "string"
+      type: string
       minLength: 1
       maxLength: 100
-      description: "Description/Name of Program assigned to the card."
-      example: "LOANPR"
+      description: Description/Name of Program assigned to the card.
+      example: LOANPR
     CardPackId:
-      type: "string"
-      description: "Card pack id is the unique id assigned to the physical packet
-        that contains the card for delivery to the client or branch. Usually paired
-        cards are delivered in a single packet having common card pack id."
+      type: string
+      description: >-
+        Card pack id is the unique id assigned to the physical packet that
+        contains the card for delivery to the client or branch. Usually paired
+        cards are delivered in a single packet having common card pack id.
       minLength: 10
       maxLength: 24
-      pattern: "[A-Z0-9]+"
-      example: "500123MCCPGM0000000243"
+      pattern: '[A-Z0-9]+'
+      example: 500123MCCPGM0000000243
     CardAlias:
-      type: "string"
-      description: "Alias assigned to each card. This attribute is available only
-        if the CNA (card number alias) functionality is enabled for the institution."
-      pattern: "[A-Za-z0-9_!'()*+,-.]+"
+      type: string
+      description: >-
+        Alias assigned to each card. This attribute is available only if the CNA
+        (card number alias) functionality is enabled for the institution.
+      pattern: '[A-Za-z0-9_!''()*+,-.]+'
       minLength: 1
       maxLength: 24
-      example: "9055544422"
+      example: '9055544422'
     CardPlanCode:
-      type: "string"
+      type: string
       minLength: 1
       maxLength: 10
-      description: "Plan assigned to the card. If provided, the value must be part
-        of the selected program code and included in the card or account plan configuration
-        in CSR portal. This field is mandatory for EMV type of cards."
-      pattern: "[A-Z0-9](([_])?[A-Z0-9])+"
-      example: "DPMEC"
+      description: >-
+        Plan assigned to the card. If provided, the value must be part of the
+        selected program code and included in the card or account plan
+        configuration in CSR portal. This field is mandatory for EMV type of
+        cards.
+      pattern: '[A-Z0-9](([_])?[A-Z0-9])+'
+      example: DPMEC
     CardPlanDesc:
-      type: "string"
+      type: string
       minLength: 2
       maxLength: 10
-      description: "Description/Name of plan assigned to the card."
-      example: "DPMEC"
+      description: Description/Name of plan assigned to the card.
+      example: DPMEC
     CardPromoPlanCode:
-      type: "string"
+      type: string
       minLength: 2
       maxLength: 10
-      description: "Promo plan assigned to the card. If provided, the value must be
-        present in card promotion plan configuration."
-      example: "LOANPR"
+      description: >-
+        Promo plan assigned to the card. If provided, the value must be present
+        in card promotion plan configuration.
+      example: LOANPR
     CardPromoPlanDesc:
-      type: "string"
+      type: string
       minLength: 2
       maxLength: 10
-      description: "Description/Name of Promo plan assigned to the card."
-      example: "LOANPR"
+      description: Description/Name of Promo plan assigned to the card.
+      example: LOANPR
     Cvv:
-      type: "string"
-      description: "Card verification value (CVV), card security code (CSC), card
-        verification code (CVC), or card code verification (CCV) found on the back
-        of a card that provides an additional measure of card security."
+      type: string
+      description: >-
+        Card verification value (CVV), card security code (CSC), card
+        verification code (CVC), or card code verification (CCV) found on the
+        back of a card that provides an additional measure of card security.
       minLength: 3
       maxLength: 5
-      pattern: "[0-9]+"
-      example: "345"
+      pattern: '[0-9]+'
+      example: '345'
     EmbossedName:
-      type: "string"
-      description: "Embossed name of the client. <br/> **Conditional Mandatory**<font
-        color='red'>* </font> field - Required while creating new client."
+      type: string
+      description: >-
+        Embossed name of the client. <br/> **Conditional Mandatory**<font
+        color='red'>* </font> field - Required while creating new client.
       minLength: 2
       maxLength: 26
-      pattern: "([^ ])(?!.*[-]{2})([a-zA-Z.' ]+)([^ ])"
-      example: "JOHN SMITH"
+      pattern: '([^ ])(?!.*[-]{2})([a-zA-Z.'' ]+)([^ ])'
+      example: JOHN SMITH
     AlternateName:
-      type: "string"
-      description: "Alternate name of the client."
+      type: string
+      description: Alternate name of the client.
       minLength: 1
       maxLength: 200
-      pattern: "[^ ][^%<>\\\\[\\\\]^$]+[^ ]"
-      example: "Johny Smith"
+      pattern: '[^ ][^%<>\\[\\]^$]+[^ ]'
+      example: Johny Smith
     Email:
-      type: "string"
-      format: "email"
-      description: "Email address. <BR/> This field is required if configured as **Business
-        Mandatory**<font color='red'>* </font>."
+      type: string
+      format: email
+      description: >-
+        Email address. <BR/> This field is required if configured as **Business
+        Mandatory**<font color='red'>* </font>.
       minLength: 6
       maxLength: 50
-      pattern: "[_A-Za-z0-9+-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(.[A-Za-z0-9]+)*(.[A-Za-z0-9]{2,})"
-      example: "user@example.com"
+      pattern: >-
+        [_A-Za-z0-9+-]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(.[A-Za-z0-9]+)*(.[A-Za-z0-9]{2,})
+      example: user@example.com
     DateTimeType:
-      type: "string"
-      format: "date-time"
-      description: "Date expressed in ISO 8601 extended format. Must be either:<br/>
-        YYYY-MM-DDThh:mm:ss[.sss]Z - here letter 'Z' at the end means UTC time<br/>
-        YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm - where [.sss] is optional and can be
-        1 to 3 digits.<br/> The letter 'T' separates the date portion from the time-of-day
-        portion."
+      type: string
+      format: date-time
+      description: >-
+        Date expressed in ISO 8601 extended format. Must be either:<br/>
+        YYYY-MM-DDThh:mm:ss[.sss]Z - here letter 'Z' at the end means UTC
+        time<br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm - where [.sss] is optional
+        and can be 1 to 3 digits.<br/> The letter 'T' separates the date portion
+        from the time-of-day portion.
       minLength: 19
       maxLength: 29
-      example: "2020-09-17T16:09:56.450-07:00"
+      example: '2020-09-17T16:09:56.450-07:00'
     ErrorMessage:
       required:
-      - "Description"
-      - "ReasonCode"
-      - "Recoverable"
-      - "Source"
-      type: "object"
+        - Description
+        - ReasonCode
+        - Recoverable
+        - Source
+      type: object
       properties:
         Source:
-          type: "string"
-          description: "The application or component that generated this error."
+          type: string
+          description: The application or component that generated this error.
           minLength: 3
           maxLength: 50
-          example: "MI-Issuing"
+          example: MI-Issuing
         ReasonCode:
-          type: "string"
-          description: "Reason code is a unique constant identifying the error case
-            encountered during request processing."
+          type: string
+          description: >-
+            Reason code is a unique constant identifying the error case
+            encountered during request processing.
           minLength: 5
           maxLength: 100
-          example: "MISSING_REQUIRED_FIELD"
+          example: MISSING_REQUIRED_FIELD
         Description:
-          type: "string"
-          description: "Human-readable short description of the reasonCode."
+          type: string
+          description: Human-readable short description of the reasonCode.
           minLength: 10
           maxLength: 250
-          example: "Missing Required Field '<Field-Name>'"
+          example: Missing Required Field '<Field-Name>'
         Details:
-          type: "string"
-          description: "Optional detailed description provides information about data
-            received and calculated during request processing. This helps the user
-            to diagnose errors."
+          type: string
+          description: >-
+            Optional detailed description provides information about data
+            received and calculated during request processing. This helps the
+            user to diagnose errors.
           minLength: 0
           maxLength: 1000
-          example: "This is mandatory field while requesting for new card."
+          example: This is mandatory field while requesting for new card.
         Recoverable:
-          type: "boolean"
-          description: "Recoverable flag indicates whether this error is always returned
-            for this request, or retrying could change the outcome. For example,
-            'true' or 'false'."
+          type: boolean
+          description: >-
+            Recoverable flag indicates whether this error is always returned for
+            this request, or retrying could change the outcome. For example,
+            'true' or 'false'.
           example: false
     Errors:
       required:
-      - "Error"
-      type: "object"
+        - Error
+      type: object
       properties:
         Error:
-          type: "array"
-          description: "Errors array wrapped in an error object"
+          type: array
+          description: Errors array wrapped in an error object
           items:
-            $ref: "#/components/schemas/ErrorMessage"
+            $ref: '#/components/schemas/ErrorMessage'
     ErrorsInfo:
       required:
-      - "Errors"
-      type: "object"
+        - Errors
+      type: object
       properties:
         Errors:
-          $ref: "#/components/schemas/Errors"
-
+          $ref: '#/components/schemas/Errors'
     RequestValidityTime:
-      description: "Validity of the API request. It protects the API from unauthorized
-        request or man-in-the-middle (MITM) attacks <br/>For example, if the validity
-        of the API request is set for a maximum of 5 minutes (including retry attempts),
-        and someone tries to post the same request after 5 minutes, then the system
-        rejects the API request without processing."
-      type: "object"
+      description: >-
+        Validity of the API request. It protects the API from unauthorized
+        request or man-in-the-middle (MITM) attacks <br/>For example, if the
+        validity of the API request is set for a maximum of 5 minutes (including
+        retry attempts), and someone tries to post the same request after 5
+        minutes, then the system rejects the API request without processing.
+      type: object
       required:
-      - "dataValidUntilTimestamp"
+        - dataValidUntilTimestamp
       properties:
         dataValidUntilTimestamp:
-          type: "string"
-          format: "date-time"
-          description: "The date and time after which the request is considered as
-            invalid. If the timestamp of the institution is greater than this timestamp,
-            the API request is considered as expired and is returned.<br/>The dataValidUntilTimestamp
-            parameter is converted into the institution time zone before comparing
-            it with the institution date and time. It is expressed in ISO 8601 extended
-            format. Must be either <br/> YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss]
-            (+|-) hh:mm where [.sss] is optional and can be 1 to 3 digits."
+          type: string
+          format: date-time
+          description: >-
+            The date and time after which the request is considered as invalid.
+            If the timestamp of the institution is greater than this timestamp,
+            the API request is considered as expired and is returned.<br/>The
+            dataValidUntilTimestamp parameter is converted into the institution
+            time zone before comparing it with the institution date and time. It
+            is expressed in ISO 8601 extended format. Must be either <br/>
+            YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss] (+|-)
+            hh:mm where [.sss] is optional and can be 1 to 3 digits.
           minLength: 20
           maxLength: 29
-          example: "2020-07-04T12:09:56.450-07:00"
+          example: '2020-07-04T12:09:56.450-07:00'
     CardSearchCriteria:
       allOf:
-      - $ref: "#/components/schemas/RequestValidityTime"
-      type: "object"
-      description: "Search Cards Plain request data to be encrypted by the ephemeral
-        AES key using CBC mode (IV as provided in 'iv', or zero if none provided)
-        and PKCS#7 padding. To be hex-encoded."
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
+      description: >-
+        Search Cards Plain request data to be encrypted by the ephemeral AES key
+        using CBC mode (IV as provided in 'iv', or zero if none provided) and
+        PKCS#7 padding. To be hex-encoded.
       properties:
         filter:
-          $ref: "#/components/schemas/ResponseFilter"
+          $ref: '#/components/schemas/ResponseFilter'
         client:
-          $ref: "#/components/schemas/ClientSearchInfo"
+          $ref: '#/components/schemas/ClientSearchInfo'
         card:
-          $ref: "#/components/schemas/SearchCard"
+          $ref: '#/components/schemas/SearchCard'
         account:
-          $ref: "#/components/schemas/SearchAccount"
+          $ref: '#/components/schemas/SearchAccount'
     CardSearchResult:
-      type: "object"
+      type: object
       properties:
         cards:
-          type: "array"
-          description: "List of cards"
+          type: array
+          description: List of cards
           items:
-            $ref: "#/components/schemas/SearchCardResult"
+            $ref: '#/components/schemas/SearchCardResult'
         clients:
-          type: "array"
-          description: "List of linked clients"
+          type: array
+          description: List of linked clients
           items:
-            $ref: "#/components/schemas/ClientBasicInfo"
+            $ref: '#/components/schemas/ClientBasicInfo'
     ClientSearchInfo:
-      type: "object"
+      type: object
       properties:
         code:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         mobile:
-          $ref: "#/components/schemas/Mobile"
+          $ref: '#/components/schemas/Mobile'
     SearchCard:
       allOf:
-      - $ref: "#/components/schemas/BaseSearchCard"
-      description: "Search Card fields (including PCI sensitive information)"
-      type: "object"
+        - $ref: '#/components/schemas/BaseSearchCard'
+      description: Search Card fields (including PCI sensitive information)
+      type: object
       properties:
         expiry:
-          $ref: "#/components/schemas/CardExpiry"
+          $ref: '#/components/schemas/CardExpiry'
         relationships:
-          type: "array"
-          description: "Match the cards having any of the input indicators."
+          type: array
+          description: Match the cards having any of the input indicators.
           items:
-            $ref: "#/components/schemas/CardRelationship"
+            $ref: '#/components/schemas/CardRelationship'
           example:
-          - "PRIMARY"
-          - "SUPPLEMENTARY"
+            - PRIMARY
+            - SUPPLEMENTARY
         statuses:
-          type: "array"
-          description: "Card having any of these statuses."
+          type: array
+          description: Card having any of these statuses.
           items:
-            $ref: "#/components/schemas/CardStatus"
+            $ref: '#/components/schemas/CardStatus'
           example:
-          - "NORMAL"
-          - "EXPIRED"
-          - "LOST"
-          - "STOLEN"
-          - "BLOCKED"
+            - NORMAL
+            - EXPIRED
+            - LOST
+            - STOLEN
+            - BLOCKED
         productType:
-          $ref: "#/components/schemas/ProductType"
+          $ref: '#/components/schemas/ProductType'
     SearchCardResult:
       allOf:
-      - $ref: "#/components/schemas/BaseCard"
-      description: "Search Card fields (including PCI sensitive information)"
-      type: "object"
+        - $ref: '#/components/schemas/BaseCard'
+      description: Search Card fields (including PCI sensitive information)
+      type: object
       properties:
         expiry:
-          $ref: "#/components/schemas/CardExpiry"
+          $ref: '#/components/schemas/CardExpiry'
         expiryDateTime:
-          $ref: "#/components/schemas/LvcExpiryDateTime"
+          $ref: '#/components/schemas/LvcExpiryDateTime'
         promoPlanCode:
-          $ref: "#/components/schemas/CardPromoPlanCode"
+          $ref: '#/components/schemas/CardPromoPlanCode'
         accountNumber:
-          $ref: "#/components/schemas/AccountNumber"
+          $ref: '#/components/schemas/AccountNumber'
         clientCode:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         productType:
-          $ref: "#/components/schemas/ProductType"
+          $ref: '#/components/schemas/ProductType'
         corporate:
-          $ref: "#/components/schemas/CorporateClientBasicInfo"
+          $ref: '#/components/schemas/CorporateClientBasicInfo'
     SearchAccount:
-      type: "object"
+      type: object
       properties:
         number:
-          $ref: "#/components/schemas/AccountNumber"
+          $ref: '#/components/schemas/AccountNumber'
         statuses:
-          type: "array"
-          description: "Card Account having any of these statuses."
+          type: array
+          description: Card Account having any of these statuses.
           items:
-            $ref: "#/components/schemas/AccountStatus"
+            $ref: '#/components/schemas/AccountStatus'
           example:
-          - "NORMAL"
-          - "INACTIVE"
-          - "DORMANT"
-          - "NPA"
-          - "WRITE_OFF"
+            - NORMAL
+            - INACTIVE
+            - DORMANT
+            - NPA
+            - WRITE_OFF
     AccountStatus:
-      type: "string"
-      description: "Account Status. <br/> **Valid values:** <br/>
-
-                           * `NORMAL` - Normal
-        account
-
-                           * `COLLECTION` - Collection account
-
-                           * `INACTIVE` - Inactive
-        account
-
-                           * `DORMANT` - Dormant account
-
-                           * `FREEZE` - Frozen account
-
-                           * `CLOSED` - Closed account
-
-                           * `NPA` - NPA account
-
-                           * `WRITE_OFF` - Written
-        off account
-
-                           * `MANUAL_BLOCK_1` - Manually blocked account
-
-                           * `MANUAL_BLOCK_2`
-        - Manually blocked account
-
-                           * `MANUAL_BLOCK_3` - Manually blocked account
-
-                           * `MANUAL_BLOCK_4` - Manually blocked account
-
-                           * `SUSPEND_HIGH` - Suspended
-        account
-
-                           * `SUSPEND_LOW` - Suspended account"
-      example: "NORMAL"
+      type: string
+      description: |-
+        Account Status. <br/> **Valid values:** <br/>
+        * `NORMAL` - Normal account
+        * `COLLECTION` - Collection account
+        * `INACTIVE` - Inactive account
+        * `DORMANT` - Dormant account
+        * `FREEZE` - Frozen account
+        * `CLOSED` - Closed account
+        * `NPA` - NPA account
+        * `WRITE_OFF` - Written off account
+        * `MANUAL_BLOCK_1` - Manually blocked account
+        * `MANUAL_BLOCK_2` - Manually blocked account
+        * `MANUAL_BLOCK_3` - Manually blocked account
+        * `MANUAL_BLOCK_4` - Manually blocked account
+        * `SUSPEND_HIGH` - Suspended account
+        * `SUSPEND_LOW` - Suspended account
+      example: NORMAL
     ResponseFilter:
-      type: "object"
-      description: "This filter provides pagination, sorting, and field selection
-        capabilities."
+      type: object
+      description: >-
+        This filter provides pagination, sorting, and field selection
+        capabilities.
       properties:
         sort:
-          type: "string"
-          description: "Allow ascending and descending sorting over one or more fields.
-            For example, <BR/> <ul>  <li><b>sort=-name</b>: sort on the \"name\"
-            field in descending order.  <li><b>sort=+name</b>: sort on the \"
-            name\" field in ascending order. Its optional to send plus (+) sign for
-            ascending order. If the plus (+) sign sent in the URL, it must be encoded.
-             <li><b>sort=name</b>: sort on the \"name\" field in ascending order
-            (by default, ascending).  <li><b>sort=type,-date</b>: sort on the
-            \"type\" field in ascending order, followed by the \"date\" field in
-            descending order.</ul>"
+          type: string
+          description: >-
+            Allow ascending and descending sorting over one or more fields. For
+            example, <BR/> <ul>   <li><b>sort=-name</b>: sort on the "name"
+            field in descending order.   <li><b>sort=+name</b>: sort on the "
+            name" field in ascending order. Its optional to send plus (+) sign
+            for ascending order. If the plus (+) sign sent in the URL, it must
+            be encoded. <li><b>sort=name</b>: sort on the "name" field in
+            ascending order (by default, ascending).  
+            <li><b>sort=type,-date</b>: sort on the "type" field in ascending
+            order, followed by the "date" field in descending order. </ul>
           minLength: 3
           maxLength: 1000
-          pattern: "[+\\-%a-zA-Z0-9.,]*"
-          example: "-id"
+          pattern: '[+\-%a-zA-Z0-9.,]*'
+          example: '-id'
         fields:
-          type: "string"
-          description: "Fields parameter allows to restrict the set of properties
-            to be returned by specifying it explicitly. The properties are specified
+          type: string
+          description: >-
+            Fields parameter allows to restrict the set of properties to be
+            returned by specifying it explicitly. The properties are specified
             as a comma-separated list. <BR/> For example, to return only the id
-            and status properties of client: `?fields=client.id,client.status`"
+            and status properties of client: `?fields=client.id,client.status`
           minLength: 2
           maxLength: 1000
-          pattern: "[a-zA-Z0-9.,]+"
-          example: "card.id,card.status"
-
+          pattern: '[a-zA-Z0-9.,]+'
+          example: 'card.id,card.status'
     NewPinDetails:
       allOf:
-      - $ref: "#/components/schemas/RequestValidityTime"
-      type: "object"
-      description: "It is authentication token used for verification and setting up
-        new PIN for card."
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
+      description: >-
+        It is authentication token used for verification and setting up new PIN
+        for card.
       required:
-      - "token"
-      - "pin"
+        - token
+        - pin
       properties:
         token:
-          $ref: "#/components/schemas/AuthenticationToken"
+          $ref: '#/components/schemas/AuthenticationToken'
         pin:
-          $ref: "#/components/schemas/EncryptedPinBlock"
+          $ref: '#/components/schemas/EncryptedPinBlock'
     AuthenticationToken:
-      type: "string"
-      description: "One-time token to authorize a user for a single transaction that
-        is of a specific intent such as PURCHASE transaction. This token is automatically
-        generated and is valid until the date and time mentioned under tokenValidUntilTimesStamp."
+      type: string
+      description: >-
+        One-time token to authorize a user for a single transaction that is of a
+        specific intent such as PURCHASE transaction. This token is
+        automatically generated and is valid until the date and time mentioned
+        under tokenValidUntilTimesStamp.
       minLength: 32
       maxLength: 36
-      pattern: "[a-zA-Z0-9_-]+"
-      example: "ac97d177-9345-4934-8343-0f91a7a02836"
+      pattern: '[a-zA-Z0-9_-]+'
+      example: ac97d177-9345-4934-8343-0f91a7a02836
     EncryptedPinBlock:
-      description: "Encrypted card PIN block with encrypted 3-DES or AES key."
-      type: "object"
+      description: Encrypted card PIN block with encrypted 3-DES or AES key.
+      type: object
       properties:
         encryptedBlock:
-          type: "string"
-          description: "It is the PIN block in encrypted format. Both encryptedBlock
-            and encryptedKey are mutually inclusive. <br/> **Supported formats:**
+          type: string
+          description: >-
+            It is the PIN block in encrypted format. Both encryptedBlock and
+            encryptedKey are mutually inclusive. <br/> **Supported formats:**
 
-                           * `ISO 9564-1 Format 0` - PIN Block generated with ISO 9564-1 **Format-0**.
-            The generated PIN Block is encrypted using **3-DES** key
+            * `ISO 9564-1 Format 0` - PIN Block generated with ISO 9564-1
+            **Format-0**. The generated PIN Block is encrypted using **3-DES**
+            key
 
-                           * `ISO 9564-1
-            Format 4` - PIN Block generated with ISO 9564-1 **Format-4**. The generated
-            PIN Block is encrypted using **AES** key. Not supported, reserved for
-            future use."
+            * `ISO 9564-1 Format 4` - PIN Block generated with ISO 9564-1
+            **Format-4**. The generated PIN Block is encrypted using **AES**
+            key. Not supported, reserved for future use.
           minLength: 16
           maxLength: 32
-          pattern: "[A-F0-9]+"
-          example: "7E5883929BFB4C197285781D4A5ABE0C"
+          pattern: '[A-F0-9]+'
+          example: 7E5883929BFB4C197285781D4A5ABE0C
         encryptedKey:
-          type: "string"
-          description: "One-time use 3-DES or AES session key encrypted using payShield
-            HSM RSA public key. <br/> **Conditional Mandatory**<font color='red'>*
-            </font> field - Required if encryptedPinBlock field is present in the
-            request."
+          type: string
+          description: >-
+            One-time use 3-DES or AES session key encrypted using payShield HSM
+            RSA public key. <br/> **Conditional Mandatory**<font color='red'>*
+            </font> field - Required if encryptedPinBlock field is present in
+            the request.
           minLength: 32
           maxLength: 512
-          pattern: "[a-zA-Z0-9]+"
-          example: "761c774372f410dee6ac4dd4a06e4dee6f7f26104de41...a5ae627ea35ccde74b3ce93cadfc6c0fa6c7bda574"
+          pattern: '[a-zA-Z0-9]+'
+          example: >-
+            761c774372f410dee6ac4dd4a06e4dee6f7f26104de41...a5ae627ea35ccde74b3ce93cadfc6c0fa6c7bda574
         algorithm:
-          $ref: "#/components/schemas/EncryptionAlgorithm"
+          $ref: '#/components/schemas/EncryptionAlgorithm'
     EncryptionAlgorithm:
-      type: "string"
-      description: "Cryptographic encryption algorithm that is used to generate the
-        encryption key and encrypt the PIN block. Currently only 3-DES encryption
-        algorithm is supported. If value is not provided in the input, then default
-        3-DES algorithm is considered. <br/> **Valid values:**
+      type: string
+      description: >-
+        Cryptographic encryption algorithm that is used to generate the
+        encryption key and encrypt the PIN block. Currently only 3-DES
+        encryption algorithm is supported. If value is not provided in the
+        input, then default 3-DES algorithm is considered. <br/> **Valid
+        values:**
 
-                           * `3DES` - 3-DES
-        encryption(default value)
+        * `3DES` - 3-DES encryption(default value)
 
-                           * `AES` - AES encryption(Not supported, reserved
-        for future use)"
-      example: "3DES"
-
+        * `AES` - AES encryption(Not supported, reserved for future use)
+      example: 3DES
     ClientProfile:
-      type: "object"
+      type: object
       properties:
         branchCode:
-          type: "string"
-          description: "Branch Code"
+          type: string
+          description: Branch Code
           minLength: 1
           maxLength: 6
-          pattern: "[0-9]+"
-          example: "0316"
+          pattern: '[0-9]+'
+          example: '0316'
         branchReferenceNumber:
-          type: "string"
-          description: "Branch Reference Number. Applicable only for credit product."
+          type: string
+          description: Branch Reference Number. Applicable only for credit product.
           minLength: 1
           maxLength: 20
-          example: "AD8023"
+          example: AD8023
         primaryClients:
-          type: "array"
-          description: "List of primary clients."
+          type: array
+          description: List of primary clients.
           items:
-            $ref: "#/components/schemas/ClientBasicInfo"
+            $ref: '#/components/schemas/ClientBasicInfo'
         client:
-          $ref: "#/components/schemas/GetClientDetails"
+          $ref: '#/components/schemas/GetClientDetails'
         cards:
-          type: "array"
-          description: "List of cards"
+          type: array
+          description: List of cards
           items:
-            $ref: "#/components/schemas/SearchCardResult"
+            $ref: '#/components/schemas/SearchCardResult'
         accounts:
-          type: "array"
-          description: "List of accounts linked to the card returned"
+          type: array
+          description: List of accounts linked to the card returned
           items:
-            $ref: "#/components/schemas/BaseAccount"
+            $ref: '#/components/schemas/BaseAccount'
     GetClientDetails:
       allOf:
-      - $ref: "#/components/schemas/Client"
-      type: "object"
+        - $ref: '#/components/schemas/Client'
+      type: object
       properties:
         staffId:
-          $ref: "#/components/schemas/StaffId"
+          $ref: '#/components/schemas/StaffId'
         customFields:
-          $ref: "#/components/schemas/ClientCustomFields"
+          $ref: '#/components/schemas/ClientCustomFields'
     Client:
       allOf:
-      - $ref: "#/components/schemas/PersonDetails"
-      type: "object"
+        - $ref: '#/components/schemas/PersonDetails'
+      type: object
       properties:
         code:
-          $ref: "#/components/schemas/ClientCode"
+          $ref: '#/components/schemas/ClientCode'
         type:
-          $ref: "#/components/schemas/ClientType"
+          $ref: '#/components/schemas/ClientType'
         vip:
-          type: "boolean"
-          description: "Indicates whether client is VIP person. false (Default) indicates
-            Normal client and true indicates VIP client. <BR/> This field is required
-            if configured as **Business Mandatory**<font color='red'>* </font>."
+          type: boolean
+          description: >-
+            Indicates whether client is VIP person. false (Default) indicates
+            Normal client and true indicates VIP client. <BR/> This field is
+            required if configured as **Business Mandatory**<font color='red'>*
+            </font>.
           default: false
           example: false
         riskCategory:
-          $ref: "#/components/schemas/RiskCategory"
+          $ref: '#/components/schemas/RiskCategory'
         cobrandNumber:
-          $ref: "#/components/schemas/CobrandNumber"
+          $ref: '#/components/schemas/CobrandNumber'
         reuterReferenceNumber:
-          $ref: "#/components/schemas/ReuterReferenceNumber"
+          $ref: '#/components/schemas/ReuterReferenceNumber'
         familyDetails:
-          $ref: "#/components/schemas/FamilyDetails"
+          $ref: '#/components/schemas/FamilyDetails'
         propertyDetails:
-          $ref: "#/components/schemas/PropertyDetails"
+          $ref: '#/components/schemas/PropertyDetails'
         reference:
-          $ref: "#/components/schemas/ReferenceDetails"
+          $ref: '#/components/schemas/ReferenceDetails'
         insuranceDetails:
-          $ref: "#/components/schemas/InsuranceDetails"
+          $ref: '#/components/schemas/InsuranceDetails'
     ClientType:
-      type: "string"
-      description: "Indicates client type <br /> <BR/> **Conditional Mandatory**<font
+      type: string
+      description: >-
+        Indicates client type <br /> <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on \"Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]\"    screen for \"Type Id=CUSTOMER_TYPE\"
-        .<br/> **Few sample values:**  `Individual`, `Corporate`, `Bank Staff`"
-      example: "Individual"
+        Valid values are configured on "Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]"     screen for "Type Id=CUSTOMER_TYPE" .
+        <br/> **Few sample values:**  `Individual`, `Corporate`, `Bank Staff`
+      example: Individual
     SourceSystemClientMapping:
-      description: "Client information mapping with source system identifiers"
-      type: "object"
+      description: Client information mapping with source system identifiers
+      type: object
       properties:
         clientId:
-          type: "string"
-          description: "Source system Client unique ID created and managed by institution
-            system. <BR/> This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+          type: string
+          description: >-
+            Source system Client unique ID created and managed by institution
+            system. <BR/> This field is required if configured as **Business
+            Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 20
-          pattern: "[a-zA-Z0-9]+"
-          example: "PRA389403"
+          pattern: '[a-zA-Z0-9]+'
+          example: PRA389403
         cbsReferenceNumber:
-          type: "string"
-          description: "Client unique Reference Number created and managed by institution
-            CBS. <BR/> This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+          type: string
+          description: >-
+            Client unique Reference Number created and managed by institution
+            CBS. <BR/> This field is required if configured as **Business
+            Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 20
-          pattern: "[a-zA-Z0-9]+"
-          example: "2004887393283"
+          pattern: '[a-zA-Z0-9]+'
+          example: '2004887393283'
         cbsClientId:
-          type: "string"
-          description: "Client unique ID created and managed by institution CBS."
+          type: string
+          description: Client unique ID created and managed by institution CBS.
           minLength: 1
           maxLength: 20
-          pattern: "[a-zA-Z0-9]+"
-          example: "rob8765"
+          pattern: '[a-zA-Z0-9]+'
+          example: rob8765
     RiskCategory:
-      type: "string"
-      description: "Client's risk category. <BR/> This field is required if configured
-        as **Business Mandatory**<font color='red'>* </font>. <br/> **Valid values:**
+      type: string
+      description: >-
+        Client's risk category. <BR/> This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>. <br/> **Valid
+        values:**
 
-                           * `NONE` - Insignificant or no risk
+        * `NONE` - Insignificant or no risk
 
-                           * `LOW` - Low risk
+        * `LOW` - Low risk
 
-                           * `MODERATE`
-        - Moderate risk
+        * `MODERATE` - Moderate risk
 
-                           * `HIGH` - High risk
+        * `HIGH` - High risk
 
-                           * `CRITICAL` - Critical risk
+        * `CRITICAL` - Critical risk
 
-                           * `CATASTROPHIC` - Catastrophic risk"
-      example: "LOW"
+        * `CATASTROPHIC` - Catastrophic risk
+      example: LOW
     FamilyDetails:
-      description: "Family Information, Applicable only if the client has a credit
-        card."
-      type: "object"
+      description: 'Family Information, Applicable only if the client has a credit card.'
+      type: object
       properties:
         noOfDependents:
-          type: "integer"
-          format: "int32"
-          description: "Number Of dependents"
+          type: integer
+          format: int32
+          description: Number Of dependents
           example: 2
         spouse:
-          $ref: "#/components/schemas/SpouseDetails"
+          $ref: '#/components/schemas/SpouseDetails'
         children:
-          description: "Children information. Supports max 2 children information."
-          type: "array"
+          description: Children information. Supports max 2 children information.
+          type: array
           minItems: 0
           maxItems: 2
           items:
-            $ref: "#/components/schemas/ChildDetails"
+            $ref: '#/components/schemas/ChildDetails'
     SpouseDetails:
-      description: "Spouse Information"
-      type: "object"
+      description: Spouse Information
+      type: object
       properties:
         name:
-          type: "string"
+          type: string
           minLength: 1
           maxLength: 50
-          description: "Name of the spouse"
-          example: "Johnny"
+          description: Name of the spouse
+          example: Johnny
         working:
-          type: "boolean"
-          description: "Employment status of client spouse."
+          type: boolean
+          description: Employment status of client spouse.
           example: true
         netAnnualIncome:
-          type: "integer"
-          format: "int64"
-          description: "Annual income of client spouse."
-          example: "200000"
+          type: integer
+          format: int64
+          description: Annual income of client spouse.
+          example: '200000'
     ChildDetails:
-      description: "Child Information"
-      type: "object"
+      description: Child Information
+      type: object
       properties:
         name:
-          type: "string"
+          type: string
           minLength: 1
           maxLength: 50
-          description: "Name of the child"
-          example: "Steve"
+          description: Name of the child
+          example: Steve
         birthDate:
-          type: "string"
-          format: "date"
-          description: "Date of birth of the client. <br/> Format - It is expressed
-            in ISO 8601 - `YYYY-MM-DD`"
-          example: "2010-07-22"
+          type: string
+          format: date
+          description: >-
+            Date of birth of the client. <br/> Format - It is expressed in ISO
+            8601 - `YYYY-MM-DD`
+          example: '2010-07-22'
     PropertyDetails:
-      description: "Property Information, Applicable only if the client has a credit
-        card."
-      type: "object"
+      description: 'Property Information, Applicable only if the client has a credit card.'
+      type: object
       properties:
         ownedVehicleType:
-          $ref: "#/components/schemas/OwnedVehicleType"
+          $ref: '#/components/schemas/OwnedVehicleType'
     OwnedVehicleType:
-      type: "string"
-      description: "Owned Vehicle Type. <br/> Valid values are configured on \"Card
-        Management > Institution Parameter Setup > System Codes [ISSS15]\"
-        screen for \"Type Id=OWNED_VEHICLE_TYPE\".<br/> **Few sample values:**
-         `Two wheeler`, `Four wheeler`"
-      example: "Four wheeler"
+      type: string
+      description: >-
+        Owned Vehicle Type. <br/> Valid values are configured on "Card
+        Management > Institution Parameter Setup > System Codes [ISSS15]" screen
+        for "Type Id=OWNED_VEHICLE_TYPE". <br/> **Few sample values:** `Two
+        wheeler`, `Four wheeler`
+      example: Four wheeler
     ReferenceDetails:
-      type: "object"
+      type: object
       properties:
         fullName:
-          type: "string"
-          description: "Reference Person Full Name"
-          example: "Jack Smith"
+          type: string
+          description: Reference Person Full Name
+          example: Jack Smith
           minLength: 1
           maxLength: 40
         relation:
-          $ref: "#/components/schemas/Relation"
+          $ref: '#/components/schemas/Relation'
         address:
-          $ref: "#/components/schemas/Address"
+          $ref: '#/components/schemas/Address'
         contact:
-          $ref: "#/components/schemas/ReferenceContact"
+          $ref: '#/components/schemas/ReferenceContact'
         dsaCode:
-          type: "string"
-          description: "Should be present in the system (Vendor -> DSA)"
+          type: string
+          description: Should be present in the system (Vendor -> DSA)
           minLength: 1
           maxLength: 6
-          example: "D90789"
+          example: D90789
         verificationAgency:
-          type: "string"
-          description: "Verification agency code"
+          type: string
+          description: Verification agency code
           minLength: 1
           maxLength: 16
-          example: "James Bond"
+          example: James Bond
     ReferenceContact:
-      type: "object"
+      type: object
       properties:
         mobile:
-          $ref: "#/components/schemas/Mobile"
+          $ref: '#/components/schemas/Mobile'
         phoneNumber:
-          type: "string"
-          description: "Single or Multiple or Range of contact numbers. for example,
-            9120556677/88/98."
+          type: string
+          description: >-
+            Single or Multiple or Range of contact numbers. for example,
+            9120556677/88/98.
           minLength: 1
           maxLength: 80
-          example: "02025870567/68/69"
+          example: 02025870567/68/69
     InsuranceDetails:
-      type: "object"
+      type: object
       properties:
         nominee:
-          $ref: "#/components/schemas/NomineeDetails"
+          $ref: '#/components/schemas/NomineeDetails'
         witnessedBy:
-          type: "string"
-          description: "Name of the person who witnessed the consent of client for
-            nominee details"
+          type: string
+          description: >-
+            Name of the person who witnessed the consent of client for nominee
+            details
           minLength: 1
           maxLength: 40
-          example: "Jack Smith"
+          example: Jack Smith
     NomineeDetails:
-      type: "object"
+      type: object
       properties:
         fullName:
-          type: "string"
-          description: "Nominee Full Name"
+          type: string
+          description: Nominee Full Name
           minLength: 1
           maxLength: 40
-          example: "Mrs. Mary Elizabeth"
+          example: Mrs. Mary Elizabeth
         relation:
-          $ref: "#/components/schemas/Relation"
+          $ref: '#/components/schemas/Relation'
         birthDate:
-          type: "string"
-          format: "date"
-          description: "Date of birth. <br/> Format - It is expressed in ISO 8601
-            - `YYYY-MM-DD`"
-          example: "1991-06-21"
+          type: string
+          format: date
+          description: >-
+            Date of birth. <br/> Format - It is expressed in ISO 8601 -
+            `YYYY-MM-DD`
+          example: '1991-06-21'
         contact:
-          $ref: "#/components/schemas/NomineeContact"
+          $ref: '#/components/schemas/NomineeContact'
     BasePerson:
-      type: "object"
+      type: object
       properties:
         profile:
-          $ref: "#/components/schemas/Profile"
+          $ref: '#/components/schemas/Profile'
         currentAddress:
-          $ref: "#/components/schemas/CurrentAddress"
+          $ref: '#/components/schemas/CurrentAddress'
         permanentAddress:
-          $ref: "#/components/schemas/PermanentAddress"
+          $ref: '#/components/schemas/PermanentAddress'
         officeAddress:
-          $ref: "#/components/schemas/Address"
+          $ref: '#/components/schemas/Address'
         currentContact:
-          $ref: "#/components/schemas/CurrentContact"
+          $ref: '#/components/schemas/CurrentContact'
         permanentContact:
-          $ref: "#/components/schemas/CurrentContact"
+          $ref: '#/components/schemas/CurrentContact'
         officeContact:
-          $ref: "#/components/schemas/OfficeContact"
+          $ref: '#/components/schemas/OfficeContact'
         registeredContacts:
-          $ref: "#/components/schemas/RegisteredContacts"
+          $ref: '#/components/schemas/RegisteredContacts'
         preferences:
-          $ref: "#/components/schemas/ClientPreferences"
+          $ref: '#/components/schemas/ClientPreferences'
         occupation:
-          $ref: "#/components/schemas/Occupation"
+          $ref: '#/components/schemas/Occupation'
     PersonDetails:
       allOf:
-      - $ref: "#/components/schemas/BasePerson"
-      type: "object"
+        - $ref: '#/components/schemas/BasePerson'
+      type: object
       properties:
         sourceSystem:
-          $ref: "#/components/schemas/SourceSystemClientMapping"
+          $ref: '#/components/schemas/SourceSystemClientMapping'
         kyc:
-          $ref: "#/components/schemas/KycDetails"
+          $ref: '#/components/schemas/KycDetails'
     ClientPreferences:
-      type: "object"
+      type: object
       properties:
         language:
-          $ref: "#/components/schemas/Language"
+          $ref: '#/components/schemas/Language'
         mailingAddress:
-          $ref: "#/components/schemas/MailingAddress"
+          $ref: '#/components/schemas/MailingAddress'
         statementDelivery:
-          $ref: "#/components/schemas/StatementDeliveryOption"
+          $ref: '#/components/schemas/StatementDeliveryOption'
         registerForDNCR:
-          type: "boolean"
-          description: "Indicates whether registered in DNCR (Do Not Call Register)
-            or not. Default false. <BR/> This field is required if configured as
-            **Business Mandatory**<font color='red'>* </font>."
+          type: boolean
+          description: >-
+            Indicates whether registered in DNCR (Do Not Call Register) or not.
+            Default false. <BR/> This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           example: false
         smsAlert:
-          type: "boolean"
-          description: "Indicates whether registered for SMS alert notification facility
-            or not. Default false. <BR/> This field is required if configured as
-            **Business Mandatory**<font color='red'>* </font>."
+          type: boolean
+          description: >-
+            Indicates whether registered for SMS alert notification facility or
+            not. Default false. <BR/> This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           example: false
         emailAlert:
-          type: "boolean"
-          description: "Indicates whether registered for Email alert notification
-            facility or not. Default false. <BR/> This field is required if configured
-            as **Business Mandatory**<font color='red'>* </font>."
+          type: boolean
+          description: >-
+            Indicates whether registered for Email alert notification facility
+            or not. Default false. <BR/> This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           example: false
     Language:
-      type: "string"
-      description: "Language preference. Language tags should be in the 'Language-Region'
-        format as described by Internet Engineering Task Force (IETF) BCP 47 standard.
-        <BR/> **Conditional Mandatory**<font color='red'>* </font> field - Required
-        while creating new client. <br/> **Valid values:**
+      type: string
+      description: >-
+        Language preference. Language tags should be in the 'Language-Region'
+        format as described by Internet Engineering Task Force (IETF) BCP 47
+        standard. <BR/> **Conditional Mandatory**<font color='red'>* </font>
+        field - Required while creating new client. <br/> **Valid values:**
 
-                           * `en-US` - English
-        language
+        * `en-US` - English language
 
-                           * `ar-AE` - Arabic language
+        * `ar-AE` - Arabic language
 
-                           * `th-TH` - Thai language"
-      example: "en-US"
+        * `th-TH` - Thai language
+      example: en-US
     MailingAddress:
-      type: "string"
-      description: "Client's preferred mailing address. <BR/> **Conditional Mandatory**<font
+      type: string
+      description: >-
+        Client's preferred mailing address. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        **Valid values:** `CURRENT`, `PERMANENT`, `OFFICE`"
-      example: "CURRENT"
+        **Valid values:** `CURRENT`, `PERMANENT`, `OFFICE`
+      example: CURRENT
     StatementDeliveryOption:
-      type: "string"
-      description: "Statement delivery options. <BR/> **Conditional Mandatory**<font
+      type: string
+      description: >-
+        Statement delivery options. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on \"Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]\"    screen for \"Type Id=STATEMENT_PREFERENCE\"
-        .<br/> **Few sample values:**
+        Valid values are configured on "Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]"     screen for "Type
+        Id=STATEMENT_PREFERENCE" . <br/> **Few sample values:**
 
-                           * `Email` - Statement delivery via Email
+        * `Email` - Statement delivery via Email
 
-                           * `Hard Copy` - Statement delivery via Hard Copy
+        * `Hard Copy` - Statement delivery via Hard Copy
 
-                           * `Both` - Statement
-        delivery via Email as well as Hard copy"
-      example: "Email"
+        * `Both` - Statement delivery via Email as well as Hard copy
+      example: Email
     Relation:
-      type: "string"
-      description: "It is the relation of the add-on client with the primary client.
-        <BR/> **Conditional Mandatory**<font color='red'>* </font> field - Add-on
+      type: string
+      description: >-
+        It is the relation of the add-on client with the primary client. <BR/>
+        **Conditional Mandatory**<font color='red'>* </font> field - Add-on
         clientCode and relation fields are mutually exclusive while creating the
-        client. If both present, then relation value will be ignored. <br/> Valid
-        values are configured on \"Card Management > Institution Parameter Setup
-        > System Codes [ISSS15]\"    screen for \"Type Id=RELATION\".<br/> **Few
-        sample values:** `Brother`, `Business card`, `Daughter`, `Father`, `Father
-        In Law`, `Mother`, `Mother In Law`, `Others`, `Sister`, `Son`, `Spouse`"
-      example: "Spouse"
+        client. If both present, then relation value will be ignored. <br/>
+        Valid values are configured on "Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]"     screen for "Type Id=RELATION". <br/>
+        **Few sample values:** `Brother`, `Business card`, `Daughter`, `Father`,
+        `Father In Law`, `Mother`, `Mother In Law`, `Others`, `Sister`, `Son`,
+        `Spouse`
+      example: Spouse
     MobileWithoutIsd:
-      type: "object"
-      description: "Mobile number details"
+      type: object
+      description: Mobile number details
       properties:
         number:
-          type: "string"
-          description: "Mobile number excluding ISD Code. <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required when SMS alert is activated or
-            ISD value is provided."
-          pattern: "[0-9]+"
+          type: string
+          description: >-
+            Mobile number excluding ISD Code. <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required when SMS
+            alert is activated or ISD value is provided.
+          pattern: '[0-9]+'
           minLength: 4
           maxLength: 15
-          example: "9058344422"
+          example: '9058344422'
     NomineeContact:
-      type: "object"
+      type: object
       properties:
         email:
-          $ref: "#/components/schemas/Email"
+          $ref: '#/components/schemas/Email'
         mobile:
-          $ref: "#/components/schemas/MobileWithoutIsd"
+          $ref: '#/components/schemas/MobileWithoutIsd'
     Contact:
-      type: "object"
+      type: object
       properties:
         email:
-          $ref: "#/components/schemas/Email"
+          $ref: '#/components/schemas/Email'
         mobile:
-          $ref: "#/components/schemas/Mobile"
+          $ref: '#/components/schemas/Mobile'
     CurrentContact:
-      type: "object"
+      type: object
       properties:
         phoneNumber1:
-          $ref: "#/components/schemas/PhoneNumber1"
+          $ref: '#/components/schemas/PhoneNumber1'
         phoneNumber2:
-          $ref: "#/components/schemas/PhoneNumber2"
+          $ref: '#/components/schemas/PhoneNumber2'
     OfficeContact:
       allOf:
-      - $ref: "#/components/schemas/Contact"
-      type: "object"
+        - $ref: '#/components/schemas/Contact'
+      type: object
       properties:
         phoneNumber1:
-          $ref: "#/components/schemas/PhoneNumber1"
+          $ref: '#/components/schemas/PhoneNumber1'
         phoneNumber2:
-          $ref: "#/components/schemas/PhoneNumber2"
+          $ref: '#/components/schemas/PhoneNumber2'
         extension:
-          $ref: "#/components/schemas/PhoneExtension"
+          $ref: '#/components/schemas/PhoneExtension'
     Kyc:
-      type: "object"
+      type: object
       properties:
         legalDocuments:
-          $ref: "#/components/schemas/LegalDocuments"
+          $ref: '#/components/schemas/LegalDocuments'
         status:
-          type: "boolean"
-          description: "KYC status of the client. If the status is true it indicates
-            that KYC data has been updated and KYC completed. <BR/>This field is
+          type: boolean
+          description: >-
+            KYC status of the client. If the status is true it indicates that
+            KYC data has been updated and KYC completed. <BR/>This field is
             required if configured as **Business Mandatory**<font color='red'>*
-            </font>."
+            </font>.
           example: true
         remark:
-          type: "string"
-          description: "Remarks on the KYC status or documents. <BR/> **Conditional
-            Mandatory**<font color='red'>* </font> field - Required when KYC status
-            is true."
+          type: string
+          description: >-
+            Remarks on the KYC status or documents. <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required when KYC
+            status is true.
           minLength: 1
           maxLength: 100
-          pattern: "[^%<>\\\\[\\\\]^$]+"
-          example: "KYC has been done by XYZ"
+          pattern: '[^%<>\\[\\]^$]+'
+          example: KYC has been done by XYZ
     KycDetails:
       allOf:
-      - $ref: "#/components/schemas/Kyc"
-      type: "object"
+        - $ref: '#/components/schemas/Kyc'
+      type: object
       properties:
         verificationDate:
-          type: "string"
-          format: "date"
-          description: "The date on which KYC details were updated. <br/> Format -
-            It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "1991-06-21"
+          type: string
+          format: date
+          description: >-
+            The date on which KYC details were updated. <br/> Format - It is
+            expressed in ISO 8601 - `YYYY-MM-DD`
+          example: '1991-06-21'
     LegalDocumentType:
-      type: "string"
-      description: "Legal Document Type <BR/> **Conditional Mandatory**<font color='red'>*
-        </font> field - Required when type is configured in document checklist plan
-        associated with program. <br/> Valid values are configured on \"Card Management
-        > Institution Parameter Setup > System Codes [ISSS15]\"    screen for
-        \"Type Id=LEGAL_IDENTIFICATION_TYPE\".<br/> **Few sample values:**
+      type: string
+      description: >-
+        Legal Document Type <BR/> **Conditional Mandatory**<font color='red'>*
+        </font> field - Required when type is configured in document checklist
+        plan associated with program. <br/> Valid values are configured on "Card
+        Management > Institution Parameter Setup > System Codes [ISSS15]"    
+        screen for "Type Id=LEGAL_IDENTIFICATION_TYPE". <br/> **Few sample
+        values:**
 
-                           * `Passport`
+        * `Passport`
 
-                           * `National Id`
+        * `National Id`
 
-                           * `Tax ID`
+        * `Tax ID`
 
-                           * `Driving License`
+        * `Driving License`
 
-                           * `Travel Ticket`
+        * `Travel Ticket`
 
-                           * `Travel
-        Visa`
+        * `Travel Visa`
 
-                           * `Voter ID`
+        * `Voter ID`
 
-                           * `Pan Card`
+        * `Pan Card`
 
-                           * `Pan card`
+        * `Pan card`
 
-                           * `Ration Card`
+        * `Ration Card`
 
-                           * `Aadhar Card`
+        * `Aadhar Card`
 
-                           * `Company Id`
+        * `Company Id`
 
-                           * `Other Id`"
-      example: "National Id"
+        * `Other Id`
+      example: National Id
     LegalDocument:
-      description: "Legal document that is required for KYC."
-      type: "object"
+      description: Legal document that is required for KYC.
+      type: object
       properties:
         id:
-          type: "string"
-          description: "ID of legal document. <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required when legal document type is provided."
+          type: string
+          description: >-
+            ID of legal document. <BR/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required when legal document type is
+            provided.
           minLength: 4
           maxLength: 25
-          pattern: "[a-zA-Z0-9]+"
-          example: "P039238238"
+          pattern: '[a-zA-Z0-9]+'
+          example: P039238238
         type:
-          $ref: "#/components/schemas/LegalDocumentType"
+          $ref: '#/components/schemas/LegalDocumentType'
         placeOfIssuance:
-          type: "string"
-          description: "Place of issuance of legal document <BR/> **Conditional Mandatory**<font
-            color='red'>* </font> field - Required when legal document id is provided
-            and configured in document checklist plan associated with program."
+          type: string
+          description: >-
+            Place of issuance of legal document <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required when legal
+            document id is provided and configured in document checklist plan
+            associated with program.
           minLength: 1
           maxLength: 100
-          pattern: "[^%<>\\\\[\\\\]^$]+"
-          example: "Mumbai, India"
+          pattern: '[^%<>\\[\\]^$]+'
+          example: 'Mumbai, India'
         expiryDate:
-          type: "string"
-          format: "date"
-          description: "Date on which the legal document will expire. <BR/> **Conditional
-            Mandatory**<font color='red'>* </font> field - Required when legal document
-            id is provided and configured in document checklist plan associated
-            with program. <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "2050-05-16"
+          type: string
+          format: date
+          description: >-
+            Date on which the legal document will expire. <BR/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required when legal
+            document id is provided and configured in document checklist plan
+            associated with program. <br/> Format - It is expressed in ISO 8601
+            - `YYYY-MM-DD`
+          example: '2050-05-16'
     LegalDocuments:
-      description: "Set of legal documents associated with a given client that are
-        required for KYC."
-      type: "array"
+      description: >-
+        Set of legal documents associated with a given client that are required
+        for KYC.
+      type: array
       items:
-        $ref: "#/components/schemas/LegalDocument"
+        $ref: '#/components/schemas/LegalDocument'
       minItems: 0
       maxItems: 4
     ClientCustomFields:
-      type: "array"
-      description: "Client Custom fields array (not recommended to be used)"
+      type: array
+      description: Client Custom fields array (not recommended to be used)
       items:
-        $ref: "#/components/schemas/ClientCustomField"
+        $ref: '#/components/schemas/ClientCustomField'
       minItems: 0
       maxItems: 15
       example:
-      - name: "clientDateField1"
-        value: "2021-09-21"
-      - name: "clientDataField1"
-        value: "sample-data"
-      - name: "clientNumberField1"
-        value: "234.78"
+        - name: clientDateField1
+          value: '2021-09-21'
+        - name: clientDataField1
+          value: sample-data
+        - name: clientNumberField1
+          value: '234.78'
     ClientCustomField:
-      type: "object"
+      type: object
       properties:
         name:
-          type: "string"
-          description: "Custom field name like: `clientDateField1`, `clientDataField1`,
+          type: string
+          description: >-
+            Custom field name like: `clientDateField1`, `clientDataField1`,
             `clientNumberField1`. <BR/> Only 5 fields of each type are supported
-            like clientDateField2, clientDateField3, clientDateField4, clientDateField5.
-            <BR/> This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
-          pattern: "((client)(Date|Data|Number)Field[1-5]?)"
-          example: "clientDataField2"
+            like clientDateField2, clientDateField3, clientDateField4,
+            clientDateField5. <BR/> This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
+          pattern: '((client)(Date|Data|Number)Field[1-5]?)'
+          example: clientDataField2
         value:
-          type: "string"
-          description: "Custom field value.
+          type: string
+          description: >-
+            Custom field value.
 
-                           * In case of date value, it must be expressed
-            in ISO 8601 format - YYYY-MM-DD. For example, 2022-01-16
+            * In case of date value, it must be expressed in ISO 8601 format -
+            YYYY-MM-DD. For example, 2022-01-16
 
-                           * In case of
-            data, it could be a free text that may contain alphanumeric letters
-            or special characters mentioned in the pattern field.
+            * In case of data, it could be a free text that may contain
+            alphanumeric letters or special characters mentioned in the pattern
+            field.
 
-                           * In case of number
-            value, it is recommended to provide a number having maximum 12 digits
-            before decimal and up to 5 digits after decimal. For example: 999999999999.99999"
+            * In case of number value, it is recommended to provide a number
+            having maximum 12 digits before decimal and up to 5 digits after
+            decimal. For example: 999999999999.99999
           minLength: 1
           maxLength: 100
-          pattern: "[a-zA-Z0-9 ,&.'-]+"
-          example: "B8908"
+          pattern: '[a-zA-Z0-9 ,&.''-]+'
+          example: B8908
     EmployerType:
-      type: "string"
-      description: "Type of employer. <BR/>This field is required if configured as
-        **Business Mandatory**<font color='red'>* </font>. <br/> Valid values are
-        configured on \"Card Management > Institution Parameter Setup > System Codes
-        [ISSS15]\"    screen for \"Type Id=COMP_TYPE\".<br/> **Few sample values:**
-         `Private`, `Public`, `Government`, `Non Government`"
-      example: "Non Government"
+      type: string
+      description: >-
+        Type of employer. <BR/>This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
+        are configured on "Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]"     screen for "Type Id=COMP_TYPE". <br/> **Few
+        sample values:** `Private`, `Public`, `Government`, `Non Government`
+      example: Non Government
     EmploymentStatus:
-      type: "string"
-      description: "Status of Employment. <BR/>This field is required if configured
-        as **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on \"Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]\"    screen for \"Type Id=EMPLOYMENT_STATUS\".<br/> **Few
-        sample values:**  `OTHER`, `PERMANENT`, `CONTRACTUAL`, `SELF EMPLOYED`,
-        `RETIRED`, `HOME MAKER`, `STUDENT`, `BUSINESS`, `SALARIED`"
-      example: "PERMANENT"
+      type: string
+      description: >-
+        Status of Employment. <BR/>This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
+        are configured on "Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]"     screen for "Type Id=EMPLOYMENT_STATUS". <br/>
+        **Few sample values:**  `OTHER`, `PERMANENT`, `CONTRACTUAL`, `SELF
+        EMPLOYED`, `RETIRED`, `HOME MAKER`, `STUDENT`, `BUSINESS`, `SALARIED`
+      example: PERMANENT
     OccupationType:
-      type: "string"
-      description: "Occupation type of the employee. <BR/>This field is required if
-        configured as **Business Mandatory**<font color='red'>* </font>. <br/> Valid
-        values are configured on \"Card Management > Institution Parameter Setup
-        > System Codes [ISSS15]\"    screen for \"Type Id=OCCUPATION\".<br/>
-        **Few sample values:**  `Service`, `Professional`, `Business`, `Retired`,
-        `House Hold`, `Student`, `Others`"
-      example: "Service"
+      type: string
+      description: >-
+        Occupation type of the employee. <BR/>This field is required if
+        configured as **Business Mandatory**<font color='red'>* </font>. <br/>
+        Valid values are configured on "Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]"     screen for "Type Id=OCCUPATION".
+        <br/> **Few sample values:**  `Service`, `Professional`, `Business`,
+        `Retired`, `House Hold`, `Student`, `Others`
+      example: Service
     ProfessionType:
-      type: "string"
-      description: "Profession Type. <BR/>This field is required if configured as
-        **Business Mandatory**<font color='red'>* </font>. <br/> Valid values are
-        configured on \"Card Management > Institution Parameter Setup > System Codes
-        [ISSS15]\"    screen for \"Type Id=APPLICANT_PROF\".<br/> **Few sample
-        values:**  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`, `Others`,
-        `Proprietorship`, `Partnership`, `Pvt Ltd Co.`, `HUF`, `Manufacturer`, `Export/
-        Importer`, `Trader/Stockist`, `Retailer`, `Service Provider`, `Consultant
-        Professional`, `Professional`, `Education`, `Bank/Financial Services`, `Agriculture`,
-        `Salesman`, `Barangay Official`"
-      example: "Others"
+      type: string
+      description: >-
+        Profession Type. <BR/>This field is required if configured as **Business
+        Mandatory**<font color='red'>* </font>. <br/> Valid values are
+        configured on "Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]"     screen for "Type Id=APPLICANT_PROF". <br/> **Few
+        sample values:**  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`,
+        `Others`, `Proprietorship`, `Partnership`, `Pvt Ltd Co.`, `HUF`,
+        `Manufacturer`, `Export/ Importer`, `Trader/Stockist`, `Retailer`,
+        `Service Provider`, `Consultant Professional`, `Professional`,
+        `Education`, `Bank/Financial Services`, `Agriculture`, `Salesman`,
+        `Barangay Official`
+      example: Others
     Designation:
-      type: "string"
-      description: "Designation of the employee. <BR/>This field is required if configured
+      type: string
+      description: >-
+        Designation of the employee. <BR/>This field is required if configured
         as **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on \"Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]\"    screen for \"Type Id=EMPL_DESIGNATION\".<br/> **Few
-        sample values:**  `Executive`, `Sr Executive`, `Manager`, `Sr Manager`,
-        `Asst Gen Manager`, `Dy Gen Manager`, `General Manager`, `Vice President`,
-        `Director`, `Others`, `Clerical`, `Middle Management`, `Junior Management`,
-        `Supervisory`, `Top Management`"
-      example: "Others"
+        are configured on "Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]"     screen for "Type Id=EMPL_DESIGNATION". <br/>
+        **Few sample values:**  `Executive`, `Sr Executive`, `Manager`, `Sr
+        Manager`, `Asst Gen Manager`, `Dy Gen Manager`, `General Manager`, `Vice
+        President`, `Director`, `Others`, `Clerical`, `Middle Management`,
+        `Junior Management`, `Supervisory`, `Top Management`
+      example: Others
     Occupation:
-      type: "object"
+      type: object
       properties:
         employerName:
-          type: "string"
-          description: "Employer Name. <BR/>This field is required if configured as
-            **Business Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Employer Name. <BR/>This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 40
-          pattern: "[a-zA-Z0-9]+"
-          example: "Mastercard"
+          pattern: '[a-zA-Z0-9]+'
+          example: Mastercard
         employerType:
-          $ref: "#/components/schemas/EmployerType"
+          $ref: '#/components/schemas/EmployerType'
         department:
-          type: "string"
-          description: "Department of client. <BR/>This field is required if configured
-            as **Business Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Department of client. <BR/>This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 50
-          pattern: "[a-zA-Z0-9.&_'\"]+"
-          example: "IT"
+          pattern: '[a-zA-Z0-9.&_''"]+'
+          example: IT
         employeeId:
-          type: "string"
-          description: "Employee ID of client. <BR/>This field is required if configured
-            as **Business Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Employee ID of client. <BR/>This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 20
-          pattern: "[a-zA-Z0-9]+"
-          example: "E03982"
+          pattern: '[a-zA-Z0-9]+'
+          example: E03982
         type:
-          $ref: "#/components/schemas/OccupationType"
+          $ref: '#/components/schemas/OccupationType'
         professionType:
-          $ref: "#/components/schemas/ProfessionType"
+          $ref: '#/components/schemas/ProfessionType'
         designation:
-          $ref: "#/components/schemas/Designation"
+          $ref: '#/components/schemas/Designation'
         employmentStatus:
-          $ref: "#/components/schemas/EmploymentStatus"
+          $ref: '#/components/schemas/EmploymentStatus'
         joiningDate:
-          type: "string"
-          format: "date"
-          description: "Joining date of current job. <BR/>This field is required if
-            configured as **Business Mandatory**<font color='red'>* </font>. <br/>
-            Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "2010-01-19"
+          type: string
+          format: date
+          description: >-
+            Joining date of current job. <BR/>This field is required if
+            configured as **Business Mandatory**<font color='red'>* </font>.
+            <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
+          example: '2010-01-19'
         employmentDuration:
-          type: "integer"
-          format: "int32"
+          type: integer
+          format: int32
           minimum: 0
           maximum: 99
-          description: "Duration (in years) of employment with current employer. <BR/>This
-            field is required if configured as **Business Mandatory**<font color='red'>*
-            </font>."
+          description: >-
+            Duration (in years) of employment with current employer. <BR/>This
+            field is required if configured as **Business Mandatory**<font
+            color='red'>* </font>.
           example: 2
         netAnnualIncome:
-          type: "integer"
-          format: "int64"
+          type: integer
+          format: int64
           minimum: 0
           maximum: 999999999999
-          description: "Annual income of client. <BR/>This field is required if configured
-            as **Business Mandatory**<font color='red'>* </font>."
+          description: >-
+            Annual income of client. <BR/>This field is required if configured
+            as **Business Mandatory**<font color='red'>* </font>.
           example: 100000
     Address:
-      type: "object"
+      type: object
       properties:
         line1:
-          type: "string"
-          description: "Address line 1. If the any of the address line value is present
-            but line 1 value is absent then blank value will be considered. <BR/>
-            **Conditional Mandatory**<font color='red'>* </font> field - <BR/> Current
-            Address line1 is required while creating new client. <BR/> Office or
-            Permanent Address line1 is required if selected as preferred Mailing
-            Address."
+          type: string
+          description: >-
+            Address line 1. If the any of the address line value is present but
+            line 1 value is absent then blank value will be considered. <BR/>
+            **Conditional Mandatory**<font color='red'>* </font> field - <BR/>
+            Current Address line1 is required while creating new client. <BR/>
+            Office or Permanent Address line1 is required if selected as
+            preferred Mailing Address.
           minLength: 1
           maxLength: 150
-          pattern: "(([a-zA-Z0-9])+([\\ .,&#:*()-])*)+"
-          example: "House no. 45, second floor"
+          pattern: '(([a-zA-Z0-9])+([\ .,&#:*()-])*)+'
+          example: 'House no. 45, second floor'
         line2:
-          type: "string"
-          description: "Address line 2. If the any of the address line value is present
-            but line 2 value is absent then blank value will be considered. <BR/>
+          type: string
+          description: >-
+            Address line 2. If the any of the address line value is present but
+            line 2 value is absent then blank value will be considered. <BR/>
             This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+            color='red'>* </font>.
           minLength: 1
           maxLength: 150
-          pattern: "(([a-zA-Z0-9])+([\\ .,&#:*()-])*)+"
-          example: "Apartment no. 567, Pashan"
+          pattern: '(([a-zA-Z0-9])+([\ .,&#:*()-])*)+'
+          example: 'Apartment no. 567, Pashan'
         line3:
-          type: "string"
-          description: "Address line 3. If the any of the address line value is present
-            but line 3 value is absent then blank value will be considered. <BR/>
+          type: string
+          description: >-
+            Address line 3. If the any of the address line value is present but
+            line 3 value is absent then blank value will be considered. <BR/>
             This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+            color='red'>* </font>.
           minLength: 1
           maxLength: 150
-          pattern: "(([a-zA-Z0-9])+([\\ .,&#:*()-])*)+"
-          example: "Pashan Sus Road"
+          pattern: '(([a-zA-Z0-9])+([\ .,&#:*()-])*)+'
+          example: Pashan Sus Road
         line4:
-          type: "string"
-          description: "Address line 4. If the any of the address line value is present
-            but line 4 value is absent then blank value will be considered. <BR/>
+          type: string
+          description: >-
+            Address line 4. If the any of the address line value is present but
+            line 4 value is absent then blank value will be considered. <BR/>
             This field is required if configured as **Business Mandatory**<font
-            color='red'>* </font>."
+            color='red'>* </font>.
           minLength: 1
           maxLength: 150
-          pattern: "(([a-zA-Z0-9])+([\\ .,&#:*()-])*)+"
-          example: "Near NIV Office"
+          pattern: '(([a-zA-Z0-9])+([\ .,&#:*()-])*)+'
+          example: Near NIV Office
         city:
-          type: "string"
-          description: "City (free text). <BR/> This field will be ignored and populated
-            internally if given country is same as institution country,    and
-            city is configured to be auto populated in Card Management > Institution
-            Parameter Setup    by selecting the option \"Validate Domestic Postal
-            Code [Y]\" or \"Do Not Validate Domestic Postal Code-Auto populate [D]\"
-            ."
+          type: string
+          description: >-
+            City (free text). <BR/> This field will be ignored and populated
+            internally if given country is same as institution country,     and
+            city is configured to be auto populated in Card Management >
+            Institution Parameter Setup     by selecting the option "Validate
+            Domestic Postal Code [Y]" or "Do Not Validate Domestic Postal
+            Code-Auto populate [D]" .
           minLength: 1
           maxLength: 50
-          pattern: "[^ ][a-zA-Z0-9 ]+[^ ]"
-          example: "PUN"
+          pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
+          example: PUN
         state:
-          type: "string"
-          description: "State. <BR/> This field is required if configured as **Business
+          type: string
+          description: >-
+            State. <BR/> This field is required if configured as **Business
             Mandatory**<font color='red'>* </font>
 
-                           * If zip flag is configured
-            at Institution level by selecting the 'Domestic Postal Code Mandatory'
-            check box, then the state code must be present in the request, as per
-            the state master configured in the system.
+            * If zip flag is configured at Institution level by selecting the
+            'Domestic Postal Code Mandatory' check box, then the state code must
+            be present in the request, as per the state master configured in the
+            system.
 
-                           * Otherwise, if the zip
-            flag is not configured at institution level, then regardless of the
-            applicant's state code, this field is a free text.
+            * Otherwise, if the zip flag is not configured at institution level,
+            then regardless of the applicant's state code, this field is a free
+            text.
 
-                           * This field will
-            be ignored and populated internally if given country is same as institution
-            country,    and state is configured to be auto populated in Card Management
-            > Institution Parameter Setup    by selecting the option \"Validate
-            Domestic Postal Code [Y]\" or \"Do Not Validate Domestic Postal Code-Auto
-            populate [D]\"."
+            * This field will be ignored and populated internally if given
+            country is same as institution country,     and state is configured
+            to be auto populated in Card Management > Institution Parameter
+            Setup     by selecting the option "Validate Domestic Postal Code
+            [Y]" or "Do Not Validate Domestic Postal Code-Auto populate [D]".
           minLength: 1
           maxLength: 50
-          pattern: "[^ ][a-zA-Z0-9 ]+[^ ]"
-          example: "MH"
+          pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
+          example: MH
         country:
-          description: "Country Code. Expressed as a 2-letter (alpha-2) country code
-            as defined in ISO 3166. <BR/> **Conditional Mandatory**<font color='red'>*
-            </font> field - <BR/>
+          description: >-
+            Country Code. Expressed as a 2-letter (alpha-2) country code as
+            defined in ISO 3166. <BR/> **Conditional Mandatory**<font
+            color='red'>* </font> field - <BR/>
 
-                           * Current Address country is required while creating
-            new client. <BR/>
+            * Current Address country is required while creating new client.
+            <BR/>
 
-                           * Office or Permanent Address country is required
-            if selected as preferred Mailing Address."
-          type: "string"
+            * Office or Permanent Address country is required if selected as
+            preferred Mailing Address.
+          type: string
           minLength: 2
           maxLength: 2
-          pattern: "[A-Z]+"
-          example: "IN"
+          pattern: '[A-Z]+'
+          example: IN
         zipCode:
-          type: "string"
-          description: "Zip Code. <BR/> **Conditional Mandatory**<font color='red'>*
-            </font> field - <BR/>
+          type: string
+          description: >-
+            Zip Code. <BR/> **Conditional Mandatory**<font color='red'>* </font>
+            field - <BR/>
 
-                           * Required if given country is same as institution
-            country, and zipCode is configured as mandatory    in Card Management
-            > Institution Parameter Setup by selecting the \"Validate Domestic Postal
-            Code [Y]\".<BR/>
+            * Required if given country is same as institution country, and
+            zipCode is configured as mandatory     in Card Management >
+            Institution Parameter Setup by selecting the "Validate Domestic
+            Postal Code [Y]". <BR/>
 
-                           * Office or Permanent Address zipCode is required
-            if selected as preferred Mailing Address."
+            * Office or Permanent Address zipCode is required if selected as
+            preferred Mailing Address.
           minLength: 1
           maxLength: 10
-          pattern: "[^ ][a-zA-Z0-9 ]+[^ ]"
-          example: "411021"
+          pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
+          example: '411021'
     LodgingMode:
-      type: "string"
-      description: "Lodging Mode. <br/> Valid values are configured on \"Card Management
-        > Institution Parameter Setup > System Codes [ISSS15]\"    screen for
-        \"Type Id=RESIDENCE_STATUS\".<br/> **Few sample values:**  `Not reported`,
-        `Financed`, `Owned`, `Rented`, `Company leased`, `PG`, `Office`, `Parental`"
-      example: "Owned"
+      type: string
+      description: >-
+        Lodging Mode. <br/> Valid values are configured on "Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]"     screen for
+        "Type Id=RESIDENCE_STATUS". <br/> **Few sample values:**  `Not
+        reported`, `Financed`, `Owned`, `Rented`, `Company leased`, `PG`,
+        `Office`, `Parental`
+      example: Owned
     CurrentAddress:
       allOf:
-      - $ref: "#/components/schemas/Address"
-      type: "object"
+        - $ref: '#/components/schemas/Address'
+      type: object
       properties:
         lodgingMode:
-          $ref: "#/components/schemas/LodgingMode"
+          $ref: '#/components/schemas/LodgingMode'
     PermanentAddress:
       allOf:
-      - $ref: "#/components/schemas/Address"
-      type: "object"
+        - $ref: '#/components/schemas/Address'
+      type: object
       properties:
         permanentAddressFrom:
-          type: "string"
-          format: "date"
-          description: "Date since when the referenced address is defined as the permanent
-            address.  <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`"
-          example: "2000-02-22"
+          type: string
+          format: date
+          description: >-
+            Date since when the referenced address is defined as the permanent
+            address.  <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
+          example: '2000-02-22'
     Profile:
       allOf:
-      - $ref: "#/components/schemas/BasicProfile"
-      description: "Set of Personally Identifiable Information (PII) associated with
-        a given client."
-      type: "object"
+        - $ref: '#/components/schemas/BasicProfile'
+      description: >-
+        Set of Personally Identifiable Information (PII) associated with a given
+        client.
+      type: object
       properties:
         maidenName:
-          type: "string"
-          description: "Maiden name of the client. <br/> This field is required if
-            configured as **Business Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Maiden name of the client. <br/> This field is required if
+            configured as **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 50
-          pattern: "[^ ][^%<>\\\\[\\\\]^$]+[^ ]"
-          example: "Ria"
+          pattern: '[^ ][^%<>\\[\\]^$]+[^ ]'
+          example: Ria
         gender:
-          $ref: "#/components/schemas/Gender"
+          $ref: '#/components/schemas/Gender'
         birthDate:
-          type: "string"
-          format: "date"
-          description: "Date of birth. <br/> **Conditional Mandatory**<font color='red'>*
-            </font> field - Required while creating new client. <br/> Date format
-            must be ISO 8601: `YYYY-MM-DD` <br/> where: <br/> YYYY = four-digit
-            year <br/> MM   = two-digit month (01=January, etc.) <br/> DD
-            = two-digit day of month (01 through 31, as applicable)"
-          example: "1991-06-21"
+          type: string
+          format: date
+          description: >-
+            Date of birth. <br/> **Conditional Mandatory**<font color='red'>*
+            </font> field - Required while creating new client. <br/> Date
+            format must be ISO 8601: `YYYY-MM-DD`  <br/> where:  <br/> YYYY =
+            four-digit year  <br/> MM   = two-digit month (01=January, etc.) 
+            <br/> DD = two-digit day of month (01 through 31, as applicable)
+          example: '1991-06-21'
         birthCity:
-          type: "string"
-          description: "Birth city of the client. City will be verified against the
-            City master setup. <br/> This field is required if configured as **Business
-            Mandatory**<font color='red'>* </font>."
+          type: string
+          description: >-
+            Birth city of the client. City will be verified against the City
+            master setup. <br/> This field is required if configured as
+            **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 50
-          pattern: "[^ ][^%<>\\\\[\\\\]^$]+[^ ]"
-          example: "London"
+          pattern: '[^ ][^%<>\\[\\]^$]+[^ ]'
+          example: London
         birthCountry:
-          description: "Expressed as a 2-letter (alpha-2) country code as defined
-            in ISO 3166. <br/> For example - IN, US, CA, GB <br/> This field is
+          description: >-
+            Expressed as a 2-letter (alpha-2) country code as defined in ISO
+            3166. <br/> For example - IN, US, CA, GB <br/> This field is
             required if configured as **Business Mandatory**<font color='red'>*
-            </font>."
-          type: "string"
+            </font>.
+          type: string
           maxLength: 2
           minLength: 2
-          example: "GB"
-          pattern: "[A-Z]+"
+          example: GB
+          pattern: '[A-Z]+'
         education:
-          $ref: "#/components/schemas/EducationQualification"
+          $ref: '#/components/schemas/EducationQualification'
         maritalStatus:
-          $ref: "#/components/schemas/MaritalStatus"
+          $ref: '#/components/schemas/MaritalStatus'
         nationality:
-          description: "The status of belonging to a particular nation. <br/> **Conditional
-            Mandatory**<font color='red'>* </font> field - Required while creating
-            new client. <br/> Expressed as a 2-letter (alpha-2) country code as
-            defined in ISO 3166. <br/> For example - IN, US, CA, GB"
-          type: "string"
+          description: >-
+            The status of belonging to a particular nation. <br/> **Conditional
+            Mandatory**<font color='red'>* </font> field - Required while
+            creating new client. <br/> Expressed as a 2-letter (alpha-2) country
+            code as defined in ISO 3166. <br/> For example - IN, US, CA, GB
+          type: string
           maxLength: 2
           minLength: 2
-          example: "GB"
-          pattern: "[A-Z]+"
+          example: GB
+          pattern: '[A-Z]+'
     Gender:
-      type: "string"
-      description: "Indicates Gender of the client. <br/> <br/> **Conditional Mandatory**<font
-        color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on \"Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]\"    screen for \"Type Id=GENDER\".<br/>
-        **Few sample values:** `Female`, `Male`, `Not Reported`"
-      example: "Male"
+      type: string
+      description: >-
+        Indicates Gender of the client. <br/> <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required while creating
+        new client. <br/> Valid values are configured on "Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]"     screen for
+        "Type Id=GENDER". <br/> **Few sample values:** `Female`, `Male`, `Not
+        Reported`
+      example: Male
     EducationQualification:
-      type: "string"
-      description: "Educational Qualification. <br/> This field is required if configured
-        as **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on \"Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]\"    screen for \"Type Id=EDUCATION\".<br/> **Few sample
-        values:**  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post Graduate`,
-        `Professional`, `Others`, `PHD`, `Diploma`"
-      example: "Graduate"
+      type: string
+      description: >-
+        Educational Qualification. <br/> This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
+        are configured on "Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]"     screen for "Type Id=EDUCATION". <br/> **Few
+        sample values:**  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post
+        Graduate`, `Professional`, `Others`, `PHD`, `Diploma`
+      example: Graduate
     MaritalStatus:
-      type: "string"
-      description: "Indicates Marital Status of the client. <br/> <br/> **Conditional
-        Mandatory**<font color='red'>* </font> field - Required while creating new
-        client. <br/> Valid values are configured on \"Card Management > Institution
-        Parameter Setup > System Codes [ISSS15]\"    screen for \"Type Id=MARITAL_STATUS\"
-        .<br/> **Few sample values:**  `Single`, `Married`, `Divorcee`, `Widow/Widower`"
-      example: "Married"
+      type: string
+      description: >-
+        Indicates Marital Status of the client. <br/> <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required while creating
+        new client. <br/> Valid values are configured on "Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]"     screen for
+        "Type Id=MARITAL_STATUS" . <br/> **Few sample values:**  `Single`,
+        `Married`, `Divorcee`, `Widow/Widower`
+      example: Married
     CobrandNumber:
-      type: "string"
-      description: "Co-brand Number Value. It is also known as Partner Membership
-        Number. <BR/> This field is required if configured as **Business Mandatory**<font
-        color='red'>* </font>."
+      type: string
+      description: >-
+        Co-brand Number Value. It is also known as Partner Membership Number.
+        <BR/> This field is required if configured as **Business
+        Mandatory**<font color='red'>* </font>.
       minLength: 1
       maxLength: 20
-      pattern: "[a-zA-Z0-9]+"
-      example: "Citi"
+      pattern: '[a-zA-Z0-9]+'
+      example: Citi
     ReuterReferenceNumber:
-      type: "string"
-      description: "Reuter reference number value. <BR/> This field is required if
-        configured as **Business Mandatory**<font color='red'>* </font>."
+      type: string
+      description: >-
+        Reuter reference number value. <BR/> This field is required if
+        configured as **Business Mandatory**<font color='red'>* </font>.
       minLength: 1
       maxLength: 20
-      pattern: "[a-zA-Z0-9]+"
-      example: "MUM89"
+      pattern: '[a-zA-Z0-9]+'
+      example: MUM89
     PhoneNumber1:
-      type: "string"
-      description: "Single or Multiple or Range of contact numbers. for example, 9120556677/88/98.
-        <BR/> This field is required if configured as **Business Mandatory**<font
-        color='red'>* </font>."
+      type: string
+      description: >-
+        Single or Multiple or Range of contact numbers. for example,
+        9120556677/88/98. <BR/> This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>.
       minLength: 4
       maxLength: 15
-      pattern: "([0-9]+([0-9 -/ \\\\[\\\\]])*[0-9]+)*"
-      example: "02025870577/88"
+      pattern: '([0-9]+([0-9 -/ \\[\\]])*[0-9]+)*'
+      example: 02025870577/88
     PhoneNumber2:
-      type: "string"
-      description: "Single or Multiple or Range of contact numbers. for example, 8120556678/68/58.
-        <BR/> This field is required if configured as **Business Mandatory**<font
-        color='red'>* </font>."
+      type: string
+      description: >-
+        Single or Multiple or Range of contact numbers. for example,
+        8120556678/68/58. <BR/> This field is required if configured as
+        **Business Mandatory**<font color='red'>* </font>.
       minLength: 4
       maxLength: 15
-      pattern: "([0-9]+([0-9 -/ \\\\[\\\\]])*[0-9]+)*"
-      example: "04025870466/99"
+      pattern: '([0-9]+([0-9 -/ \\[\\]])*[0-9]+)*'
+      example: 04025870466/99
     PhoneExtension:
-      type: "string"
-      description: "Extension Number"
+      type: string
+      description: Extension Number
       minLength: 1
       maxLength: 15
-      pattern: "([0-9]+([0-9 -/ \\\\[\\\\]])*[0-9]+)+"
-      example: "2987"
-
+      pattern: '([0-9]+([0-9 -/ \\[\\]])*[0-9]+)+'
+      example: '2987'
     UpdatedClient:
       allOf:
-      - $ref: "#/components/schemas/RequestValidityTime"
-      type: "object"
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
       properties:
         client:
-          $ref: "#/components/schemas/UpdateClient"
+          $ref: '#/components/schemas/UpdateClient'
     ServiceRequestDetails:
-      type: "object"
+      type: object
       properties:
         serviceRequests:
-          type: "array"
-          description: "List of service requests"
+          type: array
+          description: List of service requests
           items:
-            $ref: "#/components/schemas/ServiceRequest"
+            $ref: '#/components/schemas/ServiceRequest'
           example:
-          - number: "10051811635"
-            purpose: "REGISTERED_MOBILE_CHANGE"
-          - number: "10051811636"
-            purpose: "REGISTERED_EMAIL_CHANGE"
+            - number: '10051811635'
+              purpose: REGISTERED_MOBILE_CHANGE
+            - number: '10051811636'
+              purpose: REGISTERED_EMAIL_CHANGE
     UpdateClient:
       allOf:
-      - $ref: "#/components/schemas/UpdatePerson"
-      type: "object"
+        - $ref: '#/components/schemas/UpdatePerson'
+      type: object
       properties:
         vip:
-          type: "boolean"
-          description: "Indicates whether client is VIP person. false (Default) indicates
-            Normal client and true indicates VIP client. <BR/> This field is required
-            if configured as **Business Mandatory**<font color='red'>* </font>."
+          type: boolean
+          description: >-
+            Indicates whether client is VIP person. false (Default) indicates
+            Normal client and true indicates VIP client. <BR/> This field is
+            required if configured as **Business Mandatory**<font color='red'>*
+            </font>.
           default: false
           example: false
         riskCategory:
-          $ref: "#/components/schemas/RiskCategory"
+          $ref: '#/components/schemas/RiskCategory'
         cobrandNumber:
-          $ref: "#/components/schemas/CobrandNumber"
+          $ref: '#/components/schemas/CobrandNumber'
         reuterReferenceNumber:
-          $ref: "#/components/schemas/ReuterReferenceNumber"
+          $ref: '#/components/schemas/ReuterReferenceNumber'
         customFields:
-          $ref: "#/components/schemas/ClientCustomFields"
+          $ref: '#/components/schemas/ClientCustomFields'
     ServiceRequest:
-      type: "object"
+      type: object
       properties:
         number:
-          type: "string"
-          description: "Service request number that is logged in the system if the
-            request is processed successfully by the system."
+          type: string
+          description: >-
+            Service request number that is logged in the system if the request
+            is processed successfully by the system.
           minLength: 1
           maxLength: 11
-          example: "10051811635"
+          example: '10051811635'
         purpose:
-          $ref: "#/components/schemas/ServiceRequestPurpose"
+          $ref: '#/components/schemas/ServiceRequestPurpose'
     ServiceRequestPurpose:
-      type: "string"
-      example: "REGISTERED_MOBILE_CHANGE"
-      description: "Purpose of service request. <br/> **Valid values:**
-
-                           * `REGISTERED_MOBILE_CHANGE`
-        - Indicates registered mobile number change
-
-                           * `REGISTERED_EMAIL_CHANGE`
-        - Indicates registered email address change"
+      type: string
+      example: REGISTERED_MOBILE_CHANGE
+      description: |-
+        Purpose of service request. <br/> **Valid values:**
+        * `REGISTERED_MOBILE_CHANGE` - Indicates registered mobile number change
+        * `REGISTERED_EMAIL_CHANGE` - Indicates registered email address change
     UpdatePerson:
       allOf:
-      - $ref: "#/components/schemas/BasePerson"
-      type: "object"
+        - $ref: '#/components/schemas/BasePerson'
+      type: object
       properties:
         sourceSystem:
-          $ref: "#/components/schemas/SourceSystemClientMapping"
+          $ref: '#/components/schemas/SourceSystemClientMapping'
         kyc:
-          $ref: "#/components/schemas/KycDocuments"
+          $ref: '#/components/schemas/KycDocuments'
     KycDocuments:
-      type: "object"
+      type: object
       properties:
         legalDocuments:
-          $ref: "#/components/schemas/LegalDocuments"
-
+          $ref: '#/components/schemas/LegalDocuments'
   parameters:
-
     CardID:
-      name: "card_id"
-      in: "path"
-      description: "A unique system-generated ID that is assigned to a card during
-        card issuance. This ID can be used instead of the card number while sharing
+      name: card_id
+      in: path
+      description: >-
+        A unique system-generated ID that is assigned to a card during card
+        issuance. This ID can be used instead of the card number while sharing
         PCI sensitive data.
 
-                           * minLength: 32
+        * minLength: 32
 
-                           * maxLength: 32
+        * maxLength: 32
 
-                           * pattern: [A-Z0-9]+"
+        * pattern: [A-Z0-9]+
       required: true
       schema:
-        type: "string"
+        type: string
         minLength: 32
         maxLength: 32
-        pattern: "[A-Z0-9]+"
-      example: "C24B56D71AA2E015E053F482A80ABD00"
+        pattern: '[A-Z0-9]+'
+      example: C24B56D71AA2E015E053F482A80ABD00
     CorrelationID:
-      name: "X-MC-Correlation-ID"
-      in: "header"
-      description: "Correlation ID, also known as Transit ID or Request ID, is a unique
+      name: X-MC-Correlation-ID
+      in: header
+      description: >-
+        Correlation ID, also known as Transit ID or Request ID, is a unique
         identifier value attached to a particular transaction or event chain.The
-        Correlation ID also helps in auditing, debugging, and tracing the request
-        execution flow. <BR/> It is recommended to generate universally unique identifier
-        (UUID) in compliance with RFC 4122.<BR/> If the Correlation ID is not received
-        in the incoming request, the Mastercard Processing platform generates a
-        universally unique identifier (UUID) dynamically and assigns it to the request.
-        The Correlation ID is always added to the response header to provide end
-        to end traceability.
+        Correlation ID also helps in auditing, debugging, and tracing the
+        request execution flow. <BR/> It is recommended to generate universally
+        unique identifier (UUID) in compliance with RFC 4122.<BR/> If the
+        Correlation ID is not received in the incoming request, the Mastercard
+        Processing platform generates a universally unique identifier (UUID)
+        dynamically and assigns it to the request. The Correlation ID is always
+        added to the response header to provide end to end traceability.
 
-                           * minLength: 6
+        * minLength: 6
 
-                           * maxLength: 36
+        * maxLength: 36
 
-                           * pattern: [a-zA-Z0-9_-]+"
+        * pattern: [a-zA-Z0-9_-]+
       schema:
-        type: "string"
+        type: string
         minLength: 6
         maxLength: 36
-        pattern: "[a-zA-Z0-9_-]+"
-      example: "ac97d177-9345-4934-8343-0f91a7a02836"
-    Source:
-      name: "X-MC-Source"
-      in: "header"
-      description: "Value identifying the origin or source of a transaction. The list
-        of possible sample values are available in the database and shared in the
-        API_SOURCE_VALUES list under \"Card Management > Institution Parameter Setup
-        > System Codes [ISSS15]\". This field is used only for logging purpose.<br/>
+        pattern: '[a-zA-Z0-9_-]+'
+      example: ac97d177-9345-4934-8343-0f91a7a02836
+    BankCode:
+      name: X-MC-Bank-Code
+      in: header
+      description: >-
+        It is a 6 digit bank/institution identifier code. <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required to be passed  by
+        third party vendors or service provider (like 3-D Secure authenticator)
+        who has access to the data of multiple banks, supported by legal
+        agreement and access grants.
 
-                           * minLength: 3
+        * minLength: 6
 
-                           * maxLength: 3
+        * maxLength: 6
 
-                           * pattern: [A-Z0-9]+ <br/><br/> **Few
-        sample values:** <br/>
-
-                           * `IVR` - Interactive Voice Response
-
-                           * `MAP`
-        - Mobile Application
-
-                           * `ATM` - Automated Teller Machine
-
-                           * `NBN` - Net
-        Banking Application
-
-                           * `POS` - Point of Sale
-
-                           * `SCH` - Scheme
-
-                           * `CBS`
-        - Core Banking System
-
-                           * `SMS` - Short Message Service
-
-                           * `ACS` - Access
-        Control Server
-
-                           * `ONS` - On-Us Transaction
-
-                           * `OTH` - Other"
+        * pattern: [0-9]+
       schema:
-        type: "string"
+        type: string
+        minLength: 6
+        maxLength: 6
+        pattern: '[0-9]+'
+      example: '112233'
+    Source:
+      name: X-MC-Source
+      in: header
+      description: >-
+        Value identifying the origin or source of a transaction. The list of
+        possible sample values are available in the database and shared in the
+        API_SOURCE_VALUES list under "Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]". This field is used only for logging
+        purpose.<br/>
+
+        * minLength: 3
+
+        * maxLength: 3
+
+        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values:** <br/>
+
+        * `IVR` - Interactive Voice Response
+
+        * `MAP` - Mobile Application
+
+        * `ATM` - Automated Teller Machine
+
+        * `NBN` - Net Banking Application
+
+        * `POS` - Point of Sale
+
+        * `SCH` - Scheme
+
+        * `CBS` - Core Banking System
+
+        * `SMS` - Short Message Service
+
+        * `ACS` - Access Control Server
+
+        * `ONS` - On-Us Transaction
+
+        * `OTH` - Other
+      schema:
+        type: string
         minLength: 3
         maxLength: 3
-        pattern: "[A-Z0-9]+"
-      example: "MAP"
+        pattern: '[A-Z0-9]+'
+      example: MAP
     EndUserID:
-      name: "X-MC-Client-Application-User-ID"
-      in: "header"
-      description: "A unique identifier to track end user who is performing action
-        at the client's or consumer's end. <BR/>This field is used only for logging
+      name: X-MC-Client-Application-User-ID
+      in: header
+      description: >-
+        A unique identifier to track end user who is performing action at the
+        client's or consumer's end. <BR/>This field is used only for logging
         purpose.
 
-                           * minLength: 3
+        * minLength: 3
 
-                           * maxLength: 50
+        * maxLength: 50
 
-                           * pattern: [a-zA-Z0-9_-]+"
+        * pattern: [a-zA-Z0-9_-]+
       schema:
-        type: "string"
+        type: string
         minLength: 3
         maxLength: 50
-        pattern: "[a-zA-Z0-9_-]+"
-      example: "S0648-IN"
+        pattern: '[a-zA-Z0-9_-]+'
+      example: S0648-IN
     Fields:
-      in: "query"
-      name: "fields"
-      description: "The Fields parameter restricts the set of properties to be returned
-        for a field in the API response. These properties must be present in the
-        API response structure that is the JSON path. These properties can be added
-        as a comma-separated list."
+      in: query
+      name: fields
+      description: >-
+        The Fields parameter restricts the set of properties to be returned for
+        a field in the API response. These properties must be present in the API
+        response structure that is the JSON path. These properties can be added
+        as a comma-separated list.
       required: false
       schema:
-        type: "string"
+        type: string
         minLength: 2
         maxLength: 1000
-        pattern: "[a-zA-Z0-9.,]+"
+        pattern: '[a-zA-Z0-9.,]+'
       examples:
-        Sample-1-[Path = credit > card > id]:
-          value: "credit.card.id"
-        Sample-2-[Path = card > id]:
-          value: "card.id"
-
+        'Sample-1-[Path = credit > card > id]':
+          value: credit.card.id
+        'Sample-2-[Path = card > id]':
+          value: card.id
+        'Sample-3-[Path = acquirerControls > mcc ]':
+          value: acquirerControls.mcc
     ClientCode:
-      name: "client_code"
-      in: "path"
-      description: "Unique code of a client.
-
-                           * minLength: 4
-
-                           * maxLength: 24
-
-                           * pattern: [a-zA-Z0-9]+"
+      name: client_code
+      in: path
+      description: |-
+        Unique code of a client.
+        * minLength: 4
+        * maxLength: 24
+        * pattern: [a-zA-Z0-9]+
       required: true
       schema:
-        type: "string"
+        type: string
         minLength: 4
         maxLength: 24
-        pattern: "[a-zA-Z0-9]+"
-      example: "3333E0000022190619111777"
-
+        pattern: '[a-zA-Z0-9]+'
+      example: '3333E0000022190619111777'
   headers:
-
     Response-Correlation-ID:
-      description: "Returns the request identifier (like UUID) received in client
-        request header or generated by the server."
+      description: >-
+        Returns the request identifier (like UUID) received in client request
+        header or generated by the server.
       schema:
-        type: "string"
+        type: string
         minLength: 6
         maxLength: 36
-      example: "ac97d177-9345-4934-8343-0f91a7a02836"
-
+      example: ac97d177-9345-4934-8343-0f91a7a02836
   requestBodies:
-
     CardSearchCriteriaRequest:
-      description: "Card Information to Retrieve matching cards"
+      description: Card Information to Retrieve matching cards
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CardSearchCriteria"
+            $ref: '#/components/schemas/CardSearchCriteria'
       required: true
-
     UpdatePinRequest:
-      description: "Card new PIN and authentication token details"
+      description: Card new PIN and authentication token details
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/NewPinDetails"
+            $ref: '#/components/schemas/NewPinDetails'
       required: true
-
     UpdatedClientRequest:
-      description: "Updated client information"
+      description: Updated client information
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/UpdatedClient"
+            $ref: '#/components/schemas/UpdatedClient'
       required: true
-
   responses:
-
     CardProfileResponse:
-      description: "The card was successfully retrieved."
+      description: The card was successfully retrieved.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CardProfile"
+            $ref: '#/components/schemas/CardProfile'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
+          $ref: '#/components/headers/Response-Correlation-ID'
     BadGetRequestError:
-      description: "The request failed due to invalid or missing value. The value
-        could be a header value, a query parameter value, or a request body property
-        value."
+      description: >-
+        The request failed due to invalid or missing value. The value could be a
+        header value, a query parameter value, or a request body property value.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorsInfo"
+            $ref: '#/components/schemas/ErrorsInfo'
           examples:
             MissingRequiredFieldExample:
-              $ref: "#/components/examples/MissingRequiredFieldExample"
+              $ref: '#/components/examples/MissingRequiredFieldExample'
             InvalidFieldValueExample:
-              $ref: "#/components/examples/InvalidFieldValueExample"
+              $ref: '#/components/examples/InvalidFieldValueExample'
             RecordNotFoundExample:
-              $ref: "#/components/examples/RecordNotFoundExample"
+              $ref: '#/components/examples/RecordNotFoundExample'
             UniqueRecordNotFoundExample:
-              $ref: "#/components/examples/UniqueRecordNotFoundExample"
+              $ref: '#/components/examples/UniqueRecordNotFoundExample'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
+          $ref: '#/components/headers/Response-Correlation-ID'
     UnauthorizedError:
-      description: "Authentication information is missing or invalid."
+      description: Authentication information is missing or invalid.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorsInfo"
+            $ref: '#/components/schemas/ErrorsInfo'
           examples:
             UnauthorizedExample:
-              $ref: "#/components/examples/UnauthorizedExample"
+              $ref: '#/components/examples/UnauthorizedExample'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
+          $ref: '#/components/headers/Response-Correlation-ID'
     ForbiddenError:
-      description: "Insufficient permissions for interacting with the resource."
+      description: Insufficient permissions for interacting with the resource.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorsInfo"
+            $ref: '#/components/schemas/ErrorsInfo'
           examples:
             ForbiddenExample:
-              $ref: "#/components/examples/ForbiddenExample"
+              $ref: '#/components/examples/ForbiddenExample'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
-
+          $ref: '#/components/headers/Response-Correlation-ID'
     CardSearchResultResponse:
-      description: "A list of cards was successfully retrieved."
+      description: A list of cards was successfully retrieved.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CardSearchResult"
+            $ref: '#/components/schemas/CardSearchResult'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
+          $ref: '#/components/headers/Response-Correlation-ID'
     BadPostRequestError:
-      description: "The request failed due to invalid or missing value. The value
-        could be a header value, a query parameter value, or a request body property
-        value."
+      description: >-
+        The request failed due to invalid or missing value. The value could be a
+        header value, a query parameter value, or a request body property value.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorsInfo"
+            $ref: '#/components/schemas/ErrorsInfo'
           examples:
             MissingRequiredFieldExample:
-              $ref: "#/components/examples/MissingRequiredFieldExample"
+              $ref: '#/components/examples/MissingRequiredFieldExample'
             InvalidFieldValueExample:
-              $ref: "#/components/examples/InvalidFieldValueExample"
+              $ref: '#/components/examples/InvalidFieldValueExample'
             InvalidFieldFormatExample:
-              $ref: "#/components/examples/InvalidFieldFormatExample"
+              $ref: '#/components/examples/InvalidFieldFormatExample'
             InvalidFieldLengthExample:
-              $ref: "#/components/examples/InvalidFieldLengthExample"
+              $ref: '#/components/examples/InvalidFieldLengthExample'
             CryptographyErrorExample:
-              $ref: "#/components/examples/CryptographyErrorExample"
+              $ref: '#/components/examples/CryptographyErrorExample'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
-
+          $ref: '#/components/headers/Response-Correlation-ID'
     UpdatePinResponse:
-      description: "New PIN is successfully updated against given card."
+      description: New PIN is successfully updated against given card.
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
-
+          $ref: '#/components/headers/Response-Correlation-ID'
     ClientProfileResponse:
-      description: "The client was successfully retrieved."
+      description: The client was successfully retrieved.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ClientProfile"
+            $ref: '#/components/schemas/ClientProfile'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
-
+          $ref: '#/components/headers/Response-Correlation-ID'
     ServiceRequestDetailsResponse:
-      description: "The client details were successfully updated."
+      description: The client details were successfully updated.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ServiceRequestDetails"
+            $ref: '#/components/schemas/ServiceRequestDetails'
       headers:
         X-MC-Correlation-ID:
-          $ref: "#/components/headers/Response-Correlation-ID"
-
+          $ref: '#/components/headers/Response-Correlation-ID'
   examples:
-
     UnauthorizedExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "UNAUTHORIZED"
-            Description: "We couldn't recognize you"
-            Recoverable: false
-            Details: "The user does not have valid certificate for the target resource."
+            - Source: MI-Issuing
+              ReasonCode: UNAUTHORIZED
+              Description: We couldn't recognize you
+              Recoverable: false
+              Details: >-
+                The user does not have valid certificate for the target
+                resource.
     ForbiddenExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "AUTHORIZATION_ERROR"
-            Description: "It seems you don't have permission to access this API"
-            Recoverable: false
-            Details: "Please ensure that access has been granted to the user in customer
-              portal"
+            - Source: MI-Issuing
+              ReasonCode: AUTHORIZATION_ERROR
+              Description: It seems you don't have permission to access this API
+              Recoverable: false
+              Details: >-
+                Please ensure that access has been granted to the user in
+                customer portal
     MissingRequiredFieldExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "MISSING_REQUIRED_FIELD"
-            Description: "Missing required field '<Field-Name>'"
-            Recoverable: false
-            Details: null
+            - Source: MI-Issuing
+              ReasonCode: MISSING_REQUIRED_FIELD
+              Description: Missing required field '<Field-Name>'
+              Recoverable: false
+              Details: null
     InvalidFieldValueExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "INVALID_FIELD_VALUE"
-            Description: "'<Field-Name>' field value '<Field-Value>' is invalid"
-            Recoverable: false
+            - Source: MI-Issuing
+              ReasonCode: INVALID_FIELD_VALUE
+              Description: '''<Field-Name>'' field value ''<Field-Value>'' is invalid'
+              Recoverable: false
     RecordNotFoundExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "RECORD_NOT_FOUND"
-            Description: "Record not found based on the given input."
-            Recoverable: false
-            Details: null
+            - Source: MI-Issuing
+              ReasonCode: RECORD_NOT_FOUND
+              Description: Record not found based on the given input.
+              Recoverable: false
+              Details: null
     UniqueRecordNotFoundExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "UNIQUE_RECORD_NOT_FOUND"
-            Description: "Multiple records found for given search criteria."
-            Recoverable: false
-            Details: null
-
-
+            - Source: MI-Issuing
+              ReasonCode: UNIQUE_RECORD_NOT_FOUND
+              Description: Multiple records found for given search criteria.
+              Recoverable: false
+              Details: null
     InvalidFieldFormatExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "INVALID_FIELD_FORMAT"
-            Description: "'<Field-Name>' field value '<Field-Value>' format is invalid"
-            Recoverable: false
+            - Source: MI-Issuing
+              ReasonCode: INVALID_FIELD_FORMAT
+              Description: '''<Field-Name>'' field value ''<Field-Value>'' format is invalid'
+              Recoverable: false
     InvalidFieldLengthExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "INVALID_FIELD_LENGTH"
-            Description: "'<Field-Name>' size must be between 1 and 3"
-            Recoverable: false
+            - Source: MI-Issuing
+              ReasonCode: INVALID_FIELD_LENGTH
+              Description: '''<Field-Name>'' size must be between 1 and 3'
+              Recoverable: false
     CryptographyErrorExample:
       value:
         Errors:
           Error:
-          - Source: "MI-Issuing"
-            ReasonCode: "CRYPTOGRAPHY_ERROR"
-            Description: "Error occurred while decryption of the encrypted request
-              payload"
-            Recoverable: false
-            Details: null
-
+            - Source: MI-Issuing
+              ReasonCode: CRYPTOGRAPHY_ERROR
+              Description: Error occurred while decryption of the encrypted request payload
+              Recoverable: false
+              Details: null

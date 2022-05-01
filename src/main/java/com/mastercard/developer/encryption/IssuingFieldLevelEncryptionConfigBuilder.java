@@ -22,54 +22,64 @@ import static com.mastercard.developer.issuing.client.helper.EncryptionConfigUti
 import static com.mastercard.developer.issuing.client.helper.EncryptionConfigUtil.OAEP_HASHING_ALGORITHM;
 import static com.mastercard.developer.issuing.client.helper.EncryptionConfigUtil.PUBLIC_KEY_FINGERPRINT;
 
-import com.mastercard.developer.encryption.FieldLevelEncryptionConfig.FieldValueEncoding;
+import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.mastercard.developer.encryption.FieldLevelEncryptionConfig.FieldValueEncoding;
+
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
 public class IssuingFieldLevelEncryptionConfigBuilder {
 
-  private IssuingFieldLevelEncryptionConfigBuilder() {}
+    /** The Constant NONE. */
+    public static final String NONE = "NONE";
 
-  /** The Constant NONE. */
-  public static final String NONE = "NONE";
-
-  /**
-   * Gets the encryption config with none oaep padding.
-   *
-   * @param encryptionCertificate the encryption certificate
-   * @param encryptionCertificateFingerprint the encryption certificate fingerprint
-   * @return the encryption config with none oaep padding
-   */
-  public static FieldLevelEncryptionConfig getEncryptionConfigWithNoneOaepPadding(
-      Certificate encryptionCertificate, String encryptionCertificateFingerprint) {
-    FieldLevelEncryptionConfig config = null;
-    try {
-      config = new FieldLevelEncryptionConfig();
-      config.encryptionCertificate = encryptionCertificate;
-
-      Map<String, String> encryptionPaths = new HashMap<>();
-      encryptionPaths.put(JSON_PATH, JSON_PATH);
-      config.encryptionPaths = encryptionPaths;
-      config.decryptionPaths = encryptionPaths;
-
-      config.oaepPaddingDigestAlgorithm = NONE;
-      config.oaepPaddingDigestAlgorithmFieldName = OAEP_HASHING_ALGORITHM;
-
-      config.encryptionCertificateFingerprint = encryptionCertificateFingerprint;
-      config.encryptionCertificateFingerprintFieldName = PUBLIC_KEY_FINGERPRINT;
-
-      config.encryptedValueFieldName = ENCRYPTED_VALUE;
-      config.encryptedKeyFieldName = ENCRYPTED_KEY;
-      config.ivFieldName = IV;
-      config.fieldValueEncoding = FieldValueEncoding.HEX;
-
-    } catch (Exception e) {
-      log.error("Error while getting encryption configuration" + e.getMessage(), e);
+    /**
+     * private constructor
+     */
+    private IssuingFieldLevelEncryptionConfigBuilder() {
     }
-    return config;
-  }
+
+    /**
+     * Gets the encryption config with none oaep padding.
+     *
+     * @param encryptionCertificate            the encryption certificate
+     * @param encryptionCertificateFingerprint the encryption certificate fingerprint
+     * @param decryptionKey the decryption key
+     * @return the encryption config with none oaep padding
+     */
+    public static FieldLevelEncryptionConfig getEncryptionConfigWithNoneOaepPadding(Certificate encryptionCertificate,
+            String encryptionCertificateFingerprint, PrivateKey decryptionKey) {
+        FieldLevelEncryptionConfig config = null;
+        try {
+            config = new FieldLevelEncryptionConfig();
+            config.encryptionCertificate = encryptionCertificate;
+
+            Map<String, String> encryptionPaths = new HashMap<>();
+            encryptionPaths.put(JSON_PATH, JSON_PATH);
+            config.encryptionPaths = encryptionPaths;
+            config.decryptionPaths = encryptionPaths;
+
+            config.oaepPaddingDigestAlgorithm = NONE;
+            config.oaepPaddingDigestAlgorithmFieldName = OAEP_HASHING_ALGORITHM;
+
+            config.encryptionCertificateFingerprint = encryptionCertificateFingerprint;
+            config.encryptionCertificateFingerprintFieldName = PUBLIC_KEY_FINGERPRINT;
+
+            config.encryptedValueFieldName = ENCRYPTED_VALUE;
+            config.encryptedKeyFieldName = ENCRYPTED_KEY;
+            config.ivFieldName = IV;
+            config.fieldValueEncoding = FieldValueEncoding.HEX;
+            
+            config.decryptionKey = decryptionKey;
+
+        } catch (Exception e) {
+            log.error("Error while getting encryption configuration" + e.getMessage(), e);
+        }
+        return config;
+    }
 }

@@ -19,11 +19,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /** The Class AllTests. */
 @RunWith(Suite.class)
-@SuiteClasses({
-  IssuingAuthorizationManagementServiceTest.class,
-  IssuingCardControlsServiceTest.class,
-  IssuingCardIssuanceServiceTest.class,
-  IssuingCardManagementServiceTest.class,
-  IssuingTransactionManagementServiceTest.class
-})
-public class AllTests {}
+@SuiteClasses({ IssuingAuthorizationManagementServiceTest.class, IssuingCardControlsServiceTest.class, IssuingCardIssuanceServiceTest.class,
+	IssuingCardManagementServiceTest.class, IssuingTransactionManagementServiceTest.class })
+public class AllTests {
+    
+}

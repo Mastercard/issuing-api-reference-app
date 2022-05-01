@@ -15,136 +15,160 @@
  */
 package com.mastercard.developer.issuing.client.helper;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfig;
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfig.FieldValueEncoding;
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfigBuilder;
 import com.mastercard.developer.encryption.IssuingFieldLevelEncryptionConfigBuilder;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
+import com.mastercard.developer.utils.EncryptionUtils;
+
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
 public class EncryptionConfigUtil {
 
-  /** Instantiates a new encryption config util. */
-  private EncryptionConfigUtil() {}
-
-  /** The Constant JSON_PATH. */
-  public static final String JSON_PATH = "$";
-
-  /** The Constant SHA_256. */
-  public static final String SHA_256 = "SHA-256";
-
-  /** The Constant SHA_512. */
-  public static final String SHA_512 = "SHA-512";
-
-  /** The Constant OAEP_HASHING_ALGORITHM. */
-  public static final String OAEP_HASHING_ALGORITHM = "oaepPaddingDigestAlgorithm";
-
-  /** The Constant ENCRYPTED_VALUE. */
-  public static final String ENCRYPTED_VALUE = "encryptedValue";
-
-  /** The Constant ENCRYPTED_KEY. */
-  public static final String ENCRYPTED_KEY = "encryptedKey";
-
-  /** The Constant PUBLIC_KEY_FINGERPRINT. */
-  public static final String PUBLIC_KEY_FINGERPRINT = "publicKeyFingerprint";
-
-  /** The Constant IV. */
-  public static final String IV = "iv";
-
-  /**
-   * Gets the encryption config.
-   *
-   * @param encryptionCertificatePath the encryption certificate path
-   * @param encryptionCertificateFingerprint the encryption certificate fingerprint
-   * @param oaepPaddingDigestAlgorithm the oaep padding digest algorithm
-   * @return the encryption config
-   */
-  public static FieldLevelEncryptionConfig getEncryptionConfig(
-      String encryptionCertificatePath,
-      String encryptionCertificateFingerprint,
-      String oaepPaddingDigestAlgorithm) {
-    FieldLevelEncryptionConfig config = null;
-    try {
-      log.info(
-          "Load encryption certificate (RSA public key certificate issued by Mastercard KMS team): {}",
-          encryptionCertificatePath);
-      Certificate encryptionCertificate =
-          loadEncryptionCertificate(ApiClientHelper.getFileInputStream(encryptionCertificatePath));
-
-      if (oaepPaddingDigestAlgorithm != null
-          && (oaepPaddingDigestAlgorithm.equalsIgnoreCase(SHA_256)
-              || oaepPaddingDigestAlgorithm.equalsIgnoreCase(SHA_512))) {
-        config =
-            buildEncryptionConfig(
-                encryptionCertificate,
-                encryptionCertificateFingerprint,
-                oaepPaddingDigestAlgorithm);
-      } else {
-        log.warn("Using OaepPaddingDigestAlgorithm=NONE");
-        config =
-            IssuingFieldLevelEncryptionConfigBuilder.getEncryptionConfigWithNoneOaepPadding(
-                encryptionCertificate, encryptionCertificateFingerprint);
-      }
-
-    } catch (Exception e) {
-      log.error("Error while getting encryption configuration" + e.getMessage(), e);
+    /** Instantiates a new encryption config util. */
+    private EncryptionConfigUtil() {
     }
-    return config;
-  }
 
-  /**
-   * Build a {@link com.mastercard.developer.encryption.FieldLevelEncryptionConfig}.
-   *
-   * @param encryptionCertificate the encryption certificate
-   * @param encryptionCertificateFingerprint the encryption certificate fingerprint
-   * @param oaepPaddingDigestAlgorithm the oaep padding digest algorithm
-   * @return the field level encryption config
-   */
-  public static FieldLevelEncryptionConfig buildEncryptionConfig(
-      Certificate encryptionCertificate,
-      String encryptionCertificateFingerprint,
-      String oaepPaddingDigestAlgorithm) {
-    FieldLevelEncryptionConfig config = null;
-    try {
-      // Use this block for using SHA-256 & SHA-512 OAEP padding
-      config =
-          FieldLevelEncryptionConfigBuilder.aFieldLevelEncryptionConfig()
-              .withEncryptionCertificate(encryptionCertificate)
-              .withEncryptionPath(JSON_PATH, JSON_PATH)
-              .withDecryptionKey(null)
-              .withDecryptionPath(JSON_PATH, JSON_PATH)
-              .withEncryptedValueFieldName(ENCRYPTED_VALUE)
-              .withEncryptedKeyFieldName(ENCRYPTED_KEY)
-              .withEncryptionCertificateFingerprintFieldName(PUBLIC_KEY_FINGERPRINT)
-              .withEncryptionCertificateFingerprint(encryptionCertificateFingerprint)
-              .withOaepPaddingDigestAlgorithmFieldName(OAEP_HASHING_ALGORITHM)
-              .withOaepPaddingDigestAlgorithm(oaepPaddingDigestAlgorithm)
-              .withIvFieldName(IV)
-              .withFieldValueEncoding(FieldValueEncoding.HEX)
-              .build();
-    } catch (Exception e) {
-      log.error("Error while getting encryption configuration" + e.getMessage(), e);
+    /** The Constant JSON_PATH. */
+    public static final String JSON_PATH = "$";
+
+    /** The Constant SHA_256. */
+    public static final String SHA_256 = "SHA-256";
+
+    /** The Constant SHA_512. */
+    public static final String SHA_512 = "SHA-512";
+
+    /** The Constant OAEP_HASHING_ALGORITHM. */
+    public static final String OAEP_HASHING_ALGORITHM = "oaepPaddingDigestAlgorithm";
+
+    /** The Constant ENCRYPTED_VALUE. */
+    public static final String ENCRYPTED_VALUE = "encryptedValue";
+
+    /** The Constant ENCRYPTED_KEY. */
+    public static final String ENCRYPTED_KEY = "encryptedKey";
+
+    /** The Constant PUBLIC_KEY_FINGERPRINT. */
+    public static final String PUBLIC_KEY_FINGERPRINT = "publicKeyFingerprint";
+
+    /** The Constant IV. */
+    public static final String IV = "iv";
+
+    /**
+     * Gets the encryption config.
+     *
+     * @param encryptionCertificatePath        the encryption certificate path
+     * @param encryptionCertificateFingerprint the encryption certificate fingerprint
+     * @param oaepPaddingDigestAlgorithm       the oaep padding digest algorithm
+     * @param decryptionKeyKeystorePath        the decryption key keystore path
+     * @param decryptionKeyKeystorePass        the decryption key keystore pass
+     * @param decryptionKeyAlias               the decryption key alias
+     * @return the encryption config
+     */
+    public static FieldLevelEncryptionConfig getEncryptionConfig(String encryptionCertificatePath, String encryptionCertificateFingerprint,
+            String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias) {
+        FieldLevelEncryptionConfig config = null;
+        try {
+            log.info("Load encryption certificate (RSA Public key certificate issued by Mastercard): {}", encryptionCertificatePath);
+            Certificate encryptionCertificate = loadEncryptionCertificate(ApiClientHelper.getFileInputStream(encryptionCertificatePath));
+
+            PrivateKey decryptionKey = null;
+            if (StringUtils.isNotBlank(decryptionKeyKeystorePath)) {
+                /** Lookup file in classpath */
+                String decryptionKeyFilePath = ApiClientHelper.getFileURL(decryptionKeyKeystorePath)
+                                                              .getPath();
+                log.debug("Using decryptionKeyKeystorePath: {}; absolute path decryptionKeyFilePath: {}", decryptionKeyKeystorePath,
+                        decryptionKeyFilePath);
+
+                if (StringUtils.isNotBlank(decryptionKeyAlias) && StringUtils.isNotBlank(decryptionKeyKeystorePass)) {
+                    /** Load PrivateKey object can be created from a PKCS#12 key */
+                    log.info("Load decryption key from PKCS#12 key store (RSA Private key issued/generated by Bank/Institution): {}",
+                            decryptionKeyKeystorePath);
+
+                    decryptionKey = EncryptionUtils.loadDecryptionKey(decryptionKeyFilePath, decryptionKeyAlias, decryptionKeyKeystorePass);
+                    log.info("decryptionKey==null - {}", decryptionKey == null);
+                } else {
+                    /** Load PrivateKey object can be created from an unencrypted key file */
+                    log.info("Load decryption key from unencrypted key store (RSA Private key issued/generated by Bank/Institution): {}",
+                            decryptionKeyKeystorePath);
+
+                    decryptionKey = EncryptionUtils.loadDecryptionKey(decryptionKeyFilePath);
+                    log.info("decryptionKey==null - {}", decryptionKey == null);
+                }
+            }
+
+            if (oaepPaddingDigestAlgorithm != null
+                    && (oaepPaddingDigestAlgorithm.equalsIgnoreCase(SHA_256) || oaepPaddingDigestAlgorithm.equalsIgnoreCase(SHA_512))) {
+                config = buildEncryptionConfig(encryptionCertificate, encryptionCertificateFingerprint, oaepPaddingDigestAlgorithm, decryptionKey);
+            } else {
+                log.warn("Using OaepPaddingDigestAlgorithm=NONE");
+                config = IssuingFieldLevelEncryptionConfigBuilder.getEncryptionConfigWithNoneOaepPadding(encryptionCertificate,
+                        encryptionCertificateFingerprint, decryptionKey);
+            }
+
+        } catch (Exception e) {
+            log.error("Error while getting encryption configuration" + e.getMessage(), e);
+        }
+        return config;
     }
-    return config;
-  }
 
-  /**
-   * Populate a X509 encryption certificate object with the certificate data at the given file path.
-   *
-   * @param certificateInputStream the certificate input stream
-   * @return the certificate
-   * @throws CertificateException the certificate exception
-   * @throws FileNotFoundException the file not found exception
-   */
-  public static Certificate loadEncryptionCertificate(InputStream certificateInputStream)
-      throws CertificateException {
-    CertificateFactory factory = CertificateFactory.getInstance("X.509");
-    return factory.generateCertificate(certificateInputStream);
-  }
+    /**
+     * Build a {@link com.mastercard.developer.encryption.FieldLevelEncryptionConfig}.
+     *
+     * @param encryptionCertificate            the encryption certificate
+     * @param encryptionCertificateFingerprint the encryption certificate fingerprint
+     * @param oaepPaddingDigestAlgorithm       the oaep padding digest algorithm
+     * @return the field level encryption config
+     */
+    public static FieldLevelEncryptionConfig buildEncryptionConfig(Certificate encryptionCertificate, String encryptionCertificateFingerprint,
+            String oaepPaddingDigestAlgorithm, PrivateKey decryptionKey) {
+        FieldLevelEncryptionConfig config = null;
+        try {
+            // Use this block for using SHA-256 & SHA-512 OAEP padding
+            config = FieldLevelEncryptionConfigBuilder.aFieldLevelEncryptionConfig()
+                                                      .withEncryptionCertificate(encryptionCertificate)
+                                                      .withEncryptionPath(JSON_PATH, JSON_PATH)
+                                                      .withDecryptionKey(decryptionKey)
+                                                      .withDecryptionPath(JSON_PATH, JSON_PATH)
+                                                      .withEncryptedValueFieldName(ENCRYPTED_VALUE)
+                                                      .withEncryptedKeyFieldName(ENCRYPTED_KEY)
+                                                      .withEncryptionCertificateFingerprintFieldName(PUBLIC_KEY_FINGERPRINT)
+                                                      .withEncryptionCertificateFingerprint(encryptionCertificateFingerprint)
+                                                      .withOaepPaddingDigestAlgorithmFieldName(OAEP_HASHING_ALGORITHM)
+                                                      .withOaepPaddingDigestAlgorithm(oaepPaddingDigestAlgorithm)
+                                                      .withIvFieldName(IV)
+                                                      .withFieldValueEncoding(FieldValueEncoding.HEX)
+                                                      .build();
+        } catch (Exception e) {
+            log.error("Error while getting encryption configuration" + e.getMessage(), e);
+        }
+        return config;
+    }
+
+    /**
+     * Populate a X509 encryption certificate object with the certificate data at the given file path.
+     *
+     * @param certificateInputStream the certificate input stream
+     * @return the certificate
+     * @throws CertificateException  the certificate exception
+     * @throws FileNotFoundException the file not found exception
+     */
+    public static Certificate loadEncryptionCertificate(InputStream certificateInputStream) throws CertificateException {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        return factory.generateCertificate(certificateInputStream);
+    }
 }

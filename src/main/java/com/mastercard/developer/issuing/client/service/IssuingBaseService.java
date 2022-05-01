@@ -15,95 +15,97 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
-import com.mastercard.developer.exception.ReferenceAppGenericException;
-import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import com.mastercard.developer.issuing.exception.ReferenceAppGenericException;
+import com.mastercard.developer.issuing.generated.invokers.ApiClient;
+
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
 public abstract class IssuingBaseService {
 
-  /**
-   * Gets the scenarios.
-   *
-   * @return the scenarios
-   */
-  public abstract String[] getScenarios();
+    /**
+     * Gets the scenarios.
+     *
+     * @return the scenarios
+     */
+    public abstract String[] getScenarios();
 
-  /**
-   * Gets the api client.
-   *
-   * @return the api client
-   */
-  public abstract ApiClient getApiClient();
+    /**
+     * Gets the api client.
+     *
+     * @return the api client
+     */
+    public abstract ApiClient getApiClient();
 
-  /**
-   * Sets the api client.
-   *
-   * @param apiClient the new api client
-   */
-  public abstract void setApiClient(ApiClient apiClient);
+    /**
+     * Sets the api client.
+     *
+     * @param apiClient the new api client
+     */
+    public abstract void setApiClient(ApiClient apiClient);
 
-  /**
-   * Contains.
-   *
-   * @param scenarios the scenarios
-   * @return true, if successful
-   * @throws Exception the exception
-   */
-  public boolean contains(String[] scenarios) throws ReferenceAppGenericException {
-    if (getScenarios() == null) {
-      throw new ReferenceAppGenericException("List Scenarios must be defined");
-    }
-    boolean present = false;
-    if (scenarios != null && scenarios.length > 0) {
-      List<String> scenarioList = Arrays.asList(getScenarios());
-      for (String scenario : scenarios) {
-        if (scenarioList.contains(scenario)) {
-          present = true;
-          break;
+    /**
+     * Contains.
+     *
+     * @param scenarios the scenarios
+     * @return true, if successful
+     * @throws Exception the exception
+     */
+    public boolean contains(String[] scenarios) throws ReferenceAppGenericException {
+        if (getScenarios() == null) {
+            throw new ReferenceAppGenericException("List Scenarios must be defined");
         }
-      }
+        boolean present = false;
+        if (scenarios != null && scenarios.length > 0) {
+            List<String> scenarioList = Arrays.asList(getScenarios());
+            for (String scenario : scenarios) {
+                if (scenarioList.contains(scenario)) {
+                    present = true;
+                    break;
+                }
+            }
+        }
+        return present;
     }
-    return present;
-  }
 
-  /** Prints the scenarios. */
-  public void printScenarios() {
-    List<String> scenarioList = Arrays.asList(getScenarios());
-    scenarioList.forEach(log::info);
-  }
+    /** Prints the scenarios. */
+    public void printScenarios() {
+        List<String> scenarioList = Arrays.asList(getScenarios());
+        scenarioList.forEach(log::info);
+    }
 
-  /**
-   * Gets the request validity timestamp.
-   *
-   * @return the request validity timestamp
-   */
-  protected OffsetDateTime getRequestExpiryTimestamp() {
-    return OffsetDateTime.now().plusSeconds(10);
-  }
+    /**
+     * Gets the request validity timestamp.
+     *
+     * @return the request validity timestamp
+     */
+    protected OffsetDateTime getRequestExpiryTimestamp() {
+        return OffsetDateTime.now()
+                             .plusSeconds(10);
+    }
 
-  /**
-   * Random UUID.
-   *
-   * @return the string
-   */
-  protected String randomUUID() {
-    return UUID.randomUUID().toString();
-  }
+    /**
+     * Random UUID.
+     *
+     * @return the string
+     */
+    protected String randomUUID() {
+        return UUID.randomUUID()
+                   .toString();
+    }
 
-  /**
-   * Log scenario.
-   *
-   * @param scenario the scenario
-   */
-  protected void logScenario(String scenario) {
-    log.info(
-        "\n\n ================================================ Scenario: {} ================================================\n\n",
-        scenario);
-  }
+    /**
+     * Log scenario.
+     *
+     * @param scenario the scenario
+     */
+    protected void logScenario(String scenario) {
+        log.info("\n\n ================================================ Scenario: {} ================================================\n\n", scenario);
+    }
 }

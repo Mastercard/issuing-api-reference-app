@@ -103,50 +103,54 @@ git clone https://github.com/Mastercard/issuing-api-reference-app.git
 
 ### Step 3 - Certificates Configuration <a name="certificates-config"></a>
 
+Let's assume that you wish to configure and test Mastercard Issuing API available in `sandbox` environment.
+
+Note: You may create a environment specific folder like (```src\main\resources\mtf```) or (```src\main\resources\prod```) and do similar configurations and pass the JVM argument `env` like `-Denv=mtf` while executing the code so that all configurations can be picked from this environment specific folder.
+
 #### **3.1 Download & install certificates<a name="install-certificates"></a>
-Download & install the mTLS certificate** and **encryption certificate** and configure the paths & credentials in application.properties file in reference application source code (```src\main\resources```).
+Download & install the mTLS certificate** and **encryption certificate** and configure the paths & credentials in application.properties file in reference application source code (```src/main/resources/sandbox```).
 
 #### **3.2 mTLS Certificate configuration**:<a name="mtls-certificates-config"></a>
-Configurations in **src/main/resources/application.properties** 
+Configurations in **src/main/resources/sandbox/application.properties** 
 
 |Property Name| Description|
 |--|--|
-|mastercard.issuing.client.ref.app.mtls.keystore.file| Path to mTLS certificate keystore (PKCS #12, including chain) .pfx file |
-|mastercard.issuing.client.ref.app.mtls.keystore.password| Password of the Keystore that contains the mTLS certificate referred above file. |
+|mi.api.mtls.keystore.file| Path to mTLS certificate keystore (PKCS #12, including chain) .pfx file |
+|mi.api.mtls.keystore.password| Password of the Keystore that contains the mTLS certificate referred above file. |
 
 **Note**: Here, reference application makes use of keystore file for the purpose of demo. But it is recommended to store your private certificate/key in physical devices such as USB Tokens, Smart Cards, or Hardware Storage Module (HSM) and write your own code to extract the certificate from your device rather than fetching it from keystore.
 
 #### **3.3 PIN block Encryption Certificate configuration**:<a name="pin-encryption-config"></a>
-Configurations in **src/main/resources/application.properties**
+Configurations in **src/main/resources/sandbox/application.properties**
  
 |Property Name| Description|
 |--|--|
-|mastercard.issuing.client.ref.app.pin.encryption.tdea.public.key.file| Path to card PIN block (ISO Format 0) encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
+|mi.api.pin.encryption.tdea.public.key.file| Path to card PIN block (ISO Format 0) encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
 
 
 #### **3.4 Data Encryption Certificate configuration**:<a name="data-encryption-config"></a>
 
 3.4.1 **Option 1 (Recommended)** - Different AES key for request & response - Mastercard & Client both sharing their Public Key <a name="two-key-encryption-config"></a>
 
-Configurations in **src/main/resources/application.properties**
+Configurations in **src/main/resources/sandbox/application.properties**
  
 |Property Name| Description|
 |--|--|
-|mastercard.issuing.client.ref.app.encryption.public.key.file| Path to data encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
-|mastercard.issuing.client.ref.app.encryption.public.key.fingerprint| The hex-encoded SHA-256 digest of Mastercard RSA public key referred above|
-|mastercard.issuing.client.ref.app.encryption.oaep.algorithm| OAEP (Optimal Asymmetric Encryption Padding) padding digest algorithm used together with RSA encryption. For example, SHA256, SHA512, NONE|
-|mastercard.issuing.client.ref.app.encryption.private.key.keystore.file| Path to data decryption certificate keystore (PKCS #12, excluding chain) file that contains your RSA Private key .cer file. Ideally it should be retrieved from hardware device |
-|mastercard.issuing.client.ref.app.encryption.private.key.keystore.password| Password of the Keystore that contains the data decryption Private Key referred above file. |
+|mi.api.encryption.public.key.file| Path to data encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
+|mi.api.encryption.public.key.fingerprint| The hex-encoded SHA-256 digest of Mastercard RSA public key referred above|
+|mi.api.encryption.oaep.algorithm| OAEP (Optimal Asymmetric Encryption Padding) padding digest algorithm used together with RSA encryption. For example, SHA256, SHA512, NONE|
+|mi.api.encryption.private.key.keystore.file| Path to data decryption certificate keystore (PKCS #12, excluding chain) file that contains your RSA Private key .cer file. Ideally it should be retrieved from hardware device |
+|mi.api.encryption.private.key.keystore.password| Password of the Keystore that contains the data decryption Private Key referred above file. |
 
 3.4.2 **Option 2** - Common AES key for request & response - only Mastercard shares their Public Key<a name="one-key-encryption-config"></a>
 
-Configurations in **src/main/resources/application.properties**
+Configurations in **src/main/resources/sandbox/application.properties**
 
 |Property Name| Description|
 |--|--|
-|mastercard.issuing.client.ref.app.encryption.public.key.file| Path to data encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
-|mastercard.issuing.client.ref.app.encryption.public.key.fingerprint| The hex-encoded SHA-256 digest of Mastercard RSA public key referred above|
-|mastercard.issuing.client.ref.app.encryption.oaep.algorithm| OAEP (Optimal Asymmetric Encryption Padding) padding digest algorithm used together with RSA encryption. For example, SHA256, SHA512, NONE|
+|mi.api.encryption.public.key.file| Path to data encryption certificate keystore (PKCS #8, excluding chain) file that contains Mastercard RSA Public key .cer file|
+|mi.api.encryption.public.key.fingerprint| The hex-encoded SHA-256 digest of Mastercard RSA public key referred above|
+|mi.api.encryption.oaep.algorithm| OAEP (Optimal Asymmetric Encryption Padding) padding digest algorithm used together with RSA encryption. For example, SHA256, SHA512, NONE|
  
  
 **Note**: Please refer to the sample values provided in reference application properties file.
@@ -190,28 +194,32 @@ mvn clean install
 When the project builds successfully, you can run the following command to start/run the Spring Boot application:
  
 ```
-java -jar target/issuing-api-reference-apps-1.0.0.jar  
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar  
 ```
+
+<B> Note: Checkout the API response in the `sample_responses` folder (relative path). </B>
 
 - Add argument ```search-cards``` or ```get-card``` in above command to execute/test each API individually. For example, 
  * Run below command to execute/test the Search Cards ( ```/card-management/cards/searches```) API
 ```
-java -jar target/issuing-api-reference-apps-1.0.0.jar search-cards
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar search-cards
 ```
+
+Note: Passing JVM argument `env` is optional for sandbox environment since by default system does configuration lookup in `sandbox` folder.
 
  * Run below command to execute/test multiple APIs like Search Cards ( ```/card-management/cards/searches```) API and Get Card (```/card-management/cards/{card_id}```) API
 ```
-java -jar target/issuing-api-reference-apps-1.0.0.jar search-cards get-card
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar search-cards get-card
 ```
 
  * Run below command to find the complete list of use cases available in reference-app for testing
 ```
-java -jar target/issuing-api-reference-apps-1.0.0.jar list
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar list
 ```
 
  * Run below command to execute/test all the use cases available in reference-app for testing
 ```
-java -jar target/issuing-api-reference-apps-1.0.0.jar all
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar all
 ```
                                                                       
 **NOTE:**   
@@ -260,7 +268,7 @@ The `com.mastercard.developer.interceptors` provides `OkHttpFieldLevelEncryption
 
 #### Request/Response Logging <a name="logging"></a>
 The `com.mastercard.developer.interceptors.OkHttpLoggingInterceptor` class provides you the request and response logging functionality for debugging purpose.
-The request/response may contain sensitive data, hence this logging must be disabled by simply changing the `mastercard.issuing.client.debug.mode` property value to `false` in `application.properties` file.  
+The request/response may contain sensitive data, hence this logging must be disabled by simply changing the `mi.client.debug.mode` property value to `false` in `application.properties` file.  
 
 <br/>
 ### Other References <a name="references"></a>

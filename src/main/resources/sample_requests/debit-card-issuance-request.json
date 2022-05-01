@@ -1,11 +1,7 @@
 {
-	"name": "Vinod",
 	"dataValidUntilTimestamp": "2020-07-04T12:09:56.450-07:00",
 	"application": {
-		"type": "PRIMARY",
-		"formNumber": null,
-		"makerChecker": null,
-		"memo": false
+		"type": "PRIMARY"
 	},
 	"branchCode": "3",
 	"primary": {
@@ -18,11 +14,6 @@
 		"relation": null
 	},
 	"client": {
-		"sourceSystem": {
-			"clientId": null,
-			"cbsReferenceNumber": null,
-			"cbsClientId": null
-		},
 		"profile": {
 			"title": "Mr",
 			"firstName": "Tom",
@@ -125,8 +116,7 @@
 		"type": "Individual",
 		"vip": false,
 		"riskCategory": "LOW",
-		"cobrandNumber": "7654345TH",
-		"reuterReferenceNumber": "34567T8GJ"
+		"cobrandNumber": "7654345TH"
 	},
 	"card": {
 		"numberless": null,
@@ -149,6 +139,12 @@
 			"validity": null
 		}
 	},
+    "cbsAccount": {
+        "type": "SAVINGS",
+        "number": "0005040100006120",
+        "clientId": "JSMITH094856",
+        "currency": "USD"
+    },
 	"account": {
 		"promoPlanCodes": [
 			"LOANPR",
@@ -169,15 +165,5 @@
 			"name": "accountNumberField1",
 			"value": "234.78"
 		}
-	],
-	"travel": {
-		"type": null,
-		"startDate": null,
-		"endDate": null,
-		"country": null
-	},
-	"initialLoad": {
-		"currency": "INR",
-		"amount": "1000"
-	}
+	]
 }
