@@ -159,7 +159,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
             }
 
             /** client code and card id of both requests should be same */
-            if (clientCode1 != null && cardId1 != null && !clientCode1.equals(clientCode2) || !cardId1.equals(cardId2)) {
+            if (clientCode1 != null && cardId1 != null && (!clientCode1.equals(clientCode2) || !cardId1.equals(cardId2)) ) {
                 throw new ApiException("Retry with same idempotency key, generated new client/card.");
             } else {
                 log.info(
