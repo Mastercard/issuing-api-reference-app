@@ -205,8 +205,6 @@ java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar
 java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar search-cards
 ```
 
-Note: Passing JVM argument `env` is optional for sandbox environment since by default system does configuration lookup in `sandbox` folder.
-
  * Run below command to execute/test multiple APIs like Search Cards ( ```/card-management/cards/searches```) API and Get Card (```/card-management/cards/{card_id}```) API
 ```
 java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.1.jar search-cards get-card
