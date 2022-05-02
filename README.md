@@ -78,7 +78,7 @@ mTLS Certificate Approval - Create a new project on [Mastercard Developers](http
 - [Java 8 or later](https://www.azul.com/downloads/?package=jdk#download-openjdk)
 - [Apache Maven 3.3+](https://maven.apache.org/download.cgi)
 - [OpenAPI Generator](https://openapi-generator.tech/docs/plugins/)
-- A text Editor or any IDE (We will refer to IntelliJ IDEA for this guide)
+- A text Editor or any IDE (We will refer to IntelliJ IDEA for this guide) with [Lombok plugins](https://projectlombok.org/setup/overview)
 
 Note: Set up the `JAVA_HOME` environment variable to match the location of your Java installation.
 
@@ -174,7 +174,7 @@ mvn clean compile
 ```
 
 #### Option 2 - Using IDE
-
+- Ensure that [Lombok plugins](https://projectlombok.org/setup/overview) is installed
 - Method 1 - In IntelliJ IDEA, open the Maven window (View > Tool Windows > Maven). Click the icons ```Reimport All Maven Projects``` and ```Generate Sources and Update Folders for All Projects```
 - Method 2 - In the same menu, navigate to the commands ({Project name} > Lifecycle), select ```clean``` and ```compile``` then click the icon ```Run Maven Build```.
 
@@ -185,7 +185,7 @@ mvn clean compile
 
 Once you have updated the certificates & properties, you are ready to build the application. You can do this by navigating to the project’s base directory from the terminal and then by running the following command.
 ```
-mvn clean install
+mvn clean install -Dmaven.test.skip=true
 ```
 
 <BR/>

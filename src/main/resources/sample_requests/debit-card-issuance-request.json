@@ -128,8 +128,8 @@
 		"deliveryMode": "Branch",
 		"alias": "{{V_CardAlias}}",
 		"corporateCode": null,
-		"programCode": "GPR",
-		"planCode": "SVC",
+		"programCode": "DEBIT",
+		"planCode": "DEBIT",
 		"promoPlanCode": null,
 		"encodedName": "JOHNY SMITH",
 		"lvcCard": {

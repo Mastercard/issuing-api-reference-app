@@ -20,7 +20,6 @@ import com.mastercard.developer.encryption.FieldLevelEncryptionConfig;
 import com.mastercard.developer.encryption.FieldLevelEncryptionParams;
 import com.mastercard.developer.issuing.client.helper.RequestContext;
 
-import jdk.internal.org.jline.utils.Log;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.Request;
 import okhttp3.Response;

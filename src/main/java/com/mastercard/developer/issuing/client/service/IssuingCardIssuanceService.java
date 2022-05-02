@@ -44,7 +44,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
     private static final String DEBIT_CARD_ISSUANCE = "debit-card-issuance";
 
     /** The scenarios. */
-    protected String[] scenarios = { PREPAID_CARD_ISSUANCE };
+    protected String[] scenarios = { PREPAID_CARD_ISSUANCE, DEBIT_CARD_ISSUANCE };
 
     /** The api client. */
     private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
@@ -195,6 +195,9 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
             request.getCard()
                    .setAlias(alias);
 
+            /** Set new value of CBS Account Number for each request */
+            request.getCbsAccount().setNumber(String.valueOf(System.currentTimeMillis()));
+
             response = debitCardApi.createDebitCard(xMCIdempotencyKey, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
 
             /** Verify and persist new client and card details */
@@ -215,7 +218,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
                 cardId1 = newCard.getId();
                 String cvv = newCard.getCvv();
 
-                log.info("New card generated with cardID={}, cardAlias={}, ISD={}, Mobile={}, cvv={}", cardId1, newCard.getAlias(), mobile.getIsd(),
+                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId1, newCard.getAlias(), response.getAccounts().get(0).getNumber(), mobile.getIsd(),
                         mobile.getNumber(), cvv);
             }
 
@@ -234,8 +237,8 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
                 Mobile mobile = newClient.getMobile();
                 cardId2 = newCard.getId();
                 String cvv = newCard.getCvv();
-
-                log.info("New card generated with cardID={}, cardAlias={}, ISD={}, Mobile={}, cvv={}", cardId2, newCard.getAlias(), mobile.getIsd(),
+                
+                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId2, newCard.getAlias(), response.getAccounts().get(0).getNumber(), mobile.getIsd(),
                         mobile.getNumber(), cvv);
             }
 

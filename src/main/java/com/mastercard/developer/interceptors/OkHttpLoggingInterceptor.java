@@ -79,7 +79,8 @@ public class OkHttpLoggingInterceptor implements Interceptor {
             format = "Encrypted";
         }
 
-        if (reqMethod.equalsIgnoreCase("POST") || reqMethod.equalsIgnoreCase("PUT")) {
+        /** Cover POST, PUT, PATCH methods having request body */
+        if (reqMethod.startsWith("P")) {
             Buffer requestBuffer = new Buffer();
             request.body()
                    .writeTo(requestBuffer);
@@ -92,21 +93,12 @@ public class OkHttpLoggingInterceptor implements Interceptor {
         String correlationIdReceived = response.header(CORRELATION_ID);
         ThreadContext.put(CORRELATION_ID, correlationIdReceived);
 
-        if (StringUtils.isNoneBlank(correlationId) && !correlationId.equalsIgnoreCase(correlationIdReceived)) {
-            log.info(
-                    "OkHttp <-- ERROR - Received correlationId '{}' in response  is different from the correlationId '{}' sent in request headers - \n{}",
-                    correlationIdReceived, correlationId);
-
-        }
         int responseCode = response.code();
         String respLogged = (String) RequestContext.get("respLogged");
 
         long t2 = System.nanoTime();
 
-        if (!"true".equalsIgnoreCase(respLogged)) {
-            log.info("OkHttp <-- Received [{}] response for {} in {} ms with headers - \n{}", responseCode, request.url(),
-                    Math.round((t2 - t1) / 1e6d), response.headers());
-        }
+        long timeElapsed = Math.round((t2 - t1) / 1e6d);
 
         String content = null;
         ResponseBody body = response.body();
@@ -131,7 +123,10 @@ public class OkHttpLoggingInterceptor implements Interceptor {
         }
 
         boolean success = responseCode >= 200 && responseCode < 300;
+
         if (!"true".equalsIgnoreCase(respLogged)) {
+            log.info("OkHttp <-- Received [{}] response for {} in {} ms with headers - \n{}", responseCode, request.url(), timeElapsed,
+                    response.headers());
             // First time logging
             if (success) {
                 log.debug("OkHttp -- Encrypted Response Body: {}\n", content);
@@ -139,9 +134,7 @@ public class OkHttpLoggingInterceptor implements Interceptor {
             } else {
                 log.debug("OkHttp -- Response Body: {}\n", content);
             }
-        }
-
-        if ("true".equalsIgnoreCase(respLogged) && success) {
+        } else if (success) {
             log.debug("OkHttp -- Clear Response Body: {}\n", content);
             RequestContext.clear();
         }
