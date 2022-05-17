@@ -27,19 +27,15 @@ import org.mockito.MockitoAnnotations;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
 import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
-import com.mastercard.developer.issuing.generated.models.TokenDetails;
+import com.mastercard.developer.issuing.generated.models.UpdatedCardStatusDetails;
 
 import okhttp3.Call;
 
-/**
- * The Class IssuingAuthorizationManagementServiceTest.
- *
- * @author e084506
- */
-public class IssuingAuthorizationManagementServiceTest {
+/** The Class CardControlsServiceTest. */
+public class CardControlsServiceTest {
 
     /** The service. */
-    private IssuingAuthorizationManagementService service = new IssuingAuthorizationManagementService();
+    private CardControlsService service = new CardControlsService();
 
     /** The api client mock. */
     @Mock
@@ -61,18 +57,18 @@ public class IssuingAuthorizationManagementServiceTest {
     }
 
     /**
-     * Test create token.
+     * Test update card status.
      *
-     * @throws Exception the exception
+     * @throws ApiException the api exception
      */
     @Test
-    public void testCreateToken() throws Exception {
+    public void testUpdateCardStatus() throws ApiException {
 	/** Mock Response Object */
-	TokenDetails response = new TokenDetails();
+	UpdatedCardStatusDetails response = new UpdatedCardStatusDetails();
 	ApiResponse apiResponse = new ApiResponse(200, null, response);
 	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	TokenDetails actualResponse = service.createToken("PIN_RESET");
+	UpdatedCardStatusDetails actualResponse = service.updateCardStatus("update-card-status-blocked");
 
 	assertEquals(response, actualResponse);
     }

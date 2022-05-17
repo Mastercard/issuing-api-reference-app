@@ -49,7 +49,7 @@ public class IssuingFieldLevelEncryptionConfigBuilder {
      *
      * @param encryptionCertificate            the encryption certificate
      * @param encryptionCertificateFingerprint the encryption certificate fingerprint
-     * @param decryptionKey the decryption key
+     * @param decryptionKey                    the decryption key
      * @return the encryption config with none oaep padding
      */
     public static FieldLevelEncryptionConfig getEncryptionConfigWithNoneOaepPadding(Certificate encryptionCertificate,
@@ -74,7 +74,7 @@ public class IssuingFieldLevelEncryptionConfigBuilder {
             config.encryptedKeyFieldName = ENCRYPTED_KEY;
             config.ivFieldName = IV;
             config.fieldValueEncoding = FieldValueEncoding.HEX;
-            
+
             config.decryptionKey = decryptionKey;
 
         } catch (Exception e) {

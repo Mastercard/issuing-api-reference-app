@@ -4,7 +4,7 @@
 
 	<groupId>com.mastercard.developers</groupId>
 	<artifactId>issuing-api-reference-app</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<packaging>jar</packaging>
 	<name>issuing-api-reference-app</name>
 	<description>Mastercard Processing APMEA Issuing Digital First APIs - Reference Application</description>

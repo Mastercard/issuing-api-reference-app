@@ -25,6 +25,8 @@ tags:
     description: Card management
   - name: Client
     description: Client management
+  - name: Debit Card Links
+    description: Debit Card linking and delinking
 paths:
   '/cards/{card_id}':
     get:
@@ -33,12 +35,12 @@ paths:
       summary: '**Get Card** - Get card details by card ID'
       description: >-
         This API allows users to fetch detailed information of a single card
-        such as number, CVV, expiry date, card id, packId, alias, plan code,
-        product type, program code, status and indicator based on its unique ID.
-        <br/> It also returns the basic information of the client, linked cards
-        and accounts. <br />Field selection - <br />It is useful in to select
-        few specific fields in response to save some bandwidth.<br/>
-        /cards/{card_id}?field=card.id,card.number,card.status
+        such as 'number', 'CVV', 'expiry date', 'card Id', 'pack Id', 'alias',
+        'plan code', 'product type', 'program code', 'status' and 'indicator'
+        based on its unique ID. <br/> It also returns the basic information of
+        the client, linked cards and accounts. <br />Field selection - <br />It
+        is useful in to select few specific fields in response to save some
+        bandwidth.<br/> /cards/{card_id}?field=card.id,card.number,card.status
       operationId: getCard
       x-mastercard-api-encrypted: true
       parameters:
@@ -64,26 +66,26 @@ paths:
       summary: '**Search Cards** - Find cards based on input search criteria'
       description: >-
         This API allows users to search cards based on multiple form factors
-        such card number, pack Id, alias or client code, registered mobile
-        number and account number. In API response a list of cards along with
-        its associated parameters such as card number, id, pack Id, status,
-        indicator, alias, plan code, product type and program code is returned.
-        <br /><br />To carry out cards search at least one of the request
-        parameters card.number, card.packId, card.alias, client.code,
-        client.mobile.number, account.number is mandatory.<br/><br/>If this API
-        is consumed by platform specific vendors (ACS, SMS providers) then
-        parameter card.number is mandatory in the request.<br/><br/>Parameter
-        card.alias should be used only if card alias functionality is enabled
-        for the institution or bank. <br/>In case alias uniqueness is not
-        defined at institution level then parameters productType, planCode
-        or/and programCode should be used to refine the search further else
-        UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>Also If input form
-        factor(s) fails to resolve to single client (i.e. multiple clients are
-        found) then also UNIQUE_RECORD_NOT_FOUND error is returned.<br/><br/>In
-        case of success API returns 200 as HTTP status code. <BR/> <BR/>
-        **Default Sorting order: ** generation date (aka opening date) <BR/>
-        **Default Pagination limit: ** 10 (Maximum 10 records will be returned)
-        <BR/>
+        such 'card number', 'pack Id', alias or 'client code', 'registered
+        mobile number' and 'account number'. In API response, a list of cards
+        along with its associated parameters such as 'card number', id, 'pack
+        Id', status, indicator, alias, 'plan code', 'product type' and 'program
+        code' is returned. <br /><br />To carry out cards search at least one of
+        the request parameters 'card number', 'card pack Id', 'card alias',
+        'client code', 'client mobile number', 'account number' is
+        mandatory.<br/><br/>If this API is consumed by platform specific vendors
+        (ACS, SMS providers) then parameter 'card number' is mandatory in the
+        request.<br/><br/>Parameter 'card alias' should be used only if 'card
+        alias' functionality is enabled for the institution or bank. <br/>In
+        case alias uniqueness is not defined at institution level then
+        parameters 'product type', 'plan code' or/and 'program code' should be
+        used to refine the search further else 'UNIQUE_RECORD_NOT_FOUND' error
+        is returned.<br/><br/>Also If input form factor(s) fails to resolve to
+        single client (i.e. multiple client's are found) then also
+        'UNIQUE_RECORD_NOT_FOUND' error is returned.<br/><br/>In case of success
+        API returns 200 as HTTP status code. <BR/> <BR/> **Default Sorting
+        order: ** generation date (aka opening date) <BR/> **Default Pagination
+        limit: ** 10 (Maximum 10 records will be returned) <BR/>
       operationId: searchCards
       x-mastercard-api-encrypted: true
       parameters:
@@ -112,8 +114,8 @@ paths:
       description: >-
         This API is used to set or update the card PIN. The prerequisite
         required for consuming this API is the authentication token generated
-        using the Authentication Token API with intent parameter as 'PIN_SET' or
-        'PIN_CHANGE'.
+        using the 'Authentication Token API' with intent parameter as 'PIN_SET'
+        or 'PIN_CHANGE'.
       operationId: updatePin
       x-mastercard-api-encrypted: true
       parameters:
@@ -141,7 +143,7 @@ paths:
       description: >-
         This API allows users to fetch all details of a single client such as
         code, first name, last name, etc. <br /><br />Field selection - <br />It
-        is useful in to select few specific fields in response to save some
+        is useful to select few specific fields in response to save some
         bandwidth.<br/> /clients/{client_code}?field=id,firsName,lastName<br />
       operationId: getClient
       x-mastercard-api-encrypted: true
@@ -167,9 +169,9 @@ paths:
       summary: '**Update Client** - Update all details of a client'
       description: >-
         This API allows users to update details like name, address, contacts,
-        preferences, occupation, kyc, etc. of a existing client. User should
-        call get client API to fetch all details and update required details and
-        call this update client API.
+        preferences, occupation, kyc, etc. of an existing client. User should
+        call 'Get Client API' to fetch all the details and then update the
+        required details by calling 'Update Client API'.
       operationId: updateClient
       x-mastercard-api-encrypted: true
       parameters:
@@ -183,6 +185,70 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/ServiceRequestDetailsResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  '/cards/{card_id}/debit-account-links':
+    post:
+      tags:
+        - Debit Card Links
+      summary: '**Add Debit Account Links** - Link debit account(s) to the card'
+      description: >-
+        This API allows users to link a debit account numbers as default or
+        additional account to a card number.<BR/> A card can be linked to a new
+        debit account number or to an existing debit account number if that
+        debit account number is not linked to any other card. <BR/> The linking
+        request can be made only for primary cards and not for add-on or
+        supplementary cards. But while processing the request for a primary
+        card, the debit account is linked with all the associated cards (add-on
+        or supplementary) of the primary card.<BR/> Note - Currently, only
+        single account could be linked per request.
+      operationId: addDebitAccountLinks
+      x-mastercard-api-encrypted: true
+      parameters:
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CardID'
+      requestBody:
+        $ref: '#/components/requestBodies/DebitAccountLinksRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/DebitAccountLinksResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    put:
+      tags:
+        - Debit Card Links
+      summary: '**Update Debit Account Links** - Delink debit account(s) to the card'
+      description: >-
+        This API allows users to delink debit account numbers to a card
+        number.<BR/> While delinking default account, it is mandatory to provide
+        replacement account  (already linked or new) to be marked as default
+        account in the same request.<BR/> Note - Currently, only single account
+        could be delinked per request.
+      operationId: updateDebitAccountLinks
+      x-mastercard-api-encrypted: true
+      parameters:
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/CardID'
+      requestBody:
+        $ref: '#/components/requestBodies/DebitAccountDelinksRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/DebitAccountDelinksResponse'
         '400':
           $ref: '#/components/responses/BadPostRequestError'
         '401':
@@ -443,7 +509,7 @@ components:
     CardType:
       type: string
       description: |-
-        The type indicates the card category. <br/> **Valid values:**
+        The type indicates the card category. <br/> **Valid values: **
         * `EMV_CARD`
         * `MAGNETIC_STRIPE_CARD`
         * `STATIC_VIRTUAL_CARD`
@@ -465,7 +531,7 @@ components:
       description: >-
         Indicates whether picture or photo should be printed on the card or
         default template to be applied. <br/> In case of LVC card request, valid
-        value is only `NORMAL`. <br/> **Valid values:**
+        value is only `NORMAL`. <br/> **Valid values: **
 
         * `NORMAL` - Normal card
 
@@ -476,7 +542,7 @@ components:
     CardStatus:
       type: string
       description: >-
-        The current status of the card. <br/> **Valid values:** <br/>
+        The current status of the card. <br/> **Valid values: ** <br/>
 
         * `NORMAL` - Indicates normal card
 
@@ -510,8 +576,8 @@ components:
 
         * `READY_FOR_SALE` - Indicates Ready for Sale Card
 
-        * `TRANSFERRED_TO_OTHER_BRANCH` - Indicates transferred to other branch
-        card
+        * `TRANSFERRED_TO_OTHER_BRANCH` - Indicates transferred to another
+        branch card
 
         * `RETURNED_AND_SHREDDED` - Indicates Returned to bank and shredded card
 
@@ -536,7 +602,7 @@ components:
       example: PRIMARY
       description: >-
         An indicator at card level to describe type of client associated with
-        the card. <br/> **Valid values:**
+        the card. <br/> **Valid values: **
 
         * `PRIMARY` - Indicates primary card
 
@@ -623,7 +689,7 @@ components:
           maxLength: 2
           description: >-
             Country Code where client is traveling to. <BR/> Expressed as a
-            2-letter (alpha-2) country code as defined in ISO 3166. <BR/>
+            2-letter (Alpha-2) country code as defined in ISO 3166. <BR/>
             **Conditional Mandatory**<font color='red'>* </font> field -
             Required if travel type is provided.
           example: GB
@@ -748,8 +814,8 @@ components:
         The title or salutation that is added before the name of client. <br/>
         <br/> **Conditional Mandatory**<font color='red'>* </font> field -
         Required while creating new client. <br/> The valid values are
-        configured on "Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]" screen for "Type Id=TITLE". **Sample values**: Mr, Mrs,
+        configured on 'Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]' screen for 'Type Id=TITLE'. **Sample values**: Mr, Mrs,
         Miss, Dr, Chief, Sir, Ms
       example: Mr
     ClientCode:
@@ -808,7 +874,7 @@ components:
       type: string
       description: >-
         Expiry date of the card in "MM/YY" format. This field is not applicable
-        for LVC cards. The expiry and expiryDateTime fields are mutually
+        for LVC cards. The expiry and 'expiry date time' fields are mutually
         exclusive, which means you can use any one of these fields to specify
         the details.
       pattern: '(0[1-9]|1[0-2])/[0-9]{2}'
@@ -818,8 +884,8 @@ components:
       format: date-time
       description: >-
         Applicable only for LVC Card. The date/time after which LVC card should
-        be considered as expired or invalid.<br/> <br/> The expiry &
-        expiryDateTime fields are mutually exclusive. <br/>Expressed in ISO 8601
+        be considered as expired or invalid.<br/> <br/> The expiry & 'expiry
+        date time' fields are mutually exclusive. <br/>Expressed in ISO 8601
         extended format. Must be <br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm where
         [.sss] is optional and can be 1 to 3 digits.
       minLength: 20
@@ -852,7 +918,7 @@ components:
       type: string
       description: >-
         Alias assigned to each card. This attribute is available only if the CNA
-        (card number alias) functionality is enabled for the institution.
+        (Card number alias) functionality is enabled for the institution.
       pattern: '[A-Za-z0-9_!''()*+,-.]+'
       minLength: 1
       maxLength: 24
@@ -961,7 +1027,7 @@ components:
           example: MISSING_REQUIRED_FIELD
         Description:
           type: string
-          description: Human-readable short description of the reasonCode.
+          description: Human-readable short description of the reason code.
           minLength: 10
           maxLength: 250
           example: Missing Required Field '<Field-Name>'
@@ -1016,11 +1082,12 @@ components:
             The date and time after which the request is considered as invalid.
             If the timestamp of the institution is greater than this timestamp,
             the API request is considered as expired and is returned.<br/>The
-            dataValidUntilTimestamp parameter is converted into the institution
-            time zone before comparing it with the institution date and time. It
-            is expressed in ISO 8601 extended format. Must be either <br/>
-            YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss] (+|-)
-            hh:mm where [.sss] is optional and can be 1 to 3 digits.
+            'dataValidUntilTimestamp' parameter is converted into the
+            institution time zone before comparing it with the institution date
+            and time. It is expressed in ISO 8601 extended format. Must be
+            either <br/> 'YYYY-MM-DDThh:mm:ss[.sss]Z'<br/> or
+            'YYYY-MM-DDThh:mm:ss[.sss] (+|-) hh:mm' where [.sss] is optional and
+            can be 1 to 3 digits.
           minLength: 20
           maxLength: 29
           example: '2020-07-04T12:09:56.450-07:00'
@@ -1029,9 +1096,9 @@ components:
         - $ref: '#/components/schemas/RequestValidityTime'
       type: object
       description: >-
-        Search Cards Plain request data to be encrypted by the ephemeral AES key
-        using CBC mode (IV as provided in 'iv', or zero if none provided) and
-        PKCS#7 padding. To be hex-encoded.
+        Search Cards plain request data to be encrypted by the ephemeral 'AES'
+        key using 'CBC' mode (IV as provided in 'iv', or zero if none provided)
+        and 'PKCS#7' padding. To be hex-encoded.
       properties:
         filter:
           $ref: '#/components/schemas/ResponseFilter'
@@ -1129,7 +1196,7 @@ components:
     AccountStatus:
       type: string
       description: |-
-        Account Status. <br/> **Valid values:** <br/>
+        Account Status. <br/> **Valid values: ** <br/>
         * `NORMAL` - Normal account
         * `COLLECTION` - Collection account
         * `INACTIVE` - Inactive account
@@ -1183,8 +1250,8 @@ components:
         - $ref: '#/components/schemas/RequestValidityTime'
       type: object
       description: >-
-        It is authentication token used for verification and setting up new PIN
-        for card.
+        It is authentication token used for verification and setting up new
+        'PIN' for card.
       required:
         - token
         - pin
@@ -1197,9 +1264,9 @@ components:
       type: string
       description: >-
         One-time token to authorize a user for a single transaction that is of a
-        specific intent such as PURCHASE transaction. This token is
+        specific intent such as 'PURCHASE' transaction. This token is
         automatically generated and is valid until the date and time mentioned
-        under tokenValidUntilTimesStamp.
+        under 'tokenValidUntilTimesStamp'.
       minLength: 32
       maxLength: 36
       pattern: '[a-zA-Z0-9_-]+'
@@ -1211,8 +1278,9 @@ components:
         encryptedBlock:
           type: string
           description: >-
-            It is the PIN block in encrypted format. Both encryptedBlock and
-            encryptedKey are mutually inclusive. <br/> **Supported formats:**
+            It is the PIN block in encrypted format. Both 'encrypted block' and
+            'encrypted key' are mutually inclusive. <br/> **Supported formats:
+            **
 
             * `ISO 9564-1 Format 0` - PIN Block generated with ISO 9564-1
             **Format-0**. The generated PIN Block is encrypted using **3-DES**
@@ -1228,10 +1296,10 @@ components:
         encryptedKey:
           type: string
           description: >-
-            One-time use 3-DES or AES session key encrypted using payShield HSM
-            RSA public key. <br/> **Conditional Mandatory**<font color='red'>*
-            </font> field - Required if encryptedPinBlock field is present in
-            the request.
+            One-time use 3-DES or AES session key encrypted using 'pay shield'
+            HSM RSA public key. <br/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required if 'encrypted pin block'
+            field is present in the request.
           minLength: 32
           maxLength: 512
           pattern: '[a-zA-Z0-9]+'
@@ -1243,14 +1311,14 @@ components:
       type: string
       description: >-
         Cryptographic encryption algorithm that is used to generate the
-        encryption key and encrypt the PIN block. Currently only 3-DES
+        encryption key and encrypt the 'PIN' block. Currently only '3-DES'
         encryption algorithm is supported. If value is not provided in the
-        input, then default 3-DES algorithm is considered. <br/> **Valid
-        values:**
+        input, then default '3-DES' algorithm is considered. <br/> **Valid
+        values: **
 
-        * `3DES` - 3-DES encryption(default value)
+        * `3DES` - 3-DES encryption (default value)
 
-        * `AES` - AES encryption(Not supported, reserved for future use)
+        * `AES` - AES encryption (Not supported, reserved for future use)
       example: 3DES
     ClientProfile:
       type: object
@@ -1306,8 +1374,8 @@ components:
         vip:
           type: boolean
           description: >-
-            Indicates whether client is VIP person. false (Default) indicates
-            Normal client and true indicates VIP client. <BR/> This field is
+            Indicates whether client is 'VIP' person. False(default) indicates
+            'Normal' client and true indicates 'VIP' client. <BR/> This field is
             required if configured as **Business Mandatory**<font color='red'>*
             </font>.
           default: false
@@ -1331,9 +1399,9 @@ components:
       description: >-
         Indicates client type <br /> <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=CUSTOMER_TYPE" .
-        <br/> **Few sample values:**  `Individual`, `Corporate`, `Bank Staff`
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type Id=CUSTOMER_TYPE'.
+        <br/> **Few sample values: **  `Individual`, `Corporate`, `Bank Staff`
       example: Individual
     SourceSystemClientMapping:
       description: Client information mapping with source system identifiers
@@ -1370,8 +1438,8 @@ components:
       type: string
       description: >-
         Client's risk category. <BR/> This field is required if configured as
-        **Business Mandatory**<font color='red'>* </font>. <br/> **Valid
-        values:**
+        **Business Mandatory**<font color='red'>* </font>. <br/> **Valid values:
+        **
 
         * `NONE` - Insignificant or no risk
 
@@ -1448,10 +1516,10 @@ components:
     OwnedVehicleType:
       type: string
       description: >-
-        Owned Vehicle Type. <br/> Valid values are configured on "Card
-        Management > Institution Parameter Setup > System Codes [ISSS15]" screen
-        for "Type Id=OWNED_VEHICLE_TYPE". <br/> **Few sample values:** `Two
-        wheeler`, `Four wheeler`
+        Owned Vehicle Type. <br/> Valid values are configured on 'Card
+        Management > Institution Parameter Setup > System Codes [ISSS15]'    
+        screen for "Type Id=OWNED_VEHICLE_TYPE". <br/> **Few sample values: ** 
+        `Two wheeler`, `Four wheeler`
       example: Four wheeler
     ReferenceDetails:
       type: object
@@ -1570,21 +1638,21 @@ components:
         registerForDNCR:
           type: boolean
           description: >-
-            Indicates whether registered in DNCR (Do Not Call Register) or not.
-            Default false. <BR/> This field is required if configured as
+            Indicates whether registered in 'DNCR' (Do Not Call Register) or
+            not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
         smsAlert:
           type: boolean
           description: >-
-            Indicates whether registered for SMS alert notification facility or
+            Indicates whether registered for sms alert notification facility or
             not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
         emailAlert:
           type: boolean
           description: >-
-            Indicates whether registered for Email alert notification facility
+            Indicates whether registered for email alert notification facility
             or not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
@@ -1592,9 +1660,9 @@ components:
       type: string
       description: >-
         Language preference. Language tags should be in the 'Language-Region'
-        format as described by Internet Engineering Task Force (IETF) BCP 47
+        format as described by Internet Engineering 'Task Force (IETF) BCP 47'
         standard. <BR/> **Conditional Mandatory**<font color='red'>* </font>
-        field - Required while creating new client. <br/> **Valid values:**
+        field - Required while creating new client. <br/> **Valid values: **
 
         * `en-US` - English language
 
@@ -1607,16 +1675,16 @@ components:
       description: >-
         Client's preferred mailing address. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        **Valid values:** `CURRENT`, `PERMANENT`, `OFFICE`
+        **Valid values: ** `CURRENT`, `PERMANENT`, `OFFICE`
       example: CURRENT
     StatementDeliveryOption:
       type: string
       description: >-
         Statement delivery options. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type
-        Id=STATEMENT_PREFERENCE" . <br/> **Few sample values:**
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type
+        Id=STATEMENT_PREFERENCE'. <br/> **Few sample values: **
 
         * `Email` - Statement delivery via Email
 
@@ -1629,13 +1697,13 @@ components:
       description: >-
         It is the relation of the add-on client with the primary client. <BR/>
         **Conditional Mandatory**<font color='red'>* </font> field - Add-on
-        clientCode and relation fields are mutually exclusive while creating the
-        client. If both present, then relation value will be ignored. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=RELATION". <br/>
-        **Few sample values:** `Brother`, `Business card`, `Daughter`, `Father`,
-        `Father In Law`, `Mother`, `Mother In Law`, `Others`, `Sister`, `Son`,
-        `Spouse`
+        'client code' and relation fields are mutually exclusive while creating
+        the client. If both present, then relation value will be ignored. <br/>
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for "Type Id=RELATION". <br/>
+        **Few sample values: ** `Brother`, `Business card`, `Daughter`,
+        `Father`, `Father in Law`, `Mother`, `Mother in Law`, `Others`,
+        `Sister`, `Son`, `Spouse`
       example: Spouse
     MobileWithoutIsd:
       type: object
@@ -1851,17 +1919,17 @@ components:
       description: >-
         Type of employer. <BR/>This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=COMP_TYPE". <br/> **Few
-        sample values:** `Private`, `Public`, `Government`, `Non Government`
-      example: Non Government
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=COMP_TYPE'. <br/> **Few
+        sample values: **  `Private`, `Public`, `Government`, `Non-Government`
+      example: Non-Government
     EmploymentStatus:
       type: string
       description: >-
         Status of Employment. <BR/>This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EMPLOYMENT_STATUS". <br/>
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EMPLOYMENT_STATUS'. <br/>
         **Few sample values:**  `OTHER`, `PERMANENT`, `CONTRACTUAL`, `SELF
         EMPLOYED`, `RETIRED`, `HOME MAKER`, `STUDENT`, `BUSINESS`, `SALARIED`
       example: PERMANENT
@@ -1870,19 +1938,19 @@ components:
       description: >-
         Occupation type of the employee. <BR/>This field is required if
         configured as **Business Mandatory**<font color='red'>* </font>. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=OCCUPATION".
-        <br/> **Few sample values:**  `Service`, `Professional`, `Business`,
-        `Retired`, `House Hold`, `Student`, `Others`
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type Id=OCCUPATION'.
+        <br/> **Few sample values: **  `Service`, `Professional`, `Business`,
+        `Retired`, `Household`, `Student`, `Others`
       example: Service
     ProfessionType:
       type: string
       description: >-
         Profession Type. <BR/>This field is required if configured as **Business
         Mandatory**<font color='red'>* </font>. <br/> Valid values are
-        configured on "Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]"     screen for "Type Id=APPLICANT_PROF". <br/> **Few
-        sample values:**  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`,
+        configured on 'Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]'     screen for "Type Id=APPLICANT_PROF". <br/> **Few
+        sample values: **  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`,
         `Others`, `Proprietorship`, `Partnership`, `Pvt Ltd Co.`, `HUF`,
         `Manufacturer`, `Export/ Importer`, `Trader/Stockist`, `Retailer`,
         `Service Provider`, `Consultant Professional`, `Professional`,
@@ -1894,8 +1962,8 @@ components:
       description: >-
         Designation of the employee. <BR/>This field is required if configured
         as **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EMPL_DESIGNATION". <br/>
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EMPL_DESIGNATION'. <br/>
         **Few sample values:**  `Executive`, `Sr Executive`, `Manager`, `Sr
         Manager`, `Asst Gen Manager`, `Dy Gen Manager`, `General Manager`, `Vice
         President`, `Director`, `Others`, `Clerical`, `Middle Management`,
@@ -2021,11 +2089,11 @@ components:
           type: string
           description: >-
             City (free text). <BR/> This field will be ignored and populated
-            internally if given country is same as institution country,     and
-            city is configured to be auto populated in Card Management >
-            Institution Parameter Setup     by selecting the option "Validate
-            Domestic Postal Code [Y]" or "Do Not Validate Domestic Postal
-            Code-Auto populate [D]" .
+            internally if given country is same as institution country, and city
+            is configured to be auto populated in Card Management > Institution
+            Parameter Setup by selecting the option 'Validate Domestic Postal
+            Code [Y]' or 'Do Not Validate Domestic Postal Code-Auto populate
+            [D]'.
           minLength: 1
           maxLength: 50
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
@@ -2047,16 +2115,16 @@ components:
 
             * This field will be ignored and populated internally if given
             country is same as institution country,     and state is configured
-            to be auto populated in Card Management > Institution Parameter
-            Setup     by selecting the option "Validate Domestic Postal Code
-            [Y]" or "Do Not Validate Domestic Postal Code-Auto populate [D]".
+            to be auto populated in 'Card Management > Institution Parameter
+            Setup'     by selecting the option 'Validate Domestic Postal Code
+            [Y]' or 'Do Not Validate Domestic Postal Code-Auto populate [D]'.
           minLength: 1
           maxLength: 50
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
           example: MH
         country:
           description: >-
-            Country Code. Expressed as a 2-letter (alpha-2) country code as
+            Country Code. Expressed as a 2-letter (Alpha-2) country code as
             defined in ISO 3166. <BR/> **Conditional Mandatory**<font
             color='red'>* </font> field - <BR/>
 
@@ -2076,13 +2144,13 @@ components:
             Zip Code. <BR/> **Conditional Mandatory**<font color='red'>* </font>
             field - <BR/>
 
-            * Required if given country is same as institution country, and
-            zipCode is configured as mandatory     in Card Management >
-            Institution Parameter Setup by selecting the "Validate Domestic
-            Postal Code [Y]". <BR/>
+            * Required if given country is same as 'institution country', and
+            'zip code' is configured as mandatory     in 'Card Management >
+            Institution Parameter Setup' by selecting the 'Validate Domestic
+            Postal Code [Y]'. <BR/>
 
-            * Office or Permanent Address zipCode is required if selected as
-            preferred Mailing Address.
+            * Office or 'permanent address zip code' is required if selected as
+            preferred 'mailing address'.
           minLength: 1
           maxLength: 10
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
@@ -2090,9 +2158,9 @@ components:
     LodgingMode:
       type: string
       description: >-
-        Lodging Mode. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=RESIDENCE_STATUS". <br/> **Few sample values:**  `Not
+        Lodging Mode. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=RESIDENCE_STATUS'. <br/> **Few sample values: **  `Not
         reported`, `Financed`, `Owned`, `Rented`, `Company leased`, `PG`,
         `Office`, `Parental`
       example: Owned
@@ -2147,8 +2215,8 @@ components:
         birthCity:
           type: string
           description: >-
-            Birth city of the client. City will be verified against the City
-            master setup. <br/> This field is required if configured as
+            Birth city of the client. City will be verified against the 'city
+            master setup'. <br/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 50
@@ -2156,7 +2224,7 @@ components:
           example: London
         birthCountry:
           description: >-
-            Expressed as a 2-letter (alpha-2) country code as defined in ISO
+            Expressed as a 2-letter (Alpha-2) country code as defined in ISO
             3166. <br/> For example - IN, US, CA, GB <br/> This field is
             required if configured as **Business Mandatory**<font color='red'>*
             </font>.
@@ -2173,7 +2241,7 @@ components:
           description: >-
             The status of belonging to a particular nation. <br/> **Conditional
             Mandatory**<font color='red'>* </font> field - Required while
-            creating new client. <br/> Expressed as a 2-letter (alpha-2) country
+            creating new client. <br/> Expressed as a 2-letter (Alpha-2) country
             code as defined in ISO 3166. <br/> For example - IN, US, CA, GB
           type: string
           maxLength: 2
@@ -2185,9 +2253,9 @@ components:
       description: >-
         Indicates Gender of the client. <br/> <br/> **Conditional
         Mandatory**<font color='red'>* </font> field - Required while creating
-        new client. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=GENDER". <br/> **Few sample values:** `Female`, `Male`, `Not
+        new client. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=GENDER'. <br/> **Few sample values: ** `Female`, `Male`, `Not
         Reported`
       example: Male
     EducationQualification:
@@ -2195,9 +2263,9 @@ components:
       description: >-
         Educational Qualification. <br/> This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EDUCATION". <br/> **Few
-        sample values:**  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EDUCATION'. <br/> **Few
+        sample values: **  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post
         Graduate`, `Professional`, `Others`, `PHD`, `Diploma`
       example: Graduate
     MaritalStatus:
@@ -2205,9 +2273,9 @@ components:
       description: >-
         Indicates Marital Status of the client. <br/> <br/> **Conditional
         Mandatory**<font color='red'>* </font> field - Required while creating
-        new client. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=MARITAL_STATUS" . <br/> **Few sample values:**  `Single`,
+        new client. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=MARITAL_STATUS'. <br/> **Few sample values: **  `Single`,
         `Married`, `Divorcee`, `Widow/Widower`
       example: Married
     CobrandNumber:
@@ -2284,9 +2352,9 @@ components:
         vip:
           type: boolean
           description: >-
-            Indicates whether client is VIP person. false (Default) indicates
-            Normal client and true indicates VIP client. <BR/> This field is
-            required if configured as **Business Mandatory**<font color='red'>*
+            Indicates whether client is 'VIP' person. False (default) indicates
+            'Normal' client and true indicates 'VIP' client. <BR/> This field is
+            required, if configured as **Business Mandatory**<font color='red'>*
             </font>.
           default: false
           example: false
@@ -2332,6 +2400,117 @@ components:
       properties:
         legalDocuments:
           $ref: '#/components/schemas/LegalDocuments'
+    DebitAccountLinks:
+      allOf:
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
+      description: Debit accounts to be linked to the card.
+      properties:
+        accountLinks:
+          type: array
+          description: List of debit accounts
+          items:
+            $ref: '#/components/schemas/DebitAccountCardLink'
+          minItems: 1
+          maxItems: 1
+    DebitAccountCardLink:
+      type: object
+      required:
+        - status
+        - number
+      properties:
+        status:
+          $ref: '#/components/schemas/DebitAccountLinkStatus'
+        number:
+          type: string
+          minLength: 4
+          maxLength: 20
+          description: Debit Account number in CBS.
+          example: '0005040100006120'
+        type:
+          $ref: '#/components/schemas/CbsAccountType'
+    DebitAccountLinkStatus:
+      type: string
+      description: >-
+        Debit account linking status with the card. <br/> **Valid values: **
+
+        * `LINK` - Link the CBS debit account to the card
+
+        * `LINK_DEFAULT` - Link the CBS debit account as **default** account to
+        the card
+      example: LINK
+    CbsAccountType:
+      type: string
+      description: >-
+        Bank ISO Account Type in CBS. <br/> **Conditional Mandatory**<font
+        color='red'>* </font> field - Required while linking new debit account.
+        <br/> **Possible values: ** <br/>
+
+        * `DEFAULT` - Default Account
+
+        * `SAVINGS` - Savings Account
+
+        * `CHECKING` - Checking Account
+
+        * `CREDIT_CARD` - Credit Card Account
+
+        * `CREDIT_LINE` - Credit Line Account
+
+        * `CORPORATE` - Corporate Account
+
+        * `UNIVERSAL` - Universal Account
+
+        * `MONEY_MARKET_INVESTMENT` - Money Market Investment Account
+
+        * `IRA_INVESTMENT` - Ira Investment Account
+
+        * `STORED_VALUE` - Stored Value Account
+
+        * `REVOLVING_LOAN` - Revolving Loan Account
+
+        * `INSTALLMENT_LOAN` - Installment Loan Account
+
+        * `REAL_ESTATE_LOAN` - Real Estate Loan Account
+      example: SAVINGS
+    DebitAccountDelinks:
+      allOf:
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
+      description: Debit accounts to be delinked and/or linked as default to the card.
+      properties:
+        accountLinks:
+          type: array
+          description: List of debit accounts
+          items:
+            $ref: '#/components/schemas/DebitAccountCardDelink'
+          minItems: 1
+          maxItems: 2
+    DebitAccountCardDelink:
+      type: object
+      required:
+        - status
+        - number
+      properties:
+        status:
+          $ref: '#/components/schemas/DebitAccountDelinkStatus'
+        number:
+          type: string
+          minLength: 4
+          maxLength: 20
+          description: Debit Account number in CBS.
+          example: '0005040100006120'
+        type:
+          $ref: '#/components/schemas/CbsAccountType'
+    DebitAccountDelinkStatus:
+      type: string
+      description: >-
+        Debit account linking status with the card. <br/> **Valid values: **
+
+        * `DELINK` - Delink the CBS debit account to the card
+
+        * `LINK_DEFAULT` - Link the CBS debit account as **default** account to
+        the card
+      example: DELINK
   parameters:
     CardID:
       name: card_id
@@ -2357,15 +2536,16 @@ components:
       name: X-MC-Correlation-ID
       in: header
       description: >-
-        Correlation ID, also known as Transit ID or Request ID, is a unique
-        identifier value attached to a particular transaction or event chain.The
-        Correlation ID also helps in auditing, debugging, and tracing the
+        'Correlation ID', also known as 'Transit ID' or 'Request ID', is unique
+        identifier value attached to a particular transaction or event chain.
+        The 'Correlation ID' also helps in auditing, debugging, and tracing the
         request execution flow. <BR/> It is recommended to generate universally
-        unique identifier (UUID) in compliance with RFC 4122.<BR/> If the
-        Correlation ID is not received in the incoming request, the Mastercard
-        Processing platform generates a universally unique identifier (UUID)
-        dynamically and assigns it to the request. The Correlation ID is always
-        added to the response header to provide end to end traceability.
+        unique identifier (UUID) in compliance with 'RFC 4122'.<BR/> If the
+        'Correlation ID' is not received in the incoming request, the
+        'Mastercard Processing' platform generates a universally unique
+        identifier (UUID) dynamically and assigns it to the request. The
+        Correlation ID is always added to the response header to provide end to
+        end traceability.
 
         * minLength: 6
 
@@ -2382,8 +2562,8 @@ components:
       name: X-MC-Bank-Code
       in: header
       description: >-
-        It is a 6 digit bank/institution identifier code. <br/> **Conditional
-        Mandatory**<font color='red'>* </font> field - Required to be passed  by
+        It is a 6-digit bank/institution identifier code. <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required to be passed by
         third party vendors or service provider (like 3-D Secure authenticator)
         who has access to the data of multiple banks, supported by legal
         agreement and access grants.
@@ -2405,15 +2585,15 @@ components:
       description: >-
         Value identifying the origin or source of a transaction. The list of
         possible sample values are available in the database and shared in the
-        API_SOURCE_VALUES list under "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]". This field is used only for logging
+        'API_SOURCE_VALUES' list under 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'. This field is used only for logging
         purpose.<br/>
 
         * minLength: 3
 
         * maxLength: 3
 
-        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values:** <br/>
+        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values: ** <br/>
 
         * `IVR` - Interactive Voice Response
 
@@ -2465,10 +2645,10 @@ components:
       in: query
       name: fields
       description: >-
-        The Fields parameter restricts the set of properties to be returned for
-        a field in the API response. These properties must be present in the API
-        response structure that is the JSON path. These properties can be added
-        as a comma-separated list.
+        The 'fields' parameter restricts the set of properties to be returned
+        for a field in the API response. These properties must be present in the
+        API response structure that is the json path. These properties can be
+        added as a comma-separated list.
       required: false
       schema:
         type: string
@@ -2497,6 +2677,21 @@ components:
         maxLength: 24
         pattern: '[a-zA-Z0-9]+'
       example: '3333E0000022190619111777'
+    IdempotencyKey:
+      name: X-MC-Idempotency-Key
+      in: header
+      required: true
+      description: >-
+        An idempotency key is a unique value that is generated by a client and
+        sent to an API along with a request. If a request should fail partway
+        through, the client retries with the same idempotency key value, and the
+        server uses it to look up the state of request and continue from where
+        it left off. Recommended to generate universally unique identifier
+        (UUID) compliant with 'RFC 4122'.
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9_-]{6,36}$'
+      example: bc57d177-4593-3449-8343-0d81a7a02947
   headers:
     Response-Correlation-ID:
       description: >-
@@ -2516,7 +2711,7 @@ components:
             $ref: '#/components/schemas/CardSearchCriteria'
       required: true
     UpdatePinRequest:
-      description: Card new PIN and authentication token details
+      description: Card new 'PIN' and authentication token details
       content:
         application/json:
           schema:
@@ -2528,6 +2723,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/UpdatedClient'
+      required: true
+    DebitAccountLinksRequest:
+      description: Debit accounts information to update the linking with the card.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DebitAccountLinks'
+      required: true
+    DebitAccountDelinksRequest:
+      description: Debit accounts information to update the linking with the card.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/DebitAccountDelinks'
       required: true
   responses:
     CardProfileResponse:
@@ -2615,7 +2824,7 @@ components:
         X-MC-Correlation-ID:
           $ref: '#/components/headers/Response-Correlation-ID'
     UpdatePinResponse:
-      description: New PIN is successfully updated against given card.
+      description: New 'PIN' is successfully updated against given card.
       headers:
         X-MC-Correlation-ID:
           $ref: '#/components/headers/Response-Correlation-ID'
@@ -2634,6 +2843,16 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ServiceRequestDetails'
+      headers:
+        X-MC-Correlation-ID:
+          $ref: '#/components/headers/Response-Correlation-ID'
+    DebitAccountLinksResponse:
+      description: The debit accounts linking was successfully created.
+      headers:
+        X-MC-Correlation-ID:
+          $ref: '#/components/headers/Response-Correlation-ID'
+    DebitAccountDelinksResponse:
+      description: The debit accounts delinking was successfully updated.
       headers:
         X-MC-Correlation-ID:
           $ref: '#/components/headers/Response-Correlation-ID'

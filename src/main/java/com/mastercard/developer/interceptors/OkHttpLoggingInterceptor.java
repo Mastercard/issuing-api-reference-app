@@ -17,7 +17,6 @@ package com.mastercard.developer.interceptors;
 
 import java.io.IOException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.ThreadContext;
 
 import com.mastercard.developer.issuing.client.helper.RequestContext;
@@ -85,8 +84,8 @@ public class OkHttpLoggingInterceptor implements Interceptor {
             request.body()
                    .writeTo(requestBuffer);
             log.debug("OkHttp -- {} Request Body: {}\n", format, requestBuffer.readUtf8());
-            RequestContext.put("reqLogged", "true");
         }
+        RequestContext.put("reqLogged", "true");
 
         Response response = chain.proceed(request);
 
@@ -129,13 +128,13 @@ public class OkHttpLoggingInterceptor implements Interceptor {
                     response.headers());
             // First time logging
             if (success) {
-                log.debug("OkHttp -- Encrypted Response Body: {}\n", content);
+                log.debug("OkHttp -- [Success] Encrypted Response Body: {}\n", content);
                 RequestContext.put("respLogged", "true");
             } else {
-                log.debug("OkHttp -- Response Body: {}\n", content);
+                log.debug("OkHttp -- [Error] Response Body: {}\n", content);
             }
         } else if (success) {
-            log.debug("OkHttp -- Clear Response Body: {}\n", content);
+            log.debug("OkHttp -- [Success] Clear Response Body: {}\n", content);
             RequestContext.clear();
         }
         return response;

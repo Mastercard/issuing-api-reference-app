@@ -2,10 +2,10 @@ openapi: 3.0.3
 info:
   title: Card Issuance API
   description: >-
-    The card issuance API allows users to issue digital cards, physical cards,
-    one-time use cards to existing or new primary or add-on clients. It also
-    allows the user to issue instant digital cards (on-demand issue physical
-    card with same PAN).
+    The card issuance API allows users to issue 'digital cards', 'physical
+    cards', 'one-time use cards' to existing or new primary or add-on clients.
+    It also allows the user to issue instant digital cards (on-demand issue
+    physical card with same PAN).
   contact:
     name: API Support
     url: 'https://developer.mastercard.com/support'
@@ -38,10 +38,10 @@ paths:
         physical/virtual card to existing or new client. It is applicable for
         prepaid products issued on MI platform. The Mastercard issuing system
         receives, validates, and processes the request. If the request is
-        successful, the card will be generated, and card details like card
-        number, card Id, card pack Id, etc. will be sent in the response. <BR/>
-        Note: More than one card information in the response indicates issuance
-        of paired cards.
+        successful, the card will be generated, and card details like 'card
+        number', 'card Id', 'card pack Id', etc. will be sent in the response.
+        <BR/> Note: More than one card information in the response indicates
+        issuance of paired cards.
       operationId: createPrepaidCard
       x-mastercard-api-encrypted: true
       parameters:
@@ -72,10 +72,10 @@ paths:
         This API allows users to issue primary, add-on or supplementary debit
         card to existing/new client with the help of CBS system. The Mastercard
         issuing system receives, validates, and send the request to CBS for
-        fulfillment. If the request is successful, then card will be generated,
-        and card details like card number, card Id, card pack Id, etc. will be
-        sent in the response. <BR/> Note: More than one card information in the
-        response indicates issuance of paired cards.
+        fulfilment. If the request is successful, then card will be generated,
+        and card details like 'card number', 'card Id', 'card pack Id', etc.
+        will be sent in the response. <BR/> Note: More than one card information
+        in the response indicates issuance of paired cards.
       operationId: createDebitCard
       x-mastercard-api-encrypted: true
       parameters:
@@ -164,9 +164,9 @@ components:
           description: >-
             Indicates whether the application should go through the checker
             approval process prior to client on-boarding. Applicable only if not
-            requested for instantCard. It will be always considered as true in
-            case of instant card or SVC/LVC card issuance irrespective of input
-            value.
+            requested for 'instant card'. It will be always considered as true
+            in case of 'instant card' or 'SVC/LVC' card issuance irrespective of
+            input value.
           example: false
         memo:
           type: string
@@ -443,8 +443,8 @@ components:
       type: string
       description: >-
         Client's risk category. <BR/> This field is required if configured as
-        **Business Mandatory**<font color='red'>* </font>. <br/> **Valid
-        values:**
+        **Business Mandatory**<font color='red'>* </font>. <br/> **Valid values:
+        **
 
         * `NONE` - Insignificant or no risk
 
@@ -470,21 +470,21 @@ components:
         registerForDNCR:
           type: boolean
           description: >-
-            Indicates whether registered in DNCR (Do Not Call Register) or not.
-            Default false. <BR/> This field is required if configured as
+            Indicates whether registered in 'DNCR' (Do Not Call Register) or
+            not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
         smsAlert:
           type: boolean
           description: >-
-            Indicates whether registered for SMS alert notification facility or
+            Indicates whether registered for sms alert notification facility or
             not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
         emailAlert:
           type: boolean
           description: >-
-            Indicates whether registered for Email alert notification facility
+            Indicates whether registered for email alert notification facility
             or not. Default false. <BR/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           example: false
@@ -492,9 +492,9 @@ components:
       type: string
       description: >-
         Language preference. Language tags should be in the 'Language-Region'
-        format as described by Internet Engineering Task Force (IETF) BCP 47
+        format as described by Internet Engineering 'Task Force (IETF) BCP 47'
         standard. <BR/> **Conditional Mandatory**<font color='red'>* </font>
-        field - Required while creating new client. <br/> **Valid values:**
+        field - Required while creating new client. <br/> **Valid values: **
 
         * `en-US` - English language
 
@@ -507,7 +507,7 @@ components:
       description: >-
         Client's preferred mailing address. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        **Valid values:** `CURRENT`, `PERMANENT`, `OFFICE`
+        **Valid values: ** `CURRENT`, `PERMANENT`, `OFFICE`
       example: CURRENT
     PrepaidCardProfile:
       type: object
@@ -590,15 +590,15 @@ components:
           description: The amount that can be loaded to the client account.
           minimum: 0
           maximum: 9999999999.99999
-          example: '1000'
+          example: 1000
     ClientType:
       type: string
       description: >-
         Indicates client type <br /> <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=CUSTOMER_TYPE" .
-        <br/> **Few sample values:**  `Individual`, `Corporate`, `Bank Staff`
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type Id=CUSTOMER_TYPE'.
+        <br/> **Few sample values: **  `Individual`, `Corporate`, `Bank Staff`
       example: Individual
     ClientSearchInfo:
       type: object
@@ -612,9 +612,9 @@ components:
       description: >-
         Statement delivery options. <BR/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while creating new client. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type
-        Id=STATEMENT_PREFERENCE" . <br/> **Few sample values:**
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type
+        Id=STATEMENT_PREFERENCE'. <br/> **Few sample values: **
 
         * `Email` - Statement delivery via Email
 
@@ -627,7 +627,7 @@ components:
       description: >-
         Indicates whether picture or photo should be printed on the card or
         default template to be applied. <br/> In case of LVC card request, valid
-        value is only `NORMAL`. <br/> **Valid values:**
+        value is only `NORMAL`. <br/> **Valid values: **
 
         * `NORMAL` - Normal card
 
@@ -675,7 +675,7 @@ components:
           maxLength: 2
           description: >-
             Country Code where client is traveling to. <BR/> Expressed as a
-            2-letter (alpha-2) country code as defined in ISO 3166. <BR/>
+            2-letter (Alpha-2) country code as defined in ISO 3166. <BR/>
             **Conditional Mandatory**<font color='red'>* </font> field -
             Required if travel type is provided.
           example: GB
@@ -739,7 +739,7 @@ components:
     CardType:
       type: string
       description: |-
-        The type indicates the card category. <br/> **Valid values:**
+        The type indicates the card category. <br/> **Valid values: **
         * `EMV_CARD`
         * `MAGNETIC_STRIPE_CARD`
         * `STATIC_VIRTUAL_CARD`
@@ -761,7 +761,7 @@ components:
       example: PRIMARY
       description: >-
         An indicator at card level to describe type of client associated with
-        the card. <br/> **Valid values:**
+        the card. <br/> **Valid values: **
 
         * `PRIMARY` - Indicates primary card
 
@@ -788,7 +788,7 @@ components:
     CardStatus:
       type: string
       description: >-
-        The current status of the card. <br/> **Valid values:** <br/>
+        The current status of the card. <br/> **Valid values: ** <br/>
 
         * `NORMAL` - Indicates normal card
 
@@ -822,8 +822,8 @@ components:
 
         * `READY_FOR_SALE` - Indicates Ready for Sale Card
 
-        * `TRANSFERRED_TO_OTHER_BRANCH` - Indicates transferred to other branch
-        card
+        * `TRANSFERRED_TO_OTHER_BRANCH` - Indicates transferred to another
+        branch card
 
         * `RETURNED_AND_SHREDDED` - Indicates Returned to bank and shredded card
 
@@ -847,22 +847,22 @@ components:
       type: string
       description: >-
         Application type indicates the type of card being requested. <br/>
-        **Valid values:** <br/> `PRIMARY` - Issue Primary Card <br /> `ADD_ON` -
-        Issue Add-On Card <br /> `SUPPLEMENTARY` - Issue Supplementary Card <br
-        />
+        **Valid values: ** <br/> `PRIMARY` - Issue Primary Card <br /> `ADD_ON`
+        - Issue Add-On Card <br /> `SUPPLEMENTARY` - Issue Supplementary Card
+        <br />
       example: PRIMARY
     Relation:
       type: string
       description: >-
         It is the relation of the add-on client with the primary client. <BR/>
         **Conditional Mandatory**<font color='red'>* </font> field - Add-on
-        clientCode and relation fields are mutually exclusive while creating the
-        client. If both present, then relation value will be ignored. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=RELATION". <br/>
-        **Few sample values:** `Brother`, `Business card`, `Daughter`, `Father`,
-        `Father In Law`, `Mother`, `Mother In Law`, `Others`, `Sister`, `Son`,
-        `Spouse`
+        'client code' and relation fields are mutually exclusive while creating
+        the client. If both present, then relation value will be ignored. <br/>
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for "Type Id=RELATION". <br/>
+        **Few sample values: ** `Brother`, `Business card`, `Daughter`,
+        `Father`, `Father in Law`, `Mother`, `Mother in Law`, `Others`,
+        `Sister`, `Son`, `Spouse`
       example: Spouse
     Mobile:
       type: object
@@ -1088,17 +1088,17 @@ components:
       description: >-
         Type of employer. <BR/>This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=COMP_TYPE". <br/> **Few
-        sample values:** `Private`, `Public`, `Government`, `Non Government`
-      example: Non Government
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=COMP_TYPE'. <br/> **Few
+        sample values: **  `Private`, `Public`, `Government`, `Non-Government`
+      example: Non-Government
     EmploymentStatus:
       type: string
       description: >-
         Status of Employment. <BR/>This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EMPLOYMENT_STATUS". <br/>
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EMPLOYMENT_STATUS'. <br/>
         **Few sample values:**  `OTHER`, `PERMANENT`, `CONTRACTUAL`, `SELF
         EMPLOYED`, `RETIRED`, `HOME MAKER`, `STUDENT`, `BUSINESS`, `SALARIED`
       example: PERMANENT
@@ -1107,19 +1107,19 @@ components:
       description: >-
         Occupation type of the employee. <BR/>This field is required if
         configured as **Business Mandatory**<font color='red'>* </font>. <br/>
-        Valid values are configured on "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]"     screen for "Type Id=OCCUPATION".
-        <br/> **Few sample values:**  `Service`, `Professional`, `Business`,
-        `Retired`, `House Hold`, `Student`, `Others`
+        Valid values are configured on 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'     screen for 'Type Id=OCCUPATION'.
+        <br/> **Few sample values: **  `Service`, `Professional`, `Business`,
+        `Retired`, `Household`, `Student`, `Others`
       example: Service
     ProfessionType:
       type: string
       description: >-
         Profession Type. <BR/>This field is required if configured as **Business
         Mandatory**<font color='red'>* </font>. <br/> Valid values are
-        configured on "Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]"     screen for "Type Id=APPLICANT_PROF". <br/> **Few
-        sample values:**  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`,
+        configured on 'Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]'     screen for "Type Id=APPLICANT_PROF". <br/> **Few
+        sample values: **  `Architect`, `CA`, `Consultant`, `Doctor`, `Lawyer`,
         `Others`, `Proprietorship`, `Partnership`, `Pvt Ltd Co.`, `HUF`,
         `Manufacturer`, `Export/ Importer`, `Trader/Stockist`, `Retailer`,
         `Service Provider`, `Consultant Professional`, `Professional`,
@@ -1131,8 +1131,8 @@ components:
       description: >-
         Designation of the employee. <BR/>This field is required if configured
         as **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EMPL_DESIGNATION". <br/>
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EMPL_DESIGNATION'. <br/>
         **Few sample values:**  `Executive`, `Sr Executive`, `Manager`, `Sr
         Manager`, `Asst Gen Manager`, `Dy Gen Manager`, `General Manager`, `Vice
         President`, `Director`, `Others`, `Clerical`, `Middle Management`,
@@ -1258,11 +1258,11 @@ components:
           type: string
           description: >-
             City (free text). <BR/> This field will be ignored and populated
-            internally if given country is same as institution country,     and
-            city is configured to be auto populated in Card Management >
-            Institution Parameter Setup     by selecting the option "Validate
-            Domestic Postal Code [Y]" or "Do Not Validate Domestic Postal
-            Code-Auto populate [D]" .
+            internally if given country is same as institution country, and city
+            is configured to be auto populated in Card Management > Institution
+            Parameter Setup by selecting the option 'Validate Domestic Postal
+            Code [Y]' or 'Do Not Validate Domestic Postal Code-Auto populate
+            [D]'.
           minLength: 1
           maxLength: 50
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
@@ -1284,16 +1284,16 @@ components:
 
             * This field will be ignored and populated internally if given
             country is same as institution country,     and state is configured
-            to be auto populated in Card Management > Institution Parameter
-            Setup     by selecting the option "Validate Domestic Postal Code
-            [Y]" or "Do Not Validate Domestic Postal Code-Auto populate [D]".
+            to be auto populated in 'Card Management > Institution Parameter
+            Setup'     by selecting the option 'Validate Domestic Postal Code
+            [Y]' or 'Do Not Validate Domestic Postal Code-Auto populate [D]'.
           minLength: 1
           maxLength: 50
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
           example: MH
         country:
           description: >-
-            Country Code. Expressed as a 2-letter (alpha-2) country code as
+            Country Code. Expressed as a 2-letter (Alpha-2) country code as
             defined in ISO 3166. <BR/> **Conditional Mandatory**<font
             color='red'>* </font> field - <BR/>
 
@@ -1313,13 +1313,13 @@ components:
             Zip Code. <BR/> **Conditional Mandatory**<font color='red'>* </font>
             field - <BR/>
 
-            * Required if given country is same as institution country, and
-            zipCode is configured as mandatory     in Card Management >
-            Institution Parameter Setup by selecting the "Validate Domestic
-            Postal Code [Y]". <BR/>
+            * Required if given country is same as 'institution country', and
+            'zip code' is configured as mandatory     in 'Card Management >
+            Institution Parameter Setup' by selecting the 'Validate Domestic
+            Postal Code [Y]'. <BR/>
 
-            * Office or Permanent Address zipCode is required if selected as
-            preferred Mailing Address.
+            * Office or 'permanent address zip code' is required if selected as
+            preferred 'mailing address'.
           minLength: 1
           maxLength: 10
           pattern: '[^ ][a-zA-Z0-9 ]+[^ ]'
@@ -1327,9 +1327,9 @@ components:
     LodgingMode:
       type: string
       description: >-
-        Lodging Mode. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=RESIDENCE_STATUS". <br/> **Few sample values:**  `Not
+        Lodging Mode. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=RESIDENCE_STATUS'. <br/> **Few sample values: **  `Not
         reported`, `Financed`, `Owned`, `Rented`, `Company leased`, `PG`,
         `Office`, `Parental`
       example: Owned
@@ -1431,8 +1431,8 @@ components:
         birthCity:
           type: string
           description: >-
-            Birth city of the client. City will be verified against the City
-            master setup. <br/> This field is required if configured as
+            Birth city of the client. City will be verified against the 'city
+            master setup'. <br/> This field is required if configured as
             **Business Mandatory**<font color='red'>* </font>.
           minLength: 1
           maxLength: 50
@@ -1440,7 +1440,7 @@ components:
           example: London
         birthCountry:
           description: >-
-            Expressed as a 2-letter (alpha-2) country code as defined in ISO
+            Expressed as a 2-letter (Alpha-2) country code as defined in ISO
             3166. <br/> For example - IN, US, CA, GB <br/> This field is
             required if configured as **Business Mandatory**<font color='red'>*
             </font>.
@@ -1457,7 +1457,7 @@ components:
           description: >-
             The status of belonging to a particular nation. <br/> **Conditional
             Mandatory**<font color='red'>* </font> field - Required while
-            creating new client. <br/> Expressed as a 2-letter (alpha-2) country
+            creating new client. <br/> Expressed as a 2-letter (Alpha-2) country
             code as defined in ISO 3166. <br/> For example - IN, US, CA, GB
           type: string
           maxLength: 2
@@ -1470,8 +1470,8 @@ components:
         The title or salutation that is added before the name of client. <br/>
         <br/> **Conditional Mandatory**<font color='red'>* </font> field -
         Required while creating new client. <br/> The valid values are
-        configured on "Card Management > Institution Parameter Setup > System
-        Codes [ISSS15]" screen for "Type Id=TITLE". **Sample values**: Mr, Mrs,
+        configured on 'Card Management > Institution Parameter Setup > System
+        Codes [ISSS15]' screen for 'Type Id=TITLE'. **Sample values**: Mr, Mrs,
         Miss, Dr, Chief, Sir, Ms
       example: Mr
     Gender:
@@ -1479,9 +1479,9 @@ components:
       description: >-
         Indicates Gender of the client. <br/> <br/> **Conditional
         Mandatory**<font color='red'>* </font> field - Required while creating
-        new client. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=GENDER". <br/> **Few sample values:** `Female`, `Male`, `Not
+        new client. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=GENDER'. <br/> **Few sample values: ** `Female`, `Male`, `Not
         Reported`
       example: Male
     EducationQualification:
@@ -1489,9 +1489,9 @@ components:
       description: >-
         Educational Qualification. <br/> This field is required if configured as
         **Business Mandatory**<font color='red'>* </font>. <br/> Valid values
-        are configured on "Card Management > Institution Parameter Setup >
-        System Codes [ISSS15]"     screen for "Type Id=EDUCATION". <br/> **Few
-        sample values:**  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post
+        are configured on 'Card Management > Institution Parameter Setup >
+        System Codes [ISSS15]'     screen for 'Type Id=EDUCATION'. <br/> **Few
+        sample values: **  `SSC`, `HSC`, `Under Graduate`, `Graduate`, `Post
         Graduate`, `Professional`, `Others`, `PHD`, `Diploma`
       example: Graduate
     MaritalStatus:
@@ -1499,9 +1499,9 @@ components:
       description: >-
         Indicates Marital Status of the client. <br/> <br/> **Conditional
         Mandatory**<font color='red'>* </font> field - Required while creating
-        new client. <br/> Valid values are configured on "Card Management >
-        Institution Parameter Setup > System Codes [ISSS15]"     screen for
-        "Type Id=MARITAL_STATUS" . <br/> **Few sample values:**  `Single`,
+        new client. <br/> Valid values are configured on 'Card Management >
+        Institution Parameter Setup > System Codes [ISSS15]'     screen for
+        'Type Id=MARITAL_STATUS'. <br/> **Few sample values: **  `Single`,
         `Married`, `Divorcee`, `Widow/Widower`
       example: Married
     RequestValidityTime:
@@ -1522,11 +1522,12 @@ components:
             The date and time after which the request is considered as invalid.
             If the timestamp of the institution is greater than this timestamp,
             the API request is considered as expired and is returned.<br/>The
-            dataValidUntilTimestamp parameter is converted into the institution
-            time zone before comparing it with the institution date and time. It
-            is expressed in ISO 8601 extended format. Must be either <br/>
-            YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss] (+|-)
-            hh:mm where [.sss] is optional and can be 1 to 3 digits.
+            'dataValidUntilTimestamp' parameter is converted into the
+            institution time zone before comparing it with the institution date
+            and time. It is expressed in ISO 8601 extended format. Must be
+            either <br/> 'YYYY-MM-DDThh:mm:ss[.sss]Z'<br/> or
+            'YYYY-MM-DDThh:mm:ss[.sss] (+|-) hh:mm' where [.sss] is optional and
+            can be 1 to 3 digits.
           minLength: 20
           maxLength: 29
           example: '2020-07-04T12:09:56.450-07:00'
@@ -1631,7 +1632,7 @@ components:
       type: string
       description: >-
         Expiry date of the card in "MM/YY" format. This field is not applicable
-        for LVC cards. The expiry and expiryDateTime fields are mutually
+        for LVC cards. The expiry and 'expiry date time' fields are mutually
         exclusive, which means you can use any one of these fields to specify
         the details.
       pattern: '(0[1-9]|1[0-2])/[0-9]{2}'
@@ -1641,8 +1642,8 @@ components:
       format: date-time
       description: >-
         Applicable only for LVC Card. The date/time after which LVC card should
-        be considered as expired or invalid.<br/> <br/> The expiry &
-        expiryDateTime fields are mutually exclusive. <br/>Expressed in ISO 8601
+        be considered as expired or invalid.<br/> <br/> The expiry & 'expiry
+        date time' fields are mutually exclusive. <br/>Expressed in ISO 8601
         extended format. Must be <br/> YYYY-MM-DDThh:mm:ss[.sss](+|-)hh:mm where
         [.sss] is optional and can be 1 to 3 digits.
       minLength: 20
@@ -1669,7 +1670,7 @@ components:
       type: string
       description: >-
         Alias assigned to each card. This attribute is available only if the CNA
-        (card number alias) functionality is enabled for the institution.
+        (Card number alias) functionality is enabled for the institution.
       pattern: '[A-Za-z0-9_!''()*+,-.]+'
       minLength: 1
       maxLength: 24
@@ -1832,7 +1833,7 @@ components:
           example: MISSING_REQUIRED_FIELD
         Description:
           type: string
-          description: Human-readable short description of the reasonCode.
+          description: Human-readable short description of the reason code.
           minLength: 10
           maxLength: 250
           example: Missing Required Field '<Field-Name>'
@@ -2024,7 +2025,7 @@ components:
       description: >-
         Bank ISO Account Type in CBS. <br/> **Conditional Mandatory**<font
         color='red'>* </font> field - Required while linking new debit account.
-        <br/> **Possible values:** <br/>
+        <br/> **Possible values: ** <br/>
 
         * `DEFAULT` - Default Account
 
@@ -2057,15 +2058,16 @@ components:
       name: X-MC-Correlation-ID
       in: header
       description: >-
-        Correlation ID, also known as Transit ID or Request ID, is a unique
-        identifier value attached to a particular transaction or event chain.The
-        Correlation ID also helps in auditing, debugging, and tracing the
+        'Correlation ID', also known as 'Transit ID' or 'Request ID', is unique
+        identifier value attached to a particular transaction or event chain.
+        The 'Correlation ID' also helps in auditing, debugging, and tracing the
         request execution flow. <BR/> It is recommended to generate universally
-        unique identifier (UUID) in compliance with RFC 4122.<BR/> If the
-        Correlation ID is not received in the incoming request, the Mastercard
-        Processing platform generates a universally unique identifier (UUID)
-        dynamically and assigns it to the request. The Correlation ID is always
-        added to the response header to provide end to end traceability.
+        unique identifier (UUID) in compliance with 'RFC 4122'.<BR/> If the
+        'Correlation ID' is not received in the incoming request, the
+        'Mastercard Processing' platform generates a universally unique
+        identifier (UUID) dynamically and assigns it to the request. The
+        Correlation ID is always added to the response header to provide end to
+        end traceability.
 
         * minLength: 6
 
@@ -2082,8 +2084,8 @@ components:
       name: X-MC-Bank-Code
       in: header
       description: >-
-        It is a 6 digit bank/institution identifier code. <br/> **Conditional
-        Mandatory**<font color='red'>* </font> field - Required to be passed  by
+        It is a 6-digit bank/institution identifier code. <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required to be passed by
         third party vendors or service provider (like 3-D Secure authenticator)
         who has access to the data of multiple banks, supported by legal
         agreement and access grants.
@@ -2105,15 +2107,15 @@ components:
       description: >-
         Value identifying the origin or source of a transaction. The list of
         possible sample values are available in the database and shared in the
-        API_SOURCE_VALUES list under "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]". This field is used only for logging
+        'API_SOURCE_VALUES' list under 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'. This field is used only for logging
         purpose.<br/>
 
         * minLength: 3
 
         * maxLength: 3
 
-        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values:** <br/>
+        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values: ** <br/>
 
         * `IVR` - Interactive Voice Response
 
@@ -2152,7 +2154,7 @@ components:
         through, the client retries with the same idempotency key value, and the
         server uses it to look up the state of request and continue from where
         it left off. Recommended to generate universally unique identifier
-        (UUID) compliant with `RFC 4122`.
+        (UUID) compliant with 'RFC 4122'.
       schema:
         type: string
         pattern: '^[a-zA-Z0-9_-]{6,36}$'

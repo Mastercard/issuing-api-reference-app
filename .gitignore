@@ -20,6 +20,10 @@ build/
 tmp/
 generated-sources/
 
+sample_responses/
+
+sandbox-certs.zip
+
 #*.ini
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)

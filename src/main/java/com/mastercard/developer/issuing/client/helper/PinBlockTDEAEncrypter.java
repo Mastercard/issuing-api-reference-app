@@ -1,25 +1,20 @@
 /**
- * Copyright (c) 2022 Mastercard
+ *  Copyright (c) 2022 Mastercard
  *
- * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * <p>http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * <p>Unless required by applicable law or agreed to in writing, software distributed under the
- * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing permissions and
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package com.mastercard.developer.issuing.client.helper;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -51,8 +46,13 @@ public final class PinBlockTDEAEncrypter {
     /** The Constant ENCRYPTION_KEYSTORE_PATH. */
     private static final String PIN_ENCRYPTION_KEYSTORE_PATH = "mi.api.pin.encryption.tdea.public.key.file";
 
-    /** The Constant PIN_ENCRYPTION_ALGO. */
-    private static final String PIN_ENCRYPTION_ALGO = "mi.api.pin.encryption.algorithm";
+    /** The Constant PIN_ENCRYPTION_TRANSFORMATION. */
+    private static final String PIN_ENCRYPTION_TRANSFORMATION = "mi.api.pin.encryption.secret.key.transformation";
+
+    private static final String PIN_ENCRYPTION_ALGO = "mi.api.pin.encryption.secret.key.algorithm";
+
+    /** The Constant KEY_SIZE. Double DES uses 112 bit key block and Triple DES uses 168 bit key block */
+    private static final int KEY_SIZE = 168;
 
     /** The self. */
     private static PinBlockTDEAEncrypter self;
@@ -63,11 +63,12 @@ public final class PinBlockTDEAEncrypter {
     /**
      * Instantiates a new pin block TDEA encrypter.
      *
-     * @throws IOException              Signals that an I/O exception has occurred.
      * @throws GeneralSecurityException the general security exception
      */
-    private PinBlockTDEAEncrypter() throws IOException, GeneralSecurityException {
+    private PinBlockTDEAEncrypter() throws GeneralSecurityException {
         String pinEncryptionKeystorePath = ApiClientHelper.getProperty(PIN_ENCRYPTION_KEYSTORE_PATH);
+
+        /** Step 5.1: Load RSA public key from file - Loaded during instance creation */
         rsaPublicKey = getRSAPublicKey(pinEncryptionKeystorePath);
     }
 
@@ -75,14 +76,52 @@ public final class PinBlockTDEAEncrypter {
      * Gets the single instance of PinBlockTDEAEncrypter.
      *
      * @return single instance of PinBlockTDEAEncrypter
-     * @throws IOException              Signals that an I/O exception has occurred.
      * @throws GeneralSecurityException the general security exception
      */
-    public static PinBlockTDEAEncrypter getInstance() throws IOException, GeneralSecurityException {
+    public static PinBlockTDEAEncrypter getInstance() throws GeneralSecurityException {
         if (self == null) {
             self = new PinBlockTDEAEncrypter();
         }
         return self;
+    }
+
+    /**
+     * Encrypt pin block.
+     *
+     * @param desKey   the des key
+     * @param pinBlock the pin block
+     * @return the string
+     * @throws ReferenceAppGenericException the reference app generic exception
+     */
+    public String encryptPinBlock(String desKey, String pinBlock) throws ReferenceAppGenericException {
+        String encryptedPinBlock = null;
+        try {
+            /** Step 1 - Create Cipher for encryption transformation */
+            Cipher cipher = Cipher.getInstance(ApiClientHelper.getProperty(PIN_ENCRYPTION_TRANSFORMATION));
+
+            /** Step 1 - Convert hex encoded 'DES key' to byte array */
+            byte[] key = Hex.decodeHex(desKey.toCharArray());
+
+            /** Step 2 - Initializes 'Cipher' with a key. */
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, ApiClientHelper.getProperty(PIN_ENCRYPTION_ALGO)));
+
+            /** Step 3 - Convert hex encoded input 'PIN Block' to byte array */
+            byte[] pinBlockByteArray = Hex.decodeHex(pinBlock.toCharArray());
+
+            /** Step 4 - Encrypts the 'PIN Block' */
+            byte[] cipherText = cipher.doFinal(pinBlockByteArray);
+
+            /** Step 5 - Convert the encrypted 'PIN Block' bytes to HEX string */
+            encryptedPinBlock = Hex.encodeHexString(cipherText);
+
+            /** Step 5 - Convert final encrypted 'PIN Block' string to UPPER case string. */
+            encryptedPinBlock = encryptedPinBlock.toUpperCase();
+
+        } catch (GeneralSecurityException | DecoderException e) {
+            log.error("Exception in encryptPin while encrypting pin block", e);
+            throw new ReferenceAppGenericException("Exception while encrypting pin block", e);
+        }
+        return encryptedPinBlock;
     }
 
     /**
@@ -91,8 +130,7 @@ public final class PinBlockTDEAEncrypter {
      * @param pin        the pin
      * @param cardNumber the card number
      * @return the encrypted pin block
-     * @throws ReferenceAppGenericException
-     * @throws Exception                    the exception
+     * @throws ReferenceAppGenericException the reference app generic exception
      */
     public EncryptedPinBlock encryptPin(String pin, String cardNumber) throws ReferenceAppGenericException {
 
@@ -103,28 +141,23 @@ public final class PinBlockTDEAEncrypter {
         String pinBlock = generatePinBlock(pin, cardNumber);
 
         /**
-         * Step 2: Generate double length TDEA (Triple DES Encryption Algorithm) key (Session key generation same as payload encryption key except key
+         * Step 2: Generate triple length TDEA (Triple DES Encryption Algorithm) key (Session key generation same as payload encryption key except key
          * length difference)
          */
-        String desKey = generateDesKey(112);
+        String desKey = generateDesKey(KEY_SIZE);
+        log.debug("desKey={}", desKey);
 
         /**
-         * Step 3: Encrypt PIN block under double length TDEA key (Same as payload encryption process)
+         * Step 3: Encrypt PIN block under triple length TDEA key (Same as payload encryption process)
          */
-        String encryptedPin;
-        try {
-            encryptedPin = Hex.encodeHexString(encryptData(desKey, Hex.decodeHex(pinBlock.toCharArray())))
-                              .toUpperCase();
-        } catch (GeneralSecurityException | DecoderException e) {
-            log.error("Exception in encryptPin while encrypting pin block", e);
-            throw new ReferenceAppGenericException("Exception while encrypting pin block", e);
-        }
+        String encryptedPin = encryptPinBlock(desKey, pinBlock);
+        log.debug("encryptedPin={}", encryptedPin);
 
         /**
-         * Step 4: Encode double length 3DES encryption key (created in step 1) in ASN.1 DER format (Same as payload encryption process)
+         * Step 4: Encode triple length 3DES encryption key (created in step 1) in ASN.1 DER format (Same as payload encryption process)
          */
-        /** pass key length as 112 (double length) and the Hex encoded DES key */
-        String derEncodedDesKey = derEncodeWithFixIV(112, desKey);
+        /** pass key length as 168 (triple length) and the Hex encoded DES key */
+        String derEncodedDesKey = derEncodeWithFixIV(KEY_SIZE, desKey);
 
         /**
          * Step 5: Encrypt ASN.1 DER encoded DES key under the recipient’s RSA public key and hex encode it (Same as payload encryption process)
@@ -138,9 +171,8 @@ public final class PinBlockTDEAEncrypter {
         byte[] encryptedKeyBytes;
         try {
             encryptedKeyBytes = encryptKey(rsaPublicKey, Hex.decodeHex(null != derEncodedDesKey ? derEncodedDesKey.toCharArray() : null));
-        } catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException
-                | DecoderException e) {
-            log.error("Exception in encryptPin while encrypting pin key", e);
+        } catch (Exception e) {
+            log.error("Exception in encryptPin while encrypting Des key using RSA Public key", e);
             throw new ReferenceAppGenericException("Exception while encrypting pin key", e);
         }
 
@@ -207,7 +239,7 @@ public final class PinBlockTDEAEncrypter {
      * @param pin        the pin
      * @param cardNumber the card number
      * @return the string
-     * @throws Exception the exception
+     * @throws ReferenceAppGenericException the exception
      */
     public String generatePinBlock(String pin, String cardNumber) throws ReferenceAppGenericException {
         if (pin.length() < 4 || pin.length() > 6) {
@@ -215,11 +247,11 @@ public final class PinBlockTDEAEncrypter {
             throw new ReferenceAppGenericException("Invalid pin length.");
         }
         /** Prefix pin with zero and suffix with F to make it 16 characters long */
-        String pinBlock = StringUtils.rightPad("0" + pin, 16, 'F');
-
+        String pinBlock = StringUtils.rightPad("0" + pin.length() + pin, 16, 'F');
         int cardLen = cardNumber.length();
         String pan = "0000" + cardNumber.substring(cardLen - 13, cardLen - 1);
-        return xorHex(pinBlock, pan);
+        String result = xorHex(pinBlock, pan);
+        return result;
     }
 
     /**
@@ -231,31 +263,23 @@ public final class PinBlockTDEAEncrypter {
     public String generateDesKey(int length) {
         String key = null;
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("DESede");
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(ApiClientHelper.getProperty(PIN_ENCRYPTION_ALGO));
             keyGenerator.init(length);
-            key = Hex.encodeHexString(keyGenerator.generateKey()
-                                                  .getEncoded())
-                     .toUpperCase();
+
+            log.debug("Generate a secret key and extract it in encoded byte array format.");
+            byte[] keyBytes = keyGenerator.generateKey()
+                                          .getEncoded();
+
+            log.debug("Convert the encrypted 'PIN Block' bytes to HEX string");
+            key = Hex.encodeHexString(keyBytes);
+
+            log.debug("Convert final key string to UPPER case string");
+            key = key.toUpperCase();
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
         return key;
-    }
-
-    /**
-     * Encrypt data.
-     *
-     * @param desKey    the des key
-     * @param plainText the plain text
-     * @return the byte[]
-     * @throws GeneralSecurityException the general security exception
-     * @throws DecoderException         the decoder exception
-     */
-    public byte[] encryptData(String desKey, byte[] plainText) throws GeneralSecurityException, DecoderException {
-        Cipher cipher = Cipher.getInstance(ApiClientHelper.getProperty(PIN_ENCRYPTION_ALGO));
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(Hex.decodeHex(desKey.toCharArray()), "DESede"));
-        return Base64.encodeBase64(cipher.doFinal(plainText));
     }
 
     /**
@@ -280,17 +304,17 @@ public final class PinBlockTDEAEncrypter {
      *
      * @param file the file
      * @return the RSA public key
-     * @throws IOException              Signals that an I/O exception has occurred.
      * @throws GeneralSecurityException the general security exception
      */
-    public PublicKey getRSAPublicKey(String file) throws IOException, GeneralSecurityException {
+    public PublicKey getRSAPublicKey(String file) throws GeneralSecurityException {
         String publicKeyContent = ApiClientHelper.resourceContent(file);
-        
+
         // remove public key header and footer from string
         publicKeyContent = publicKeyContent.replace("-----BEGIN PUBLIC KEY-----", "")
                                            .replace("-----END PUBLIC KEY-----", "")
-                                           .replace("\r\n", " ")
-                                           .replace("\n", " ");
+                                           .replace("\r\n", "")
+                                           .replace("\n", "");
+        log.debug("publicKeyContent={}", publicKeyContent);
 
         KeyFactory kf = KeyFactory.getInstance("RSA");
         X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(Base64.decodeBase64(publicKeyContent));
@@ -304,12 +328,11 @@ public final class PinBlockTDEAEncrypter {
      * @param publicKey the public key
      * @param data      the data
      * @return the byte[]
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws Exception                 the exception
+     * @throws NoSuchAlgorithmException  the no such algorithm exception
+     * @throws NoSuchPaddingException    the no such padding exception
+     * @throws InvalidKeyException       the invalid key exception
+     * @throws IllegalBlockSizeException the illegal block size exception
+     * @throws BadPaddingException       the bad padding exception
      */
     public byte[] encryptKey(PublicKey publicKey, byte[] data)
             throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {

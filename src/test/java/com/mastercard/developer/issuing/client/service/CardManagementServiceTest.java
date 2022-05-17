@@ -34,11 +34,11 @@ import com.mastercard.developer.issuing.generated.models.ServiceRequestDetails;
 
 import okhttp3.Call;
 
-/** The Class IssuingCardManagementServiceTest. */
-public class IssuingCardManagementServiceTest {
+/** The Class CardManagementServiceTest. */
+public class CardManagementServiceTest {
 
     /** The service. */
-    private IssuingCardManagementService service = new IssuingCardManagementService();
+    private CardManagementService service = new CardManagementService();
 
     /** The api client mock. */
     @Mock

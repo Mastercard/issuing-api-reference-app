@@ -18,7 +18,7 @@ package com.mastercard.developer.issuing.exception;
 /**
  * The Class ReferenceAppGenericException.
  */
-public class ReferenceAppGenericException extends Exception {
+public class ReferenceAppGenericException extends RuntimeException {
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;

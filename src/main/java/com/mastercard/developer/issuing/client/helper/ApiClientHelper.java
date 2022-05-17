@@ -51,6 +51,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -142,9 +143,11 @@ public final class ApiClientHelper {
         if (prop == null || prop.isEmpty()) {
             try {
                 String env = System.getProperty("env");
-                if (StringUtils.isNotEmpty(env)) {
-                    propertyFile = env + "/" + propertyFile;
+                if (StringUtils.isEmpty(env)) {
+                    log.info("Environment not set, use default env: sandbox");
+                    env = "sandbox";
                 }
+                propertyFile = env + "/" + propertyFile;
                 log.info("Try to load the properties file: {} ", propertyFile);
                 InputStream input = ApiClientHelper.class.getClassLoader()
                                                          .getResourceAsStream(propertyFile);
@@ -229,6 +232,7 @@ public final class ApiClientHelper {
 
         } catch (Exception e) {
             log.fatal("Unable to load the SSL context or setup encryption config.", e);
+            System.exit(-1);
         }
 
         return client;
@@ -270,10 +274,13 @@ public final class ApiClientHelper {
      */
     public static void saveResponseObject(String scenario, Object responseObject) {
         try {
-            File outputFile = new File("sample_responses/", scenario.toLowerCase() + "-response.json" + (responseObject == null ? ".error" : ""));
+            File outputFile = new File("sample_responses/", scenario.toLowerCase() + (responseObject == null ? " - ERROR" : "") + "-response.json");
             outputFile.getParentFile()
                       .mkdirs();
 
+            if (responseObject == null) {
+                responseObject = RequestContext.get("Exception");
+            }
             objectMapper.writerWithDefaultPrettyPrinter()
                         .writeValue(outputFile, responseObject);
 
@@ -370,7 +377,8 @@ public final class ApiClientHelper {
             if (file.exists()) {
                 inputStream = new FileInputStream(file);
             } else {
-                log.error("File {} not found.", inputFile);
+                log.fatal("CONFIGURATION_ERROR: File {} not found.", inputFile);
+                throw new FileNotFoundException(inputFile);
             }
         }
         return inputStream;
@@ -378,7 +386,7 @@ public final class ApiClientHelper {
 
     public static URL getFileURL(String inputFile) throws FileNotFoundException, MalformedURLException {
         URL url = ApiClientHelper.class.getClassLoader()
-                                                       .getResource(inputFile);
+                                       .getResource(inputFile);
 
         if (url == null) {
             log.debug("File {} not found. Lets try to load from classpath.", inputFile);
@@ -388,14 +396,15 @@ public final class ApiClientHelper {
         if (url == null) {
             File file = new File(inputFile);
             if (file.exists()) {
-                url = file.toURI().toURL();
+                url = file.toURI()
+                          .toURL();
             } else {
                 log.error("File {} not found.", inputFile);
             }
         }
         return url;
     }
-    
+
     /**
      * Creates the object mapper.
      *
@@ -404,6 +413,8 @@ public final class ApiClientHelper {
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(OffsetDateTime.class, new JsonSerializer<OffsetDateTime>() {
             @Override

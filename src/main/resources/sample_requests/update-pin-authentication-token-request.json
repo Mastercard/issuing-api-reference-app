@@ -1,7 +1,10 @@
 {
-  "dataValidUntilTimestamp": "2020-07-04T12:09:56.450-07:00",                                         
-  "intent": "PIN_RESET",
-  "client": {
-    "birthDate": "1991-06-21"
-  }
+	"dataValidUntilTimestamp": "2022-05-05T19:31:34.186+05:30",
+	"intent": "PIN_RESET",
+	"client": {
+		"birthDate": "1991-06-21"
+	},
+	"card": {
+		"expiry": "02/23"
+	}
 }

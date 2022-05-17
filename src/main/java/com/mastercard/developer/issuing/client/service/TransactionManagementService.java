@@ -18,6 +18,7 @@ package com.mastercard.developer.issuing.client.service;
 import java.time.format.DateTimeParseException;
 
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
+import com.mastercard.developer.issuing.client.helper.RequestContext;
 import com.mastercard.developer.issuing.generated.apis.BalanceInquiryApi;
 import com.mastercard.developer.issuing.generated.apis.TopUpApi;
 import com.mastercard.developer.issuing.generated.apis.TransactionHistoryApi;
@@ -34,7 +35,7 @@ import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public class IssuingTransactionManagementService extends IssuingBaseService {
+public class TransactionManagementService extends BaseService {
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/transaction-management";
@@ -129,9 +130,13 @@ public class IssuingTransactionManagementService extends IssuingBaseService {
             }
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling topupPrepaidCard API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+            RequestContext.put("Exception", dateTimeParseException);
+            log.error(
+                    "Exception occurred while parsing the topupPrepaidCard API response datetime type field: " + dateTimeParseException.getMessage(),
+                    dateTimeParseException);
         }
         return response;
     }
@@ -169,9 +174,12 @@ public class IssuingTransactionManagementService extends IssuingBaseService {
             }
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling transactionHistory API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+            RequestContext.put("Exception", dateTimeParseException);
+            log.error("Exception occurred while parsing the transactionHistory API response datetime type field: "
+                    + dateTimeParseException.getMessage(), dateTimeParseException);
         }
         return response;
     }
@@ -204,9 +212,12 @@ public class IssuingTransactionManagementService extends IssuingBaseService {
                                                                                     .getAuthorizationId());
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling balanceInquiry API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            log.error("Exception occurred while parsing the API response datetime : " + dateTimeParseException.getMessage(), dateTimeParseException);
+            RequestContext.put("Exception", dateTimeParseException);
+            log.error("Exception occurred while parsing the balanceInquiry API response datetime type field: " + dateTimeParseException.getMessage(),
+                    dateTimeParseException);
         }
         return response;
     }

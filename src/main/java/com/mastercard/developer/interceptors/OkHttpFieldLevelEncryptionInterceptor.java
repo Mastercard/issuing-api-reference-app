@@ -56,7 +56,7 @@ public class OkHttpFieldLevelEncryptionInterceptor extends OkHttpEncryptionInter
      */
     @Override
     protected String encryptPayload(Request request, Request.Builder requestBuilder, String requestPayload) throws EncryptionException {
-        if (config.useHttpHeaders()) {
+        if (config != null && config.useHttpHeaders()) {
             // Generate encryption params and add them as HTTP headers
             FieldLevelEncryptionParams params = FieldLevelEncryptionParams.generate(config);
             updateHeader(requestBuilder, config.getIvHeaderName(), params.getIvValue());

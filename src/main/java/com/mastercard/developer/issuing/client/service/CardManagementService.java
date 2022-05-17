@@ -15,9 +15,14 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
+import com.mastercard.developer.issuing.client.helper.PinBlockTDEAEncrypter;
+import com.mastercard.developer.issuing.client.helper.RequestContext;
+import com.mastercard.developer.issuing.exception.ReferenceAppGenericException;
 import com.mastercard.developer.issuing.generated.apis.CardApi;
 import com.mastercard.developer.issuing.generated.apis.ClientApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
@@ -26,15 +31,17 @@ import com.mastercard.developer.issuing.generated.models.CardProfile;
 import com.mastercard.developer.issuing.generated.models.CardSearchCriteria;
 import com.mastercard.developer.issuing.generated.models.CardSearchResult;
 import com.mastercard.developer.issuing.generated.models.ClientProfile;
+import com.mastercard.developer.issuing.generated.models.EncryptedPinBlock;
 import com.mastercard.developer.issuing.generated.models.NewPinDetails;
 import com.mastercard.developer.issuing.generated.models.ServiceRequestDetails;
+import com.mastercard.developer.issuing.generated.models.TokenDetails;
 import com.mastercard.developer.issuing.generated.models.UpdatedClient;
 
 import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public class IssuingCardManagementService extends IssuingBaseService {
+public class CardManagementService extends BaseService {
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/card-management";
@@ -73,8 +80,10 @@ public class IssuingCardManagementService extends IssuingBaseService {
      * Call apis.
      *
      * @param scenarios the scenarios
+     * @throws GeneralSecurityException
+     * @throws ReferenceAppGenericException
      */
-    public void callApis(String[] scenarios) {
+    public void callApis(String[] scenarios) throws ReferenceAppGenericException, GeneralSecurityException {
 
         if (scenarios == null || scenarios.length == 0) {
             scenarios = getScenarios();
@@ -139,6 +148,7 @@ public class IssuingCardManagementService extends IssuingBaseService {
                                                   .getAlias());
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling searchCard API: " + exception.getMessage(), exception);
         }
         return response;
@@ -175,20 +185,48 @@ public class IssuingCardManagementService extends IssuingBaseService {
             }
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling getCard API: " + exception.getMessage(), exception);
         }
         return response;
     }
 
-    /** Update pin. */
-    public boolean updatePin() {
+    /**
+     * Update pin.
+     * 
+     * @throws ReferenceAppGenericException
+     * @throws GeneralSecurityException
+     */
+    public boolean updatePin() throws ReferenceAppGenericException, GeneralSecurityException {
+        Boolean success = null;
         try {
-            CardApi updatePinApi = new CardApi(apiClient);
+            CardApi cardApi = new CardApi(apiClient);
 
+            String cardNumber = ApiClientHelper.getRequestObject("card-number", String.class);
             String cardId = ApiClientHelper.getRequestObject("card-id", String.class);
             NewPinDetails request = ApiClientHelper.getRequestObject(UPDATE_PIN, NewPinDetails.class);
 
-            /** Step 1: Set request validity time */
+            /** Prerequisite - Create Token and set token */
+            AuthorizationManagementService authorizationManagementService = new AuthorizationManagementService();
+            TokenDetails pinChangeTokenDetails = authorizationManagementService.createToken("PIN_RESET");
+            log.info("Received token for PIN_RESET intent: {}", pinChangeTokenDetails.getToken());
+            request.setToken(pinChangeTokenDetails.getToken());
+
+            /** Generate random 4 digit PIN and build encrypted PIN block */
+            String clearPin = String.format("%04d", new SecureRandom().nextInt(10000));
+
+            // TODO: Remove this log statement before moving the code to higher environment
+            // log.debug("Generated random PIN: {}", clearPin);
+            PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
+            EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardNumber);
+            request.setPin(encryptedPinBlock);
+
+//            encryptedPinBlock1.setEncryptedKey("042238569930D78BCDEFC5059A8BC8D76ABB5237EB5FC0DE10259789165CA8B81C1CCE589FEF40E45220E8E0AAB54C75FDD1B2054AD484D8C17B93380C023AB7AB54ED0CF860D50F0E3DAD467F445D1376867766928C16579D719B83C7FA5B449482A0ACD614B19B1AA4CFA128B1EA461F2DF35DA9BA3DE639C9ACA5DB9F2F368DC2F36615696427E435B18962F9380CC06CB67ADD1DAC7DB881567EA377B7FB40BE347DA02588EC74462337B7EEC696A5CCE66D0E978046C53DF5ACABF5B9E8C72BB785BA481552F075457426149A2904A938ED3CA9748018CE0CC980906CD21BB39C16321671E47973C2BB91DC64D602007ECE324163E34513E7507635C77A");
+//            encryptedPinBlock1.setEncryptedBlock("664511C09482BF2D");
+//            request.setPin(encryptedPinBlock1);
+            log.info("Updated PIN block in request.");
+
+            /** Set request validity time */
             request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
 
             /** Set request header values */
@@ -197,14 +235,15 @@ public class IssuingCardManagementService extends IssuingBaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
-            updatePinApi.updatePin(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
-
-            return true;
+            cardApi.updatePin(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
+            success = true;
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling updatePin API: " + exception.getMessage(), exception);
-            return false;
+            success = null;
         }
+        return success;
     }
 
     /**
@@ -233,6 +272,7 @@ public class IssuingCardManagementService extends IssuingBaseService {
                                                                        .getCode());
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling getClient API: " + exception.getMessage(), exception);
         }
         return response;
@@ -274,6 +314,7 @@ public class IssuingCardManagementService extends IssuingBaseService {
                                                                                   .getNumber());
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling updateClient API: " + exception.getMessage(), exception);
         }
         return response;

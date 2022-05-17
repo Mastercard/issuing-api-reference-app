@@ -16,6 +16,7 @@
 package com.mastercard.developer.issuing.client.service;
 
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
+import com.mastercard.developer.issuing.client.helper.RequestContext;
 import com.mastercard.developer.issuing.generated.apis.DebitCardApi;
 import com.mastercard.developer.issuing.generated.apis.PrepaidCardApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
@@ -33,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public class IssuingCardIssuanceService extends IssuingBaseService {
+public class CardIssuanceService extends BaseService {
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/card-issuance";
@@ -159,7 +160,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
             }
 
             /** client code and card id of both requests should be same */
-            if (clientCode1 != null && cardId1 != null && (!clientCode1.equals(clientCode2) || !cardId1.equals(cardId2)) ) {
+            if (clientCode1 != null && cardId1 != null && (!clientCode1.equals(clientCode2) || !cardId1.equals(cardId2))) {
                 throw new ApiException("Retry with same idempotency key, generated new client/card.");
             } else {
                 log.info(
@@ -167,6 +168,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
             }
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;
@@ -196,7 +198,8 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
                    .setAlias(alias);
 
             /** Set new value of CBS Account Number for each request */
-            request.getCbsAccount().setNumber(String.valueOf(System.currentTimeMillis()));
+            request.getCbsAccount()
+                   .setNumber(String.valueOf(System.currentTimeMillis()));
 
             response = debitCardApi.createDebitCard(xMCIdempotencyKey, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
 
@@ -218,8 +221,11 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
                 cardId1 = newCard.getId();
                 String cvv = newCard.getCvv();
 
-                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId1, newCard.getAlias(), response.getAccounts().get(0).getNumber(), mobile.getIsd(),
-                        mobile.getNumber(), cvv);
+                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId1,
+                        newCard.getAlias(), response.getAccounts()
+                                                    .get(0)
+                                                    .getNumber(),
+                        mobile.getIsd(), mobile.getNumber(), cvv);
             }
 
             /** Lets retry same request, with different correlation id for traceability */
@@ -237,12 +243,15 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
                 Mobile mobile = newClient.getMobile();
                 cardId2 = newCard.getId();
                 String cvv = newCard.getCvv();
-                
-                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId2, newCard.getAlias(), response.getAccounts().get(0).getNumber(), mobile.getIsd(),
-                        mobile.getNumber(), cvv);
+
+                log.info("New card generated with cardID={}, cardAlias={}, cbsAccount.number={}, ISD={}, Mobile={}, cvv={}", cardId2,
+                        newCard.getAlias(), response.getAccounts()
+                                                    .get(0)
+                                                    .getNumber(),
+                        mobile.getIsd(), mobile.getNumber(), cvv);
             }
 
-            if (clientCode1 != null && cardId1 != null && (!clientCode1.equals(clientCode2) || !cardId1.equals(cardId2)) ) {
+            if (clientCode1 != null && cardId1 != null && (!clientCode1.equals(clientCode2) || !cardId1.equals(cardId2))) {
                 throw new ApiException("Retry with same idempotency key, generated new client/card.");
             } else {
                 log.info(
@@ -250,6 +259,7 @@ public class IssuingCardIssuanceService extends IssuingBaseService {
             }
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;

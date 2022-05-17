@@ -11,8 +11,7 @@ info:
   version: 2.0.0
 servers:
   - description: Sandbox server
-    url: >-
-      https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/transaction-management/
+    url: 'https://sandbox.mi.api.mastercard.com/mi-issuing-sandbox/transaction-management/'
   - description: MEA MTF/UAT server
     url: 'https://mtf.mea.api.mastercard.com/mi-issuing/transaction-management/'
   - description: SA MTF/UAT server
@@ -28,6 +27,8 @@ tags:
     description: Transaction History or Mini Statement
   - name: Top Up
     description: Card Balance management
+  - name: Loan Installment
+    description: Card loan installments management
 paths:
   '/cards/{card_id}/balances/searches':
     post:
@@ -35,15 +36,15 @@ paths:
         - Balance Inquiry
       summary: '**Balance Inquiry** - Get the card balance details'
       description: >-
-        This API is used to retrieve balance of all accounts linked to the card.
-        It is applicable for prepaid and credit products.<br /> As per system
-        configuration, the applicable fee and tax are levied. Details of the
-        calculated fee and tax are sent in the response.<br /> Reversal is not
-        applicable for this API.<br /> The request parameters
-        transactionTimestamp, transmissionTimestamp are log only
-        parameters.These parameters are not validated against business rules.<br
-        /> The request parameters merchant ID, terminal ID, location and country
-        that are required for closed loop program are log only parameters.These
+        This API is used to retrieve balance of all the accounts linked to the
+        card. It is applicable for prepaid and credit products.<br /> As per
+        system configuration, the applicable fee and tax are levied. Details of
+        the calculated fee and tax are sent in the response.<br /> Reversal is
+        not applicable for this API.<br /> The request parameters 'transaction
+        timestamp', 'transmission timestamp' are log only parameters. These
+        parameters are not validated against business rules.<br /> The request
+        parameters 'merchant ID', 'terminal ID', location and country that are
+        required for closed loop program are log only parameters. These
         parameters are not validated as per business rules.<br /> When the API
         request is successful, it returns the 200 HTTP status code containing
         the account balance details.
@@ -76,20 +77,20 @@ paths:
         **Transaction History / Mini Statement** - Get the history of
         transactions or mini statement or search specific transaction(s)
       description: >-
-        The Transaction History (aka Mini Statement) API retrieves historical
+        The 'Transaction History (aka Mini Statement) API' retrieves historical
         data of transactions performed using the card.<br /> These transactions
         can be retrieved based on the date-range, number of transactions,
         status, unique identifier and other criteria.<br /> The API is
-        applicable for prepaid, credit, debit products.<br /> As per
-        configruation, system will levy the applicable fee and tax. Details of
+        applicable for prepaid, credit, debit products.<br /> As per the
+        configuration, system will levy the applicable fee and tax. Details of
         calculated fee and tax are sent in response.<br /> Reversal is not
-        applicable for this API.<br /> Request parameters remarks,
-        transactionTimestamp, transmissionTimestamp are log only parameters.It
-        wont be validated against business rules.<br /> Request parameters
-        location, country required for closed loop program are log only
-        parameters.It wont be validated as per business rules.<br /> When the
-        API request is successful, the API returns 200 HTTP status code
-        containing the retrieved transaction details.
+        applicable for this API.<br /> Request parameters remarks, 'transaction
+        timestamp', 'transmission timestamp' are log only parameters. It won't
+        be validated against business rules.<br /> Request parameters location,
+        country required for closed loop program are log only parameters. It
+        won't be validated as per business rules.<br /> When the API request is
+        successful, the API returns 200 HTTP status code containing the
+        retrieved transaction details.
       operationId: getHistory
       x-mastercard-api-encrypted: true
       parameters:
@@ -120,13 +121,13 @@ paths:
       description: >-
         This API is used to top up the account linked to a prepaid card. As per
         system configuration, it will levy the applicable fee and tax. Request
-        parameters transmissionTimestamp, emvData are log only parameters. These
-        parameters are not validated against business rules.<br /> When the API
-        request is successful, it returns the 200 HTTP status code containing
-        the latest account balance.<br /> All the accounts topped up in the
-        request and details of calculated fee and tax on top of the top up
-        amount, are sent in the response. This API also supports reversal of top
-        up amount.
+        parameters 'transmission timestamp', 'emv data' are log only parameters.
+        These parameters are not validated against business rules.<br /> When
+        the API request is successful, it returns the 200 HTTP status code
+        containing the latest account balance.<br /> All the accounts topped up
+        in the request and details of calculated fee and tax on top of the top
+        up amount, are sent in the response. This API also supports reversal of
+        top up amount.
       operationId: topupAccount
       x-mastercard-api-encrypted: true
       parameters:
@@ -147,21 +148,59 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  '/cards/{card_id}/loans/{loan_id}/installments':
+    put:
+      tags:
+        - Loan Installment
+      summary: >-
+        **Loan Installment Restructure** - Restructure repayment schedule of
+        existing booked loans
+      description: >-
+        This API is used for providing capability to allow re-structuring /
+        re-drawing of already booked loans.<br/> It allows to:<br/>
+
+        * Restructure already booked loans with new interest rate and
+        tenure.<br/>
+
+        * Add moratorium feature to use discount for some period.</br></br>
+        **Note: ** The transport between client applications and Mastercard is
+        secured using 'TLS/SSL', which means data are encrypted by default when
+        transmitted across networks.
+      operationId: updateLoan
+      x-mastercard-api-encrypted: true
+      parameters:
+        - $ref: '#/components/parameters/BankCode'
+        - $ref: '#/components/parameters/CorrelationID'
+        - $ref: '#/components/parameters/Source'
+        - $ref: '#/components/parameters/EndUserID'
+        - $ref: '#/components/parameters/CardID'
+        - $ref: '#/components/parameters/LoanAccountNumber'
+      requestBody:
+        $ref: '#/components/requestBodies/LoanRestructureRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/RestructuredLoanResponse'
+        '400':
+          $ref: '#/components/responses/BadPostRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
 components:
   schemas:
     BalanceTransaction:
       allOf:
         - $ref: '#/components/schemas/RequestValidityTime'
       type: object
-      description: A set of parameters used to initiate the Balance Inquiry API.
+      description: A set of parameters used to initiate the 'Balance Inquiry API'.
       properties:
         transactionMetaData:
           $ref: '#/components/schemas/ExtendedTransactionMetaData'
     BalanceDetails:
       type: object
       description: >-
-        It contains the account balance details along with the balance inquiry
-        API transaction and fee information. Prepaid and credit balance
+        It contains the account balance details along with the 'Balance Inquiry
+        API' transaction and fee information. Prepaid and credit balance
         parameters are mutually exclusive.
       properties:
         transactionMetaData:
@@ -198,11 +237,12 @@ components:
             The date and time after which the request is considered as invalid.
             If the timestamp of the institution is greater than this timestamp,
             the API request is considered as expired and is returned.<br/>The
-            dataValidUntilTimestamp parameter is converted into the institution
-            time zone before comparing it with the institution date and time. It
-            is expressed in ISO 8601 extended format. Must be either <br/>
-            YYYY-MM-DDThh:mm:ss[.sss]Z<br/> or YYYY-MM-DDThh:mm:ss[.sss] (+|-)
-            hh:mm where [.sss] is optional and can be 1 to 3 digits.
+            'dataValidUntilTimestamp' parameter is converted into the
+            institution time zone before comparing it with the institution date
+            and time. It is expressed in ISO 8601 extended format. Must be
+            either <br/> 'YYYY-MM-DDThh:mm:ss[.sss]Z'<br/> or
+            'YYYY-MM-DDThh:mm:ss[.sss] (+|-) hh:mm' where [.sss] is optional and
+            can be 1 to 3 digits.
           minLength: 20
           maxLength: 29
           example: '2020-07-04T12:09:56.450-07:00'
@@ -312,8 +352,8 @@ components:
           $ref: '#/components/schemas/Due'
     TotalOutstanding:
       description: >-
-        A set a of parameter that describes amount that client owe to financial
-        institution by transacting on credit card.
+        A set of parameters that describes the amount that the client owes to
+        financial institution by transacting on credit card.
       type: object
       properties:
         withLoan:
@@ -325,7 +365,7 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         withoutLoan:
           type: number
           description: >-
@@ -335,7 +375,7 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
     LastPayment:
       description: Last payment details.
       type: object
@@ -347,13 +387,13 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         timestamp:
           type: string
           format: date-time
           description: >-
             Last payment timestamp.<br /> It is expressed in ISO 8601 extended
-            format in YYYY-MM-DDThh:mm:ssTZD.
+            format in 'YYYY-MM-DDThh:mm:ssTZD'.
           example: '2021-07-16T19:20:30+01:00'
     LimitDetails:
       description: >-
@@ -379,18 +419,18 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         cash:
           type: number
           description: >-
             It is the maximum cash which can be withdraw using credit card.
-            Withdrawn amount has to be repaid at a later date along with
-            interest and other charges.
+            Withdrawn amount must be repaid at a later date along with interest
+            and other charges.
           format: double
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
     Due:
       description: >-
         A set of parameters that describes the payment due details of a credit
@@ -401,13 +441,13 @@ components:
           type: number
           description: >-
             It is the amount due for payment as on the statement date. It
-            includes opening balance, new purchases, fees and finance charges
+            includes opening balance, new purchases, fees, and finance charges
             and excludes last payment or any other due credits.
           format: double
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         minimum:
           type: number
           description: >-
@@ -417,14 +457,14 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         date:
           type: string
           format: date-time
           description: >-
             It is date on which dues are to be paid.<br /> It is expressed in
-            ISO 8601 extended format in YYYY-MM-DDThh:mm:ssTZD.<br /> It is not
-            applicable when value for parameter immediate is true.
+            ISO 8601 extended format in 'YYYY-MM-DDThh:mm:ssTZD'.<br /> It is
+            not applicable when value for parameter immediate is true.
           example: '2021-07-16T19:20:30+01:00'
         immediate:
           type: boolean
@@ -471,7 +511,7 @@ components:
         elements to uniquely identify and track all messages related to a
         transaction. When raising a reversal request, the value must be same as
         that of the original transaction.<br /> If the retrieval reference
-        number is not received in the API request, system generates a unique
+        number is not received in the API request; system generates a unique
         value. All these details are sent in the API response.
       minLength: 12
       maxLength: 12
@@ -480,10 +520,10 @@ components:
     TraceAuditNumber:
       type: string
       description: >-
-        System Trace Audit Number (STAN) is a number generated by a financial
+        'System Trace Audit Number' (STAN) is a number generated by a financial
         institution to identify a transaction. A message initiator or processor
         uses STAN to uniquely identify a transaction. <br />If the trace audit
-        number is not received in the API request, system generates a value. All
+        number is not received in the API request; system generates a value. All
         these details are sent in the API response.
       minLength: 6
       maxLength: 6
@@ -518,7 +558,7 @@ components:
     MerchantId:
       type: string
       description: >-
-        Unique ID assigned to the merchant by the Acquirer(Acceptor Merchant
+        Unique ID assigned to the merchant by the Acquirer (Acceptor Merchant
         Id). It is used for logging purpose and identifies the acquiring
         merchant of the transaction.<br /> **Conditional Mandatory**<font
         color='red'>* </font> parameter - Required for closed loop programs.
@@ -548,7 +588,7 @@ components:
     AuthorizationId:
       type: string
       description: >-
-        A unique identifier of each transaction authorization(Authorization
+        A unique identifier of each transaction authorization (Authorization
         identification response). It is assigned by the transaction authorizing
         entity and used for internal auditing and tracking purpose.
       minLength: 6
@@ -562,12 +602,13 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '15'
+      example: 15
     FeeCurrency:
       type: string
       description: >-
         Currency in which the transaction fee is levied to the client. It is
-        expressed as a 3-letter alphabetic currency code as defined in ISO 4217.
+        expressed as a 3-letter alphabetic currency code as defined in 'ISO
+        4217'.
       minLength: 3
       maxLength: 3
       pattern: '[A-Z]+'
@@ -583,9 +624,9 @@ components:
       type: string
       description: >-
         One-time token to authorize a user for a single transaction that is of a
-        specific intent such as PURCHASE transaction. This token is
+        specific intent such as 'PURCHASE' transaction. This token is
         automatically generated and is valid until the date and time mentioned
-        under tokenValidUntilTimesStamp.
+        under 'tokenValidUntilTimesStamp'.
       minLength: 32
       maxLength: 36
       pattern: '[a-zA-Z0-9_-]+'
@@ -597,7 +638,7 @@ components:
         The local or business date and time when the transaction was performed.
         This is captured by financial institutions for transaction logging
         purpose. It is expressed in ISO 8601 extended format
-        YYYY-MM-DDThh:mm:ssTZD. If the parameter is not received in the API
+        'YYYY-MM-DDThh:mm:ssTZD'. If the parameter is not received in the API
         request, system generates a unique value. All these details are sent in
         the API response.
       example: '2021-07-16T19:20:30+01:00'
@@ -607,7 +648,7 @@ components:
       description: >-
         The transmission date and time when transaction was performed. It
         contains the local date and time of transaction acquirer in UTC and is
-        expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD. If the
+        expressed in ISO 8601 extended format 'YYYY-MM-DDThh:mm:ssTZD'. If the
         parameter is not received in the API request, system generates a unique
         value. All these details are sent in the API response.
       example: '2021-07-16T19:20:30+00:00'
@@ -622,12 +663,12 @@ components:
       minLength: 40
       maxLength: 40
       pattern: '[^ ](.*)'
-      example: Test Merchant Asia              PUNEMHIN
+      example: Test Merchant Asia PUNEMHIN
     AcquirerCountry:
       type: string
       description: >-
         It is the transaction acquirer country code used for logging purpose. It
-        is expressed as a 2-letter (alpha-2) country code as defined in ISO
+        is expressed as a 2-letter (Alpha-2) country code as defined in ISO
         3166.<br /> **Conditional Mandatory**<font color='red'>* </font>
         parameter - Required for closed loop programs.
       maxLength: 2
@@ -641,8 +682,9 @@ components:
         encryptedBlock:
           type: string
           description: >-
-            It is the PIN block in encrypted format. Both encryptedBlock and
-            encryptedKey are mutually inclusive. <br/> **Supported formats:**
+            It is the PIN block in encrypted format. Both 'encrypted block' and
+            'encrypted key' are mutually inclusive. <br/> **Supported formats:
+            **
 
             * `ISO 9564-1 Format 0` - PIN Block generated with ISO 9564-1
             **Format-0**. The generated PIN Block is encrypted using **3-DES**
@@ -658,10 +700,10 @@ components:
         encryptedKey:
           type: string
           description: >-
-            One-time use 3-DES or AES session key encrypted using payShield HSM
-            RSA public key. <br/> **Conditional Mandatory**<font color='red'>*
-            </font> field - Required if encryptedPinBlock field is present in
-            the request.
+            One-time use 3-DES or AES session key encrypted using 'pay shield'
+            HSM RSA public key. <br/> **Conditional Mandatory**<font
+            color='red'>* </font> field - Required if 'encrypted pin block'
+            field is present in the request.
           minLength: 32
           maxLength: 512
           pattern: '[a-zA-Z0-9]+'
@@ -673,14 +715,14 @@ components:
       type: string
       description: >-
         Cryptographic encryption algorithm that is used to generate the
-        encryption key and encrypt the PIN block. Currently only 3-DES
+        encryption key and encrypt the 'PIN' block. Currently only '3-DES'
         encryption algorithm is supported. If value is not provided in the
-        input, then default 3-DES algorithm is considered. <br/> **Valid
-        values:**
+        input, then default '3-DES' algorithm is considered. <br/> **Valid
+        values: **
 
-        * `3DES` - 3-DES encryption(default value)
+        * `3DES` - 3-DES encryption (default value)
 
-        * `AES` - AES encryption(Not supported, reserved for future use)
+        * `AES` - AES encryption (Not supported, reserved for future use)
       example: 3DES
     TransactionMetaData:
       description: >-
@@ -713,7 +755,7 @@ components:
     AcquirerMetaData:
       description: >-
         A set of parameters that describes the meta-information of an acquirer.
-        The parameters merchantId, terminalId, location, and country are
+        The parameters 'merchant Id', 'terminal Id', location, and country are
         mutually inclusive and used for logging purpose.
       type: object
       properties:
@@ -760,7 +802,7 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '1'
+          example: 1
         gst:
           type: number
           description: >-
@@ -770,11 +812,11 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '1'
+          example: 1
     TransactionAuthenticationMetaData:
       description: >-
-        A set of parameters containing the transaction authentication
-        details.Pin and token parameters are mutually exclusive.
+        A set of parameters containing the transaction authentication details.
+        Pin and token parameters are mutually exclusive.
       type: object
       properties:
         pin:
@@ -815,7 +857,7 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
         available:
           type: number
           description: Balance which the client can utilize for performing transactions.
@@ -823,7 +865,7 @@ components:
           multipleOf: 0.00001
           minimum: 1
           maximum: 9999999999.99999
-          example: '75000'
+          example: 75000
     ErrorMessage:
       required:
         - Description
@@ -848,7 +890,7 @@ components:
           example: MISSING_REQUIRED_FIELD
         Description:
           type: string
-          description: Human-readable short description of the reasonCode.
+          description: Human-readable short description of the reason code.
           minLength: 10
           maxLength: 250
           example: Missing Required Field '<Field-Name>'
@@ -908,7 +950,7 @@ components:
     SearchUniqueTransaction:
       type: object
       description: >-
-        A set of parameters to search the unique transction. When searching the
+        A set of parameters to search the unique transaction. When searching the
         unique transaction parameters then date range block is mandatory.
       properties:
         retrievalReferenceNumber:
@@ -981,7 +1023,7 @@ components:
           description: >-
             It is a short description of the transaction being performed.<br />
             It is generated by appending reversal indicator, abbreviation from
-            "Transaction Type [CESM06]" screen and card acceptor name-location.
+            'Transaction Type [CESM06]' screen and card acceptor name-location.
           minLength: 1
           maxLength: 500
           pattern: '[^ ](.*)[^ ]'
@@ -989,10 +1031,10 @@ components:
         description:
           type: string
           description: >-
-            It is type of transaction being performed for eg. Purchase, Cash
-            Withdrawal etc.<br /> All the valid values are configured on "
-            Processing Center > Setup > Master Parameters > Transaction Type
-            [CESM06]" screen.
+            It is type of transaction being performed for e.g. Purchase, Cash
+            Withdrawal etc.<br /> All the valid values are configured on
+            'Processing Centre > Setup > Master Parameters > Transaction Type
+            [CESM06]' screen.
           minLength: 1
           maxLength: 100
           pattern: '[^ ](.*)[^ ]'
@@ -1000,9 +1042,9 @@ components:
         abbreviation:
           type: string
           description: >-
-            It is a abbreviation of transaction type.<br /> All the valid values
-            are configured on "Processing Center > Setup > Master Parameters >
-            Transaction Type [CESM06]" screen.
+            It is an abbreviation of transaction type.<br /> All the valid
+            values are configured on 'Processing Center > Setup > Master
+            Parameters > Transaction Type [CESM06]' screen.
           minLength: 1
           maxLength: 50
           pattern: '[A-Za-z0-9 ]+'
@@ -1038,9 +1080,9 @@ components:
           type: string
           description: >-
             It is a category of response code as per action codes defined in
-            system.  <br/> **Valid values:**
+            system.  <br/> **Valid values: **
 
-            * `BUSINESS_DECLINE` - Business declined transcation
+            * `BUSINESS_DECLINE` - Business declined transaction
 
             * `CUSTOMER_RELATED_DECLINE` - Customer related declined transaction
 
@@ -1076,7 +1118,7 @@ components:
     MicrofilmReferenceNumber:
       type: string
       description: >-
-        Microfilm reference number (aka Acquirer Reference Number, ARN) is a
+        'Microfilm reference number' (aka Acquirer Reference Number, ARN) is a
         generated for each posted transaction that is used to identify
         unequivocally the transactions of cards. It is usually referred during
         dispute posting. This code contains the acquirer BIN, processing date
@@ -1098,7 +1140,7 @@ components:
     TransactionTraceAuditNumber:
       type: string
       description: >-
-        System Trace Audit Number (STAN) is a number generated by a financial
+        'System Trace Audit Number' (STAN) is a number generated by a financial
         institution to identify a transaction. A message initiator or processor
         uses STAN to uniquely identify a transaction.
       minLength: 6
@@ -1156,7 +1198,7 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '15'
+      example: 15
     TransactionAmount:
       type: number
       description: The amount with which the transaction is initiated.
@@ -1164,7 +1206,7 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '15'
+      example: 15
     TransactionCurrency:
       type: string
       description: >-
@@ -1181,7 +1223,7 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '15'
+      example: 15
     BillingCurrency:
       type: string
       description: >-
@@ -1196,7 +1238,7 @@ components:
       format: date-time
       description: >-
         The processing date or Issuer transaction timestamp.<br /> It is
-        expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD.
+        expressed in ISO 8601 extended format 'YYYY-MM-DDThh:mm:ssTZD'.
       example: '2021-07-16T19:20:30+01:00'
     TransactionLocalTimestamp:
       type: string
@@ -1205,13 +1247,13 @@ components:
         The local or business date and time when the transaction was performed.
         This is captured by financial institution for transaction logging
         purpose. It is expressed in ISO 8601 extended format
-        YYYY-MM-DDThh:mm:ssTZD.
+        'YYYY-MM-DDThh:mm:ssTZD'.
       example: '2021-07-16T19:20:30+01:00'
     TransactionSign:
       type: string
       description: >-
         It is an indicator to denote debit or credit sign of transaction. <br/>
-        **Valid values:**
+        **Valid values: **
 
         * `DR` - Debit transaction
 
@@ -1221,38 +1263,34 @@ components:
       type: string
       description: >-
         It is an indicator to denote original or reversal type of transaction.
-        <br/> **Valid values:**
+        <br/> **Valid values: **
 
         * `ORIGINAL` - Original transaction
 
         * `REVERSAL` - Reversal transaction
-      pattern: '[A-Z]+'
       example: REVERSAL
     AuthorizationStatus:
       type: string
       description: |-
-        It is an authorization status of transaction. <br/> **Valid values:**
+        It is an authorization status of transaction. <br/> **Valid values: **
         * `DECLINED` - Rejected or Declined transaction
         * `APPROVED` - Successful or Approved transaction
         * `ALL` - ALL transaction
-      pattern: '[A-Z]+'
       example: ALL
     SearchSettlementStatus:
       type: string
       description: |-
-        It is a settlement status of transaction. <br/> **Valid values:**
+        It is a settlement status of transaction. <br/> **Valid values: **
         * `POSTED` - Posted transaction
         * `UNPOSTED` - Unposted transaction
         * `ALL` - All transaction
-      pattern: '[A-Z]+'
       example: ALL
     TransactionSettlementStatus:
       type: string
       description: |-
-        It is a settlement status of transaction. <br/> **Valid values:**
+        It is a settlement status of transaction. <br/> **Valid values: **
         * `POSTED` - Posted transaction
         * `UNPOSTED` - Unposted transaction
-      pattern: '[A-Z]+'
       example: POSTED
     ConversionRate:
       type: number
@@ -1263,11 +1301,11 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '1.2'
+      example: 1.2
     TransactionMerchantId:
       type: string
       description: >-
-        Unique ID assigned to the merchant by the Acquirer(Acceptor Merchant
+        Unique ID assigned to the merchant by the Acquirer (Acceptor Merchant
         Id). It is used for logging purpose and identifies the acquiring
         merchant of the transaction.
       minLength: 1
@@ -1292,27 +1330,27 @@ components:
       minLength: 40
       maxLength: 40
       pattern: '[^ ](.*)'
-      example: Test Merchant Asia              PUNEMHIN
+      example: Test Merchant Asia PUNEMHIN
     TransactionAcquirerCountry:
       type: string
       description: >-
         It is a transaction acquirer country code. It is expressed as a 2-letter
-        (alpha-2) country code as defined in ISO 3166. Conditional Mandatory*
+        (Alpha-2) country code as defined in ISO 3166. Conditional Mandatory*
         parameter - This field must be shared only if control type is
         SPECIFIC_DURATION and origin is INTERNATIONAL or ALL.
       example: IN
-      pattern: '^[A-Z]{2,2}$'
+      pattern: '[A-Z]{2,2}'
     TransactionCaptureTimestamp:
       type: string
       format: date-time
       description: >-
         The capture date of transaction or Acquirer transaction timestamp.<br />
-        It is expressed in ISO 8601 extended format YYYY-MM-DDThh:mm:ssTZD.
+        It is expressed in ISO 8601 extended format 'YYYY-MM-DDThh:mm:ssTZD'.
       example: '2021-07-16T19:20:30+01:00'
     SearchTraceAuditNumber:
       type: string
       description: >-
-        A System Trace Audit Number (STAN) is a number generated by the
+        A 'System Trace Audit Number' (STAN) is a number generated by the
         financial institution to identify a transaction. A message initiator or
         processor uses STAN to uniquely identify a transaction. When searching
         with trace audit number, date range block is mandatory.
@@ -1323,7 +1361,7 @@ components:
     SearchRetrievalReferenceNumber:
       type: string
       description: >-
-        A set of parameters to search unique transction. When searching with
+        A set of parameters to search unique transaction. When searching with
         unique transaction parameters then date range block is mandatory.
       minLength: 12
       maxLength: 12
@@ -1332,9 +1370,9 @@ components:
     SearchAuthorizationId:
       type: string
       description: >-
-        It is a unique identifier of each transaction
-        authorization(Authorization identification response). It is assigned by
-        the transaction authorizing entity and used for internal auditing and
+        It is a unique identifier of each transaction authorization
+        (Authorization identification response). It is assigned by the
+        transaction authorizing entity and used for internal auditing and
         tracking purpose. When searching with authorization id, date range block
         is mandatory.
       minLength: 6
@@ -1360,16 +1398,16 @@ components:
           format: date
           description: >-
             From Date.<br /> Expressed in ISO 8601 extended format in YYYY-MM-DD
-            .<br /> Must be used together with toDate field.<br /> fromDate
-            cannot be greater than toDate field.<br />
+            .<br /> Must be used together with 'to date' field.<br /> 'from
+            date' cannot be greater than 'to date' field.<br />
           example: '2021-07-16'
         to:
           type: string
           format: date
           description: >-
             To Date.<br /> Expressed in ISO 8601 extended format in
-            YYYY-MM-DD.<br /> Must be used together with toDate field.<br />
-            toDate cannot be smaller than fromDate field.<br />
+            YYYY-MM-DD.<br /> Must be used together with 'to date' field.<br />
+            'to date' cannot be smaller than 'from date' field.<br />
           example: '2021-07-16'
     BillingDetails:
       description: >-
@@ -1435,8 +1473,8 @@ components:
           $ref: '#/components/schemas/TopupAccountNumber'
     Topup:
       description: >-
-        It contains the account balance details along with Topup API transaction
-        and fee information.
+        It contains the account balance details along with 'Top-up API'
+        transaction and fee information.
       type: object
       properties:
         transactionMetaData:
@@ -1458,16 +1496,17 @@ components:
           type: boolean
           description: >-
             Indicates if top up is initiated for a new trip or an active trip.
-            Valid values are as configured in the Card Management > Program
-            Setup >Travel Type Configuration section of the MI Issuing customer
+            Valid values are as configured in the 'Card Management > Program
+            Setup >Travel Type Configuration' section of the MI Issuing customer
             portal. <br />**Conditional Mandatory**<font color='red'>* </font>
-            parameter - Required if the value check box for TRAVEL_TYPE_MANDATE
-            Type ID is selected from the Card Management > Institution Parameter
-            Setup > System Codes. <br />Parameters newTrip, type, startDate,
-            endDate, country are mutually inclusive. <br /> The API request is
-            rejected if parameter value is sent when the value check box is not
-            set for TRAVEL_TYPE_MANDATE Type ID is selected from the Card
-            Management > Institution Parameter Setup > System Codes.
+            parameter - Required if the value check box for
+            'TRAVEL_TYPE_MANDATE' type 'ID' is selected from the 'Card
+            Management > Institution Parameter Setup > System Codes'. <br
+            />Parameters newTrip, type, startDate, endDate, country are mutually
+            inclusive. <br /> The API request is rejected if parameter value is
+            sent when the value check box is not set for 'TRAVEL_TYPE_MANDATE'
+            type 'ID' is selected from the 'Card Management > Institution
+            Parameter Setup > System Codes'.
           example: false
     AccountBalanceDetails:
       description: Prepaid card account information with balance.
@@ -1481,7 +1520,7 @@ components:
           $ref: '#/components/schemas/AccountBalance'
     TopupAccountDetails:
       type: object
-      description: Topup data.
+      description: Top-up data.
       properties:
         currency:
           $ref: '#/components/schemas/TransactionCurrency'
@@ -1514,10 +1553,10 @@ components:
       multipleOf: 0.00001
       minimum: 1
       maximum: 9999999999.99999
-      example: '1.2'
+      example: 1.2
     EmvRequestCryptogram:
       type: string
-      description: EMV chip card transaction data used for card authentication(ARQC).
+      description: EMV chip card transaction data used for card authentication (ARQC).
       minLength: 1
       maxLength: 999
       pattern: '[A-F0-9]+'
@@ -1526,7 +1565,7 @@ components:
     OriginalTraceAuditNumber:
       type: string
       description: >-
-        System Trace Audit Number (STAN) is a number generated by a financial
+        'System Trace Audit Number' (STAN) is a number generated by a financial
         institution to identify a transaction. A message initiator or processor
         uses STAN to uniquely identify a transaction. **Conditional
         Mandatory**<font color='red'>* </font> parameter - Required for reversal
@@ -1537,7 +1576,7 @@ components:
       example: '301001'
     EmvResponseCryptogram:
       type: string
-      description: EMV chip card transaction data(ARPC).
+      description: EMV chip card transaction data (ARPC).
       minLength: 1
       maxLength: 999
       pattern: '[A-F0-9]+'
@@ -1589,33 +1628,33 @@ components:
             Indicates the purpose of travel. It helps to audit the purpose of
             the top up request by indicating the type of travel such as
             business, leisure, and so on. <br />Valid values are as configured
-            in the Card Management > Program Setup >Travel Type Configuration
-            section of the MI Issuing customer portal. <br />**Conditional
+            in the 'Card Management > Program Setup >Travel Type Configuration'
+            section of the 'MI Issuing' customer portal. <br />**Conditional
             Mandatory**<font color='red'>* </font> field - Required if the
             travel wise load limit check box is selected for a transaction type
-            in the Card Management > Institution Parameter Setup > Credit
-            transactions for load section. <br />The API request is rejected if
+            in the 'Card Management > Institution Parameter Setup > Credit
+            transactions' for load section. <br />The API request is rejected if
             parameter value is sent when the value of travel wise load limit
-            check box is not selected for a transaction type in the Card
-            Management > Institution Parameter Setup > Credit transactions for
-            load section. <br />Parameters such as newTrip, type, startDate,
-            endDate, and country are mutually inclusive.
+            check box is not selected for a transaction type in the 'Card
+            Management > Institution Parameter Setup > Credit transactions' for
+            load section. <br />Parameters such as 'new trip', type, 'start
+            date', 'end date', and country are mutually inclusive.
           example: LEISURE
         startDate:
           type: string
           format: date
           description: >-
-            Start date of the client's travel or trip. Parameters such as
-            newTrip, type, startDate, endDate, and country are mutually
+            Start date of the client's travel or trip. Parameters such as 'new
+            trip', type, 'start date', 'end date', and country are mutually
             inclusive. <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
           example: '2021-07-22'
         endDate:
           type: string
           format: date
           description: >-
-            End date of the client's travel or trip. Parameters such as newTrip,
-            type, startDate, endDate, and country are mutually inclusive. <br/>
-            Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
+            End date of the client's travel or trip. Parameters such as 'new
+            trip', type, 'start date', 'end date', and country are mutually
+            inclusive. <br/> Format - It is expressed in ISO 8601 - `YYYY-MM-DD`
           example: '2021-08-12'
         country:
           type: string
@@ -1623,9 +1662,9 @@ components:
           maxLength: 2
           description: >-
             Country code of the client's travel or trip. It is expressed as a
-            2-letter (alpha-2) country code as defined in ISO 3166. Parameters
-            such as newTrip, type, startDate, endDate, and country are mutually
-            inclusive.
+            2-letter (Alpha-2) country code as defined in ISO 3166. Parameters
+            such as 'new trip', type, 'start date', 'end date', and country are
+            mutually inclusive.
           example: GB
           pattern: '[A-Z]+'
     TopupBillingDetails:
@@ -1638,6 +1677,255 @@ components:
           $ref: '#/components/schemas/BillingAmount'
         currency:
           $ref: '#/components/schemas/BillingCurrency'
+    RestructureInformation:
+      allOf:
+        - $ref: '#/components/schemas/RequestValidityTime'
+      type: object
+      required:
+        - dataValidUntilTimestamp
+        - interestRate
+        - tenure
+      properties:
+        interestRate:
+          type: number
+          format: double
+          description: >-
+            Interest Rate by which the Loan is to be
+            processed/restructured.<br/> It should be within the min/max
+            criteria configured on the loan plan linked with Loan Account
+            Number.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 8.5
+        tenure:
+          type: integer
+          format: int32
+          description: >-
+            Number of installment by which loan is to be restructured.</br> It
+            should be within the min/max Number of installments criteria
+            configured on the loan plan linked with Loan Account.
+          minimum: 1
+          maximum: 999
+          example: 30
+        moratoriumPeriod:
+          type: integer
+          format: int32
+          description: >-
+            Number of days by which 1st installment to be delayed for
+            computation and processing.<br/> It should be restricted up to max
+            moratorium period configured on the loan plan linked with loan
+            account.
+          minimum: 0
+          maximum: 999
+          example: 30
+        interestFreeMoratorium:
+          type: boolean
+          description: >-
+            Indicates whether to compute interest and include in loan for
+            moratorium period.<br/> Default value should be considered form the
+            loan plan, if not provided in the API request.
+          example: false
+        notes:
+          type: string
+          description: Used to capture additional information if any.
+          minLength: 0
+          maxLength: 250
+          example: Restructuring my loan by increasing the tenure.
+          pattern: '[a-zA-Z0-9 #,()&.''-\/]*'
+    RestructuredLoanProfile:
+      type: object
+      properties:
+        serviceRequestNumber:
+          type: string
+          description: >-
+            Loan Restructuring Service Request number that should be logged in
+            the system if the loan is restructured successfully.
+          minLength: 11
+          maxLength: 11
+          example: '13400909911'
+          pattern: '[0-9]*'
+        loan:
+          $ref: '#/components/schemas/RestructuredLoan'
+    LoanType:
+      type: string
+      description: >-
+        Loan Type. Applicable and Valid Loan Type - <BR/> `LOANPUR` - Retail
+        Transaction to Loan <BR/> `ALOP` - Loan Above Credit Limit <BR/>
+        `LOANDD` : Dial and Draft <BR/> `LOANCSH` - Loan Below Cash Limit <BR/>
+        `LOANCR` - Loan Below Credit Limit <BR/> `LOANBT` - Balance Transfer to
+        Loan <BR/> `LOANOTE` - Outstanding to EMI, loan outstanding should be
+        greater than zero <BR/> `LOANEPP` - Easy Pay Plan, loan outstanding
+        should be greater than zero <BR/> `LOANRTI` - Retail Transaction to Loan
+        (OBS by MCI), applicable only for existing loans <BR/> `EAPOS` - EMI at
+        POS, applicable only for existing loans, loan outstanding should be
+        greater than zero <BR/> Note: Wallet Admin Status and Unpaid status
+        should be Normal for all loan type except Easy Pay Plan Loan type.
+      example: LOANPUR
+    RestructuredLoan:
+      type: object
+      description: >-
+        Contains information about the restructured loan. These values should be
+        returned only when restructuring is completed/processed successfully.
+      properties:
+        type:
+          $ref: '#/components/schemas/LoanType'
+        planCode:
+          type: string
+          description: >-
+            This is the loan plan code that is linked to the chosen loan type.
+            Denotes the validation required against the defined loan plans.
+          example: RTG01
+          pattern: '[A-Z0-9]{4,5}'
+        planDescription:
+          type: string
+          description: >-
+            This is the loan plan description which is attached on the loan
+            account.
+          minLength: 1
+          maxLength: 50
+          example: Retail Festive Season
+        restructure:
+          $ref: '#/components/schemas/Restructure'
+        oldRepaymentSchedule:
+          $ref: '#/components/schemas/OldRepaymentSchedule'
+        newRepaymentSchedule:
+          $ref: '#/components/schemas/NewRepaymentSchedule'
+    Restructure:
+      type: object
+      description: >-
+        Contains information about one-time charges paid for restructuring the
+        loan along with the restructuring count.
+      properties:
+        counter:
+          type: integer
+          format: int32
+          description: >-
+            Number of times restructuring is processed for the loan account.
+            This should be returned only when restructuring is
+            completed/processed.
+          minimum: 1
+          maximum: 999
+          example: 1
+        fees:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: >-
+            Fee that is supposed to be paid for processing/restructuring the
+            loan.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 5600.32
+        moratoriumCost:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: >-
+            Interest amount within the installment amount for the installment
+            date.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 550.99
+    OldRepaymentSchedule:
+      type: object
+      description: Contains information about the loan before restructuring.
+      properties:
+        lastInstallmentDate:
+          type: string
+          format: date
+          description: Last EMI paid date before restructuring the loan.
+          pattern: '([0-9]{4})-(?:[0-9]{2})-([0-9]{2})'
+          example: '2022-03-22'
+        lastInstallment:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: Last installment amount paid before restructuring the loan.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 7322.32
+        outstanding:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: >-
+            Loan principle balance amount which is used for
+            processing/restructuring.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 55416.21
+        pendingInstallments:
+          type: integer
+          format: int32
+          description: >-
+            Installments that were pending before processing/restructuring the
+            loan.
+          minimum: 1
+          maximum: 999
+          example: 5
+        maturityDate:
+          type: string
+          format: date
+          description: 'Maturity Date before restructuring the loan. Format: YYYY-MM-DD.'
+          pattern: '([0-9]{4})-(?:[0-9]{2})-([0-9]{2})'
+          example: '2022-07-22'
+    NewRepaymentSchedule:
+      type: object
+      description: Contains information about the loan after restructuring.
+      properties:
+        outstanding:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: Loan principle balance amount calculated after restructuring.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 35416.21
+        pendingInstallments:
+          type: integer
+          format: int32
+          description: >-
+            Installments that will be pending after processing/restructuring the
+            loan.
+          minimum: 1
+          maximum: 999
+          example: 8
+        maturityDate:
+          type: string
+          format: date
+          description: 'Maturity Date after restructuring the loan. Format: YYYY-MM-DD.'
+          pattern: '([0-9]{4})-(?:[0-9]{2})-([0-9]{2})'
+          example: '2022-10-22'
+        firstInstallmentDate:
+          type: string
+          format: date
+          description: First installment due date after restructuring the loan.
+          pattern: '([0-9]{4})-(?:[0-9]{2})-([0-9]{2})'
+          example: '2022-06-22'
+        firstInstallment:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: First installment amount due after restructuring the loan.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 7322.32
+        installmentFrequency:
+          description: >-
+            This indicates the installment frequency for paying the
+            Installments. If no value is specified, then by default it is
+            considered as monthly.
+          type: string
+          example: monthly
+          pattern: '[a-zA-Z]{5,9}'
+        installment:
+          type: number
+          format: double
+          multipleOf: 0.00001
+          description: Installments to be paid from the second installment onwards.
+          minimum: 1
+          maximum: 9999999999.99999
+          example: 5322.32
   parameters:
     CardID:
       name: card_id
@@ -1663,15 +1951,16 @@ components:
       name: X-MC-Correlation-ID
       in: header
       description: >-
-        Correlation ID, also known as Transit ID or Request ID, is a unique
-        identifier value attached to a particular transaction or event chain.The
-        Correlation ID also helps in auditing, debugging, and tracing the
+        'Correlation ID', also known as 'Transit ID' or 'Request ID', is unique
+        identifier value attached to a particular transaction or event chain.
+        The 'Correlation ID' also helps in auditing, debugging, and tracing the
         request execution flow. <BR/> It is recommended to generate universally
-        unique identifier (UUID) in compliance with RFC 4122.<BR/> If the
-        Correlation ID is not received in the incoming request, the Mastercard
-        Processing platform generates a universally unique identifier (UUID)
-        dynamically and assigns it to the request. The Correlation ID is always
-        added to the response header to provide end to end traceability.
+        unique identifier (UUID) in compliance with 'RFC 4122'.<BR/> If the
+        'Correlation ID' is not received in the incoming request, the
+        'Mastercard Processing' platform generates a universally unique
+        identifier (UUID) dynamically and assigns it to the request. The
+        Correlation ID is always added to the response header to provide end to
+        end traceability.
 
         * minLength: 6
 
@@ -1688,8 +1977,8 @@ components:
       name: X-MC-Bank-Code
       in: header
       description: >-
-        It is a 6 digit bank/institution identifier code. <br/> **Conditional
-        Mandatory**<font color='red'>* </font> field - Required to be passed  by
+        It is a 6-digit bank/institution identifier code. <br/> **Conditional
+        Mandatory**<font color='red'>* </font> field - Required to be passed by
         third party vendors or service provider (like 3-D Secure authenticator)
         who has access to the data of multiple banks, supported by legal
         agreement and access grants.
@@ -1711,15 +2000,15 @@ components:
       description: >-
         Value identifying the origin or source of a transaction. The list of
         possible sample values are available in the database and shared in the
-        API_SOURCE_VALUES list under "Card Management > Institution Parameter
-        Setup > System Codes [ISSS15]". This field is used only for logging
+        'API_SOURCE_VALUES' list under 'Card Management > Institution Parameter
+        Setup > System Codes [ISSS15]'. This field is used only for logging
         purpose.<br/>
 
         * minLength: 3
 
         * maxLength: 3
 
-        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values:** <br/>
+        * pattern: [A-Z0-9]+ <br/> <br/> **Few sample values: ** <br/>
 
         * `IVR` - Interactive Voice Response
 
@@ -1758,7 +2047,7 @@ components:
         through, the client retries with the same idempotency key value, and the
         server uses it to look up the state of request and continue from where
         it left off. Recommended to generate universally unique identifier
-        (UUID) compliant with `RFC 4122`.
+        (UUID) compliant with 'RFC 4122'.
       schema:
         type: string
         pattern: '^[a-zA-Z0-9_-]{6,36}$'
@@ -1786,10 +2075,10 @@ components:
       in: query
       name: fields
       description: >-
-        The Fields parameter restricts the set of properties to be returned for
-        a field in the API response. These properties must be present in the API
-        response structure that is the JSON path. These properties can be added
-        as a comma-separated list.
+        The 'fields' parameter restricts the set of properties to be returned
+        for a field in the API response. These properties must be present in the
+        API response structure that is the json path. These properties can be
+        added as a comma-separated list.
       required: false
       schema:
         type: string
@@ -1825,6 +2114,18 @@ components:
       required: false
       description: The number of items to skip before starting to collect the result.
       example: 0
+    LoanAccountNumber:
+      name: loan_id
+      in: path
+      description: >-
+        Existing loan account number that was generated after booking the
+        loan.<br/> Loan status must be open or in-progress. In other words, it's
+        status should not be closed (pre-closed / force closed / closed).
+      required: true
+      schema:
+        type: string
+        pattern: '^[A-Z0-9]{10,15}$'
+      example: '00000062672611'
   headers:
     Response-Correlation-ID:
       description: >-
@@ -1867,6 +2168,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/TopupTransaction'
+    LoanRestructureRequest:
+      description: Modify existing loan with new restructuring parameters.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RestructureInformation'
   responses:
     BalanceDetailsResponse:
       description: The card balances were successfully retrieved.
@@ -1933,7 +2241,7 @@ components:
         X-MC-Correlation-ID:
           $ref: '#/components/headers/Response-Correlation-ID'
     TopupResponse:
-      description: Topup transation processed successfully.
+      description: Topup transaction processed successfully.
       content:
         application/json:
           schema:
@@ -1943,6 +2251,17 @@ components:
           $ref: '#/components/headers/Response-Correlation-ID'
         X-MC-Idempotency-Key:
           $ref: '#/components/headers/Response-Idempotency-Key'
+    RestructuredLoanResponse:
+      description: >-
+        The response shows the service request number and a snapshot of the
+        restructured loan. This loan needs further approvals and the final
+        approved loan can be viewed by tracking the service request number.</br>
+        **Note: **</br> If the loan restructuring fails, then the reason of
+        failure should be returned in error response.</br>
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/RestructuredLoanProfile'
   examples:
     UnauthorizedExample:
       value:

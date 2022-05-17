@@ -37,7 +37,7 @@ public final class MockTestHelper {
      * @param mockCall      the mock call
      * @throws ApiException the api exception
      */
-    public static void initializeApiClient(IssuingBaseService service, ApiClient apiClientMock, Call mockCall) throws ApiException {
+    public static void initializeApiClient(BaseService service, ApiClient apiClientMock, Call mockCall) throws ApiException {
 	log.info("================================================================================================\n");
 
 	service.setApiClient(apiClientMock);

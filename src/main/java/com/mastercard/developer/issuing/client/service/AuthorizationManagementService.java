@@ -15,13 +15,20 @@
  */
 package com.mastercard.developer.issuing.client.service;
 
+import java.time.LocalDate;
+
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.client.helper.PinBlockTDEAEncrypter;
+import com.mastercard.developer.issuing.client.helper.RequestContext;
 import com.mastercard.developer.issuing.exception.ReferenceAppGenericException;
 import com.mastercard.developer.issuing.generated.apis.UserAuthenticationApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
+import com.mastercard.developer.issuing.generated.models.CardDetails;
+import com.mastercard.developer.issuing.generated.models.CardProfile;
 import com.mastercard.developer.issuing.generated.models.CardSecret;
 import com.mastercard.developer.issuing.generated.models.ClientAuthentication;
+import com.mastercard.developer.issuing.generated.models.ClientProfile;
+import com.mastercard.developer.issuing.generated.models.ClientSecret;
 import com.mastercard.developer.issuing.generated.models.EncryptedPinBlock;
 import com.mastercard.developer.issuing.generated.models.TokenDetails;
 
@@ -29,13 +36,19 @@ import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public class IssuingAuthorizationManagementService extends IssuingBaseService {
+public class AuthorizationManagementService extends BaseService {
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/authorization-management";
 
     /** The Constant AUTHENTICATION_TOKEN. */
     private static final String AUTHENTICATION_TOKEN = "authentication-token";
+
+    /** The Constant AUTHENTICATION_TOKEN. */
+    private static final String PIN_CHANGE_TOKEN = "pin-change-token";
+
+    /** The Constant AUTHENTICATION_TOKEN. */
+    /** private static final String PIN_RESET_TOKEN = "pin-reset-token"; */
 
     /** The scenarios. */
     private static final String[] SCENARIOS = { AUTHENTICATION_TOKEN };
@@ -64,8 +77,12 @@ public class IssuingAuthorizationManagementService extends IssuingBaseService {
             scenarios = getScenarios();
         }
         for (String scenario : scenarios) {
-
             switch (scenario) {
+            case PIN_CHANGE_TOKEN:
+                logScenario(scenario);
+                TokenDetails pinChangeTokenDetails = createToken("PIN_RESET");
+                ApiClientHelper.saveResponseObject(scenario, pinChangeTokenDetails);
+                break;
             case AUTHENTICATION_TOKEN:
                 logScenario(scenario);
                 TokenDetails tokenDetails = createToken("BALANCE_INQUIRY");
@@ -92,20 +109,46 @@ public class IssuingAuthorizationManagementService extends IssuingBaseService {
 
             String cardId = ApiClientHelper.getRequestObject("card-id", String.class);
             String cardNumber = ApiClientHelper.getRequestObject("card-number", String.class);
+            log.info(">>> Start preparation to call createToken for cardId={}", cardId);
 
             ClientAuthentication request = ApiClientHelper.getRequestObject(AUTHENTICATION_TOKEN, ClientAuthentication.class);
+
+            /** Option 1 - Update Date of birth in the request */
+            CardManagementService cardManagementService = new CardManagementService();
+            log.info(">>> Fetch Client Date of Birth by Calling Get Client API");
+            ClientProfile clientProfile = cardManagementService.getClient();
+            LocalDate birthDate = clientProfile.getClient()
+                                               .getProfile()
+                                               .getBirthDate();
+            ClientSecret clientSecret = request.getClient();
+            if (clientSecret == null) {
+                clientSecret = new ClientSecret();
+                request.setClient(clientSecret);
+            }
+            clientSecret.setBirthDate(birthDate);
+
+            /** Option 2 - Update Card CVV & Expiry */
+            log.info(">>> Fetch Card Details by Calling Get Card API");
+            CardProfile cardProfile = cardManagementService.getCard();
+            CardDetails cardDetails = cardProfile.getCard();
+            CardSecret cardSecret = request.getCard();
+            if (cardSecret == null) {
+                cardSecret = new CardSecret();
+                request.setCard(cardSecret);
+            }
+            cardSecret.setCvv(cardDetails.getCvv());
+            cardSecret.setExpiry(cardDetails.getExpiry());
 
             /** Update intent */
             request.setIntent(intent);
 
-            if (!intent.equalsIgnoreCase("PIN_RESET")) {
+            /** Option 3 - Need to set old PIN manually */
+            if (intent.equalsIgnoreCase("PIN_CHANGE")) {
                 String clearPin = "1234";
                 PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
                 EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardNumber);
-                CardSecret cardSecret = new CardSecret();
                 cardSecret.setPin(encryptedPinBlock);
                 request.setCard(cardSecret);
-
                 // Remove client attributes
                 request.setClient(null);
             }
@@ -119,13 +162,17 @@ public class IssuingAuthorizationManagementService extends IssuingBaseService {
             String xMCBankCode = null;
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
+
+            log.info(">>> Calling createToken for cardId={}", cardId);
             
-            response = userAuthenticationApi.createToken(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
+            response = userAuthenticationApi.createToken(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource,
+                    xMCClientApplicationUserID);
             token = response.getToken();
 
             log.info("Received token = {}", token);
 
         } catch (Exception exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
             throw new ReferenceAppGenericException("Exception occurred while calling an API: ", exception);
         }

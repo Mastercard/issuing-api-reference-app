@@ -16,6 +16,7 @@
 package com.mastercard.developer.issuing.client.service;
 
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
+import com.mastercard.developer.issuing.client.helper.RequestContext;
 import com.mastercard.developer.issuing.generated.apis.AcquirerControlApi;
 import com.mastercard.developer.issuing.generated.apis.CardStatusApi;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
@@ -32,7 +33,7 @@ import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public class IssuingCardControlsService extends IssuingBaseService {
+public class CardControlsService extends BaseService {
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/card-controls";
@@ -44,10 +45,10 @@ public class IssuingCardControlsService extends IssuingBaseService {
     private static final String UPDATE_CARD_STATUS = "update-card-status";
 
     /** The Constant UPDATE_ACQ_CARD_CONTROLS. */
-    private static final String UPDATE_ACQ_CARD_CONTROLS = "update-acq-level-controls";
+    private static final String UPDATE_ACQ_CARD_CONTROLS = "update-acquirer-level-controls";
 
     /** The Constant GET_ACQ_CONTROLS. */
-    private static final String GET_ACQ_CONTROLS = "get-acq-level-controls";
+    private static final String GET_ACQ_CONTROLS = "get-acquirer-level-controls";
 
     /** The scenarios. */
     protected String[] scenarios = { UPDATE_CARD_STATUS, UPDATE_ACQ_CARD_CONTROLS, GET_ACQ_CONTROLS };
@@ -88,7 +89,6 @@ public class IssuingCardControlsService extends IssuingBaseService {
                 logScenario(scenario);
                 AcquirerCardUsageProfile acquirerCardUsageProfile = getAcquirerControl();
                 ApiClientHelper.saveResponseObject(scenario, acquirerCardUsageProfile);
-
                 break;
             case UPDATE_ACQ_CARD_CONTROLS:
                 logScenario(scenario);
@@ -137,6 +137,7 @@ public class IssuingCardControlsService extends IssuingBaseService {
                                                                          .getStatus());
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling updateCardStatus API: " + exception.getMessage(), exception);
 
             if (requestFilePrefix.equalsIgnoreCase("update-card-status-normal")) {
@@ -147,6 +148,7 @@ public class IssuingCardControlsService extends IssuingBaseService {
                     response = cardStatusApi.update(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
                     log.debug("updateCardStatus response in catch block {}", response);
                 } catch (ApiException e) {
+                    RequestContext.put("Exception", exception);
                     log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
                 }
             }
@@ -182,6 +184,7 @@ public class IssuingCardControlsService extends IssuingBaseService {
                                                                                              .get(0));
             }
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;
@@ -225,12 +228,13 @@ public class IssuingCardControlsService extends IssuingBaseService {
 
             String acquirerControls = "all";
 
-            response = getAcquirerControlApi.getAcquirerControl(cardId, xMCBankCode, xMCCorrelationID, xMCSource,
-                    xMCClientApplicationUserID, limit, offset, fields, acquirerControls);
+            response = getAcquirerControlApi.getAcquirerControl(cardId, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID, limit,
+                    offset, fields, acquirerControls);
 
             log.debug("getAcquirerControl response {}", response);
 
         } catch (ApiException exception) {
+            RequestContext.put("Exception", exception);
             log.error("Exception occurred while calling getCardControls API: " + exception.getMessage(), exception);
         }
         return response;

@@ -15,12 +15,8 @@
  */
 package com.mastercard.developer.issuing.client.helper;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -28,6 +24,7 @@ import java.security.cert.CertificateFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.mastercard.developer.encryption.EncryptionException;
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfig;
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfig.FieldValueEncoding;
 import com.mastercard.developer.encryption.FieldLevelEncryptionConfigBuilder;
@@ -78,9 +75,10 @@ public class EncryptionConfigUtil {
      * @param decryptionKeyKeystorePass        the decryption key keystore pass
      * @param decryptionKeyAlias               the decryption key alias
      * @return the encryption config
+     * @throws EncryptionException 
      */
     public static FieldLevelEncryptionConfig getEncryptionConfig(String encryptionCertificatePath, String encryptionCertificateFingerprint,
-            String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias) {
+            String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias) throws EncryptionException {
         FieldLevelEncryptionConfig config = null;
         try {
             log.info("Load encryption certificate (RSA Public key certificate issued by Mastercard): {}", encryptionCertificatePath);
@@ -121,7 +119,8 @@ public class EncryptionConfigUtil {
             }
 
         } catch (Exception e) {
-            log.error("Error while getting encryption configuration" + e.getMessage(), e);
+            log.error("Error while getting encryption configuration - " + e.getMessage(), e);
+            throw new EncryptionException("Error while getting encryption configuration - " + e.getMessage(), e);
         }
         return config;
     }

@@ -27,7 +27,7 @@ import lombok.extern.log4j.Log4j2;
 
 /** The Constant log. */
 @Log4j2
-public abstract class IssuingBaseService {
+public abstract class BaseService {
 
     /**
      * Gets the scenarios.
