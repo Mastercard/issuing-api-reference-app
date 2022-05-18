@@ -168,7 +168,7 @@ public class CardIssuanceService extends BaseService {
             }
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;
@@ -259,7 +259,7 @@ public class CardIssuanceService extends BaseService {
             }
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;

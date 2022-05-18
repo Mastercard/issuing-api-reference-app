@@ -137,7 +137,7 @@ public class CardControlsService extends BaseService {
                                                                          .getStatus());
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling updateCardStatus API: " + exception.getMessage(), exception);
 
             if (requestFilePrefix.equalsIgnoreCase("update-card-status-normal")) {
@@ -148,7 +148,7 @@ public class CardControlsService extends BaseService {
                     response = cardStatusApi.update(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
                     log.debug("updateCardStatus response in catch block {}", response);
                 } catch (ApiException e) {
-                    RequestContext.put("Exception", exception);
+                    RequestContext.put(ApiClientHelper.EXCEPTION, exception);
                     log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
                 }
             }
@@ -184,7 +184,7 @@ public class CardControlsService extends BaseService {
                                                                                              .get(0));
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
         }
         return response;
@@ -234,7 +234,7 @@ public class CardControlsService extends BaseService {
             log.debug("getAcquirerControl response {}", response);
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling getCardControls API: " + exception.getMessage(), exception);
         }
         return response;

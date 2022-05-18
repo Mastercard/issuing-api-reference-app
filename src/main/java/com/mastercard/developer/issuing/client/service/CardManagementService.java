@@ -148,7 +148,7 @@ public class CardManagementService extends BaseService {
                                                   .getAlias());
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling searchCard API: " + exception.getMessage(), exception);
         }
         return response;
@@ -185,7 +185,7 @@ public class CardManagementService extends BaseService {
             }
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling getCard API: " + exception.getMessage(), exception);
         }
         return response;
@@ -207,6 +207,8 @@ public class CardManagementService extends BaseService {
             NewPinDetails request = ApiClientHelper.getRequestObject(UPDATE_PIN, NewPinDetails.class);
 
             /** Prerequisite - Create Token and set token */
+            log.info(">> Create Token for card id: {}", cardId);
+
             AuthorizationManagementService authorizationManagementService = new AuthorizationManagementService();
             TokenDetails pinChangeTokenDetails = authorizationManagementService.createToken("PIN_RESET");
             log.info("Received token for PIN_RESET intent: {}", pinChangeTokenDetails.getToken());
@@ -214,17 +216,17 @@ public class CardManagementService extends BaseService {
 
             /** Generate random 4 digit PIN and build encrypted PIN block */
             String clearPin = String.format("%04d", new SecureRandom().nextInt(10000));
+            /**
+             * Use below log statement to view PIN in clear. But should be removed before moving the code to higher environment.<BR>
+             * log.debug("Generated random PIN: {}", clearPin);
+             */
 
-            // TODO: Remove this log statement before moving the code to higher environment
-            // log.debug("Generated random PIN: {}", clearPin);
+            log.info("Build and encrypt PIN block.");
             PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
             EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardNumber);
             request.setPin(encryptedPinBlock);
 
-//            encryptedPinBlock1.setEncryptedKey("042238569930D78BCDEFC5059A8BC8D76ABB5237EB5FC0DE10259789165CA8B81C1CCE589FEF40E45220E8E0AAB54C75FDD1B2054AD484D8C17B93380C023AB7AB54ED0CF860D50F0E3DAD467F445D1376867766928C16579D719B83C7FA5B449482A0ACD614B19B1AA4CFA128B1EA461F2DF35DA9BA3DE639C9ACA5DB9F2F368DC2F36615696427E435B18962F9380CC06CB67ADD1DAC7DB881567EA377B7FB40BE347DA02588EC74462337B7EEC696A5CCE66D0E978046C53DF5ACABF5B9E8C72BB785BA481552F075457426149A2904A938ED3CA9748018CE0CC980906CD21BB39C16321671E47973C2BB91DC64D602007ECE324163E34513E7507635C77A");
-//            encryptedPinBlock1.setEncryptedBlock("664511C09482BF2D");
-//            request.setPin(encryptedPinBlock1);
-            log.info("Updated PIN block in request.");
+            log.info("Updated PIN block in the request.");
 
             /** Set request validity time */
             request.setDataValidUntilTimestamp(getRequestExpiryTimestamp());
@@ -235,11 +237,12 @@ public class CardManagementService extends BaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
+            log.info(">> Update PIN using the token {} for card id: {}", request.getToken(), cardId);
             cardApi.updatePin(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
             success = true;
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling updatePin API: " + exception.getMessage(), exception);
             success = null;
         }
@@ -272,7 +275,7 @@ public class CardManagementService extends BaseService {
                                                                        .getCode());
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling getClient API: " + exception.getMessage(), exception);
         }
         return response;
@@ -314,7 +317,7 @@ public class CardManagementService extends BaseService {
                                                                                   .getNumber());
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling updateClient API: " + exception.getMessage(), exception);
         }
         return response;

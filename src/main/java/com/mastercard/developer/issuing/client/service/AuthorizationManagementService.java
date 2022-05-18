@@ -172,7 +172,7 @@ public class AuthorizationManagementService extends BaseService {
             log.info("Received token = {}", token);
 
         } catch (Exception exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling an API: " + exception.getMessage(), exception);
             throw new ReferenceAppGenericException("Exception occurred while calling an API: ", exception);
         }

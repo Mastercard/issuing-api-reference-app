@@ -130,10 +130,10 @@ public class TransactionManagementService extends BaseService {
             }
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling topupPrepaidCard API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            RequestContext.put("Exception", dateTimeParseException);
+            RequestContext.put(ApiClientHelper.EXCEPTION, dateTimeParseException);
             log.error(
                     "Exception occurred while parsing the topupPrepaidCard API response datetime type field: " + dateTimeParseException.getMessage(),
                     dateTimeParseException);
@@ -174,10 +174,10 @@ public class TransactionManagementService extends BaseService {
             }
 
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling transactionHistory API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            RequestContext.put("Exception", dateTimeParseException);
+            RequestContext.put(ApiClientHelper.EXCEPTION, dateTimeParseException);
             log.error("Exception occurred while parsing the transactionHistory API response datetime type field: "
                     + dateTimeParseException.getMessage(), dateTimeParseException);
         }
@@ -212,10 +212,10 @@ public class TransactionManagementService extends BaseService {
                                                                                     .getAuthorizationId());
             }
         } catch (ApiException exception) {
-            RequestContext.put("Exception", exception);
+            RequestContext.put(ApiClientHelper.EXCEPTION, exception);
             log.error("Exception occurred while calling balanceInquiry API: " + exception.getMessage(), exception);
         } catch (DateTimeParseException dateTimeParseException) {
-            RequestContext.put("Exception", dateTimeParseException);
+            RequestContext.put(ApiClientHelper.EXCEPTION, dateTimeParseException);
             log.error("Exception occurred while parsing the balanceInquiry API response datetime type field: " + dateTimeParseException.getMessage(),
                     dateTimeParseException);
         }
