@@ -20,7 +20,7 @@ import org.junit.runners.Suite.SuiteClasses;
 /** The Class AllTests. */
 @RunWith(Suite.class)
 @SuiteClasses({ AuthorizationManagementServiceTest.class, CardControlsServiceTest.class, CardIssuanceServiceTest.class,
-	CardManagementServiceTest.class, TransactionManagementServiceTest.class })
+        CardManagementServiceTest.class, TransactionManagementServiceTest.class })
 public class AllTests {
-    
+
 }

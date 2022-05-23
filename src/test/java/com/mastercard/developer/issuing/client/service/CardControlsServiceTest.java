@@ -52,8 +52,9 @@ public class CardControlsServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-	MockitoAnnotations.initMocks(this);
-	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        MockitoAnnotations.initMocks(this);
+        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
     }
 
     /**
@@ -63,13 +64,13 @@ public class CardControlsServiceTest {
      */
     @Test
     public void testUpdateCardStatus() throws ApiException {
-	/** Mock Response Object */
-	UpdatedCardStatusDetails response = new UpdatedCardStatusDetails();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        UpdatedCardStatusDetails response = new UpdatedCardStatusDetails();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	UpdatedCardStatusDetails actualResponse = service.updateCardStatus("update-card-status-blocked");
+        UpdatedCardStatusDetails actualResponse = service.updateCardStatus("update-card-status-blocked");
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 }

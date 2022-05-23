@@ -52,8 +52,9 @@ public class CardIssuanceServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-	MockitoAnnotations.initMocks(this);
-	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        MockitoAnnotations.initMocks(this);
+        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
     }
 
     /**
@@ -63,13 +64,13 @@ public class CardIssuanceServiceTest {
      */
     @Test
     public void testPrepaidCardIssuance() throws Exception {
-	/** Mock Response Object */
-	PrepaidCardProfile response = new PrepaidCardProfile();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        PrepaidCardProfile response = new PrepaidCardProfile();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	PrepaidCardProfile actualResponse = service.prepaidCardIssuance();
+        PrepaidCardProfile actualResponse = service.prepaidCardIssuance();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 }

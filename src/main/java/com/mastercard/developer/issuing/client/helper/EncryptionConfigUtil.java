@@ -75,10 +75,11 @@ public class EncryptionConfigUtil {
      * @param decryptionKeyKeystorePass        the decryption key keystore pass
      * @param decryptionKeyAlias               the decryption key alias
      * @return the encryption config
-     * @throws EncryptionException 
+     * @throws EncryptionException
      */
     public static FieldLevelEncryptionConfig getEncryptionConfig(String encryptionCertificatePath, String encryptionCertificateFingerprint,
-            String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias) throws EncryptionException {
+            String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias)
+            throws EncryptionException {
         FieldLevelEncryptionConfig config = null;
         try {
             log.info("Load encryption certificate (RSA Public key certificate issued by Mastercard): {}", encryptionCertificatePath);

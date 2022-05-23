@@ -55,8 +55,9 @@ public class CardManagementServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-	MockitoAnnotations.initMocks(this);
-	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        MockitoAnnotations.initMocks(this);
+        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
     }
 
     /**
@@ -66,14 +67,14 @@ public class CardManagementServiceTest {
      */
     @Test
     public void testSearchCard() throws Exception {
-	/** Mock Response Object */
-	CardSearchResult response = new CardSearchResult();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        CardSearchResult response = new CardSearchResult();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	CardSearchResult actualResponse = service.searchCard();
+        CardSearchResult actualResponse = service.searchCard();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 
     /**
@@ -83,25 +84,14 @@ public class CardManagementServiceTest {
      */
     @Test
     public void testGetCard() throws Exception {
-	/** Mock Response Object */
-	CardProfile response = new CardProfile();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        CardProfile response = new CardProfile();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	CardProfile actualResponse = service.getCard();
+        CardProfile actualResponse = service.getCard();
 
-	assertEquals(response, actualResponse);
-    }
-
-    /**
-     * Test update pin.
-     *
-     * @throws Exception the exception
-     */
-    @Test
-    public void testUpdatePin() throws Exception {
-	boolean success = service.updatePin();
-	assertEquals(true, success);
+        assertEquals(response, actualResponse);
     }
 
     /**
@@ -111,14 +101,14 @@ public class CardManagementServiceTest {
      */
     @Test
     public void testGetClient() throws Exception {
-	/** Mock Response Object */
-	ClientProfile response = new ClientProfile();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        ClientProfile response = new ClientProfile();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	ClientProfile actualResponse = service.getClient();
+        ClientProfile actualResponse = service.getClient();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 
     /**
@@ -128,13 +118,13 @@ public class CardManagementServiceTest {
      */
     @Test
     public void testUpdateClient() throws Exception {
-	/** Mock Response Object */
-	ServiceRequestDetails response = new ServiceRequestDetails();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        ServiceRequestDetails response = new ServiceRequestDetails();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	ServiceRequestDetails actualResponse = service.updateClient();
+        ServiceRequestDetails actualResponse = service.updateClient();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 }

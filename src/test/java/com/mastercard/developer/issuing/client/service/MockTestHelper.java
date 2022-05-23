@@ -38,17 +38,17 @@ public final class MockTestHelper {
      * @throws ApiException the api exception
      */
     public static void initializeApiClient(BaseService service, ApiClient apiClientMock, Call mockCall) throws ApiException {
-	log.info("================================================================================================\n");
+        log.info("================================================================================================\n");
 
-	service.setApiClient(apiClientMock);
+        service.setApiClient(apiClientMock);
 
-	when(apiClientMock.buildCall(anyString(), anyString(), anyList(), anyList(), any(), anyMap(), anyMap(), anyMap(), any(), any())).thenReturn(
-		mockCall);
+        when(apiClientMock.buildCall(anyString(), anyString(), anyList(), anyList(), any(), anyMap(), anyMap(), anyMap(), any(), any())).thenReturn(
+                mockCall);
 
-	String cardId = "CE0D1750A41F5605E05337905B0AABE6";
-	when(apiClientMock.escapeString(cardId)).thenReturn(cardId);
+        String cardId = "CE0D1750A41F5605E05337905B0AABE6";
+        when(apiClientMock.escapeString(cardId)).thenReturn(cardId);
 
-	String clientCode = "32323221271000002";
-	when(apiClientMock.escapeString(clientCode)).thenReturn(clientCode);
+        String clientCode = "32323221271000002";
+        when(apiClientMock.escapeString(clientCode)).thenReturn(clientCode);
     }
 }

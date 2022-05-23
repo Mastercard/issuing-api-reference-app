@@ -73,7 +73,7 @@ public final class ApiClientHelper {
 
     /** The Constant EXCEPTION. */
     public static final String EXCEPTION = "Exception";
-    
+
     /** Instantiates a new request helper. */
     private ApiClientHelper() {
     }
@@ -110,7 +110,7 @@ public final class ApiClientHelper {
 
     /** The Constant DECRYPTION_PRIVATE_KEY_ALIAS. */
     private static final String DECRYPTION_PRIVATE_KEY_ALIAS = "mi.api.encryption.private.key.alias";
-    
+
     /** The prop. */
     private static Properties prop = null;
 

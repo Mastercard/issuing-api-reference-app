@@ -54,8 +54,9 @@ public class TransactionManagementServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-	MockitoAnnotations.initMocks(this);
-	MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        MockitoAnnotations.initMocks(this);
+        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
+        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
     }
 
     /**
@@ -65,14 +66,14 @@ public class TransactionManagementServiceTest {
      */
     @Test
     public void testTopupPrepaidCard() throws Exception {
-	/** Mock Response Object */
-	Topup response = new Topup();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        Topup response = new Topup();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	Topup actualResponse = service.topupPrepaidCard();
+        Topup actualResponse = service.topupPrepaidCard();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 
     /**
@@ -82,14 +83,14 @@ public class TransactionManagementServiceTest {
      */
     @Test
     public void testTransactionHistory() throws Exception {
-	/** Mock Response Object */
-	TransactionDetails response = new TransactionDetails();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        TransactionDetails response = new TransactionDetails();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	TransactionDetails actualResponse = service.transactionHistory();
+        TransactionDetails actualResponse = service.transactionHistory();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 
     /**
@@ -99,13 +100,13 @@ public class TransactionManagementServiceTest {
      */
     @Test
     public void testBalanceInquiry() throws Exception {
-	/** Mock Response Object */
-	BalanceDetails response = new BalanceDetails();
-	ApiResponse apiResponse = new ApiResponse(200, null, response);
-	when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
+        /** Mock Response Object */
+        BalanceDetails response = new BalanceDetails();
+        ApiResponse apiResponse = new ApiResponse(200, null, response);
+        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
 
-	BalanceDetails actualResponse = service.balanceInquiry();
+        BalanceDetails actualResponse = service.balanceInquiry();
 
-	assertEquals(response, actualResponse);
+        assertEquals(response, actualResponse);
     }
 }

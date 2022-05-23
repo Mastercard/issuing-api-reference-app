@@ -250,8 +250,8 @@ public final class PinBlockTDEAEncrypter {
         String pinBlock = StringUtils.rightPad("0" + pin.length() + pin, 16, 'F');
         int cardLen = cardNumber.length();
         String pan = "0000" + cardNumber.substring(cardLen - 13, cardLen - 1);
-        String result = xorHex(pinBlock, pan);
-        return result;
+
+        return xorHex(pinBlock, pan);
     }
 
     /**

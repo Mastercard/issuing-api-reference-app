@@ -18,7 +18,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
 import java.time.LocalDate;
 
 import org.junit.Before;
@@ -31,7 +30,6 @@ import com.mastercard.developer.issuing.generated.invokers.ApiException;
 import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
 import com.mastercard.developer.issuing.generated.models.CardDetails;
 import com.mastercard.developer.issuing.generated.models.CardProfile;
-import com.mastercard.developer.issuing.generated.models.CardSecret;
 import com.mastercard.developer.issuing.generated.models.ClientProfile;
 import com.mastercard.developer.issuing.generated.models.GetClientDetails;
 import com.mastercard.developer.issuing.generated.models.Profile;
@@ -95,14 +93,14 @@ public class AuthorizationManagementServiceTest {
                      .getProfile()
                      .getBirthDate();
         when(cardManagementServiceMock.getClient()).thenReturn(clientProfile);
-        
+
         CardProfile cardProfile = new CardProfile();
         CardDetails cardDetails = new CardDetails();
         cardDetails.setCvv("456");
-        cardDetails.setExpiry("09/25");        
+        cardDetails.setExpiry("09/25");
         cardProfile.setCard(cardDetails);
         when(cardManagementServiceMock.getCard()).thenReturn(cardProfile);
-        
+
         TokenDetails actualResponse = service.createToken("BALANCE_INQUIRY");
 
         assertEquals(response, actualResponse);
