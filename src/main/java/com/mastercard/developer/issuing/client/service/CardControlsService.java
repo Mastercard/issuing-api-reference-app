@@ -29,9 +29,8 @@ import com.mastercard.developer.issuing.generated.models.UpdatedCardStatusDetail
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
 
-/** The Constant log. */
+
 @Log4j2
 public class CardControlsService extends BaseService {
 
@@ -156,7 +155,11 @@ public class CardControlsService extends BaseService {
         return response;
     }
 
-    /** Update card Acquirer level controls. */
+    /**
+     *  Update card Acquirer level controls.
+     *
+     * @return the control service requests
+     */
     public ControlServiceRequests updateAcquirerControl() {
 
         ControlServiceRequests response = null;
@@ -208,7 +211,11 @@ public class CardControlsService extends BaseService {
         this.apiClient = apiClient;
     }
 
-    /** Update card status. */
+    /**
+     *  Update card status.
+     *
+     * @return the acquirer control
+     */
 
     private AcquirerCardUsageProfile getAcquirerControl() {
         AcquirerCardUsageProfile response = null;

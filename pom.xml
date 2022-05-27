@@ -4,7 +4,7 @@
 
 	<groupId>com.mastercard.developers</groupId>
 	<artifactId>issuing-api-reference-app</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>jar</packaging>
 	<name>issuing-api-reference-app</name>
 	<description>Mastercard Processing APMEA Issuing Digital First APIs - Reference Application</description>
@@ -17,7 +17,7 @@
 		<default-package>com.mastercard.developer.issuing</default-package>
 		<ref-app-main-class>com.mastercard.developer.issuing.client.main.IssuingApiClientReferenceAppMain</ref-app-main-class>
 		<okhttp-version>4.9.1</okhttp-version>
-		<gson-version>2.8.6</gson-version>
+		<gson-version>2.9.0</gson-version>
 		<gson-fire-version>1.8.5</gson-fire-version>
 		<swagger-core-version>1.6.2</swagger-core-version>
 		<lmax.disruptor.version>3.4.2</lmax.disruptor.version>
@@ -31,7 +31,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<log4j.version>2.17.1</log4j.version>
 		<junit-version>4.13.1</junit-version>
-		<mockito-core-version>2.23.4</mockito-core-version>
+		<mockito-core-version>4.5.1</mockito-core-version>
+		<mockito-inline-version>4.5.1</mockito-inline-version>
 		<commons-codec-version>1.15</commons-codec-version>
 		<lombok-version>1.18.22</lombok-version>
 
@@ -115,6 +116,12 @@
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito-core-version}</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-inline</artifactId>
+		    <version>${mockito-inline-version}</version>
+		    <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.awaitility</groupId>

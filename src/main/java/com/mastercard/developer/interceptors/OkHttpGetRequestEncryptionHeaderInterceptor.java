@@ -32,7 +32,7 @@ import okhttp3.Response;
  * https://github.com/square/okhttp/wiki/Interceptors
  */
 
-/** The Constant log. */
+
 @Log4j2
 public class OkHttpGetRequestEncryptionHeaderInterceptor implements Interceptor {
 
@@ -90,7 +90,7 @@ public class OkHttpGetRequestEncryptionHeaderInterceptor implements Interceptor 
      *
      * @param request the request
      * @return the request
-     * @throws Exception the exception
+     * @throws ReferenceAppGenericException the reference app generic exception
      */
     protected Request addEncryptionHeaders(Request request) throws ReferenceAppGenericException {
         Request updatedRequest = request;

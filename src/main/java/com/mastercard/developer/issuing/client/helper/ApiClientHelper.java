@@ -65,9 +65,8 @@ import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
 
-/** The Constant log. */
 
-/** The Constant log. */
+
 @Log4j2
 public final class ApiClientHelper {
 
@@ -249,18 +248,19 @@ public final class ApiClientHelper {
      * @param cls      the cls
      * @return the request object
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getRequestObject(String scenario, Class<T> cls) {
         T returnValue = null;
         try {
             StringBuilder filePath = new StringBuilder("sample_requests/");
             filePath.append(scenario.toLowerCase());
-            filePath.append("-request.json");
-            String requestPayload = resourceContent(filePath.toString());
-
             if (cls.getName()
                    .equalsIgnoreCase("java.lang.String")) {
-                returnValue = (T) requestPayload;
+                filePath.append(".txt");
+                returnValue = (T) resourceContent(filePath.toString());
             } else {
+                filePath.append("-request.json");
+                String requestPayload = resourceContent(filePath.toString());
                 returnValue = objectMapper.readValue(requestPayload, cls);
             }
         } catch (Exception e) {
@@ -387,6 +387,14 @@ public final class ApiClientHelper {
         return inputStream;
     }
 
+    /**
+     * Gets the file URL.
+     *
+     * @param inputFile the input file
+     * @return the file URL
+     * @throws FileNotFoundException the file not found exception
+     * @throws MalformedURLException the malformed URL exception
+     */
     public static URL getFileURL(String inputFile) throws FileNotFoundException, MalformedURLException {
         URL url = ApiClientHelper.class.getClassLoader()
                                        .getResource(inputFile);

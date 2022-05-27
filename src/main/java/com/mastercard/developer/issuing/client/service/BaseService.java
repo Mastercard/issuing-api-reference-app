@@ -25,7 +25,7 @@ import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public abstract class BaseService {
 
@@ -55,7 +55,7 @@ public abstract class BaseService {
      *
      * @param scenarios the scenarios
      * @return true, if successful
-     * @throws Exception the exception
+     * @throws ReferenceAppGenericException the reference app generic exception
      */
     public boolean contains(String[] scenarios) throws ReferenceAppGenericException {
         if (getScenarios() == null) {

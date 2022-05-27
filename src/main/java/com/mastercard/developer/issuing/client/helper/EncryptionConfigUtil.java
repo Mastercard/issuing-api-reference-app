@@ -33,7 +33,7 @@ import com.mastercard.developer.utils.EncryptionUtils;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class EncryptionConfigUtil {
 
@@ -75,7 +75,7 @@ public class EncryptionConfigUtil {
      * @param decryptionKeyKeystorePass        the decryption key keystore pass
      * @param decryptionKeyAlias               the decryption key alias
      * @return the encryption config
-     * @throws EncryptionException
+     * @throws EncryptionException the encryption exception
      */
     public static FieldLevelEncryptionConfig getEncryptionConfig(String encryptionCertificatePath, String encryptionCertificateFingerprint,
             String oaepPaddingDigestAlgorithm, String decryptionKeyKeystorePath, String decryptionKeyKeystorePass, String decryptionKeyAlias)
@@ -132,6 +132,7 @@ public class EncryptionConfigUtil {
      * @param encryptionCertificate            the encryption certificate
      * @param encryptionCertificateFingerprint the encryption certificate fingerprint
      * @param oaepPaddingDigestAlgorithm       the oaep padding digest algorithm
+     * @param decryptionKey the decryption key
      * @return the field level encryption config
      */
     public static FieldLevelEncryptionConfig buildEncryptionConfig(Certificate encryptionCertificate, String encryptionCertificateFingerprint,
@@ -165,7 +166,6 @@ public class EncryptionConfigUtil {
      * @param certificateInputStream the certificate input stream
      * @return the certificate
      * @throws CertificateException  the certificate exception
-     * @throws FileNotFoundException the file not found exception
      */
     public static Certificate loadEncryptionCertificate(InputStream certificateInputStream) throws CertificateException {
         CertificateFactory factory = CertificateFactory.getInstance("X.509");

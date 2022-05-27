@@ -19,6 +19,10 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
+import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
 
@@ -28,6 +32,45 @@ import okhttp3.Call;
 /** The Class MockTestHelper. */
 @Log4j2
 public final class MockTestHelper {
+
+    /**
+     * Initialize api client.
+     *
+     * @param service       the service
+     * @param apiClientMock the api client mock
+     * @param mockCall      the mock call
+     * @throws ApiException the api exception
+     */
+    public static <T extends BaseService> T initializeApiClient(Class<T> serviceClass, ApiClient apiClientMock, Call mockCall) throws ApiException {
+        log.info("================================================================================================\n");
+
+        T service = null;
+
+        log.debug("Mock ApiClientHelper.getApiClient() method and create instance of {} Service class.", serviceClass.getName());
+        try (MockedStatic<ApiClientHelper> helper = Mockito.mockStatic(ApiClientHelper.class)) {
+            helper.when(() -> ApiClientHelper.getApiClient(anyString()))
+                  .thenReturn(apiClientMock);
+
+            service = serviceClass.getDeclaredConstructor()
+                                  .newInstance();
+        } catch (Exception e) {
+            log.error(e);
+        }
+        service.setApiClient(apiClientMock);
+
+        when(apiClientMock.buildCall(anyString(), anyString(), anyList(), anyList(), any(), anyMap(), anyMap(), anyMap(), any(), any())).thenReturn(
+                mockCall);
+
+        String cardId = "CE0D1750A41F5605E05337905B0AABE6";
+        when(apiClientMock.escapeString(cardId)).thenReturn(cardId);
+
+        String clientCode = "32323221271000002";
+        when(apiClientMock.escapeString(clientCode)).thenReturn(clientCode);
+
+        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
+
+        return service;
+    }
 
     /**
      * Initialize api client.

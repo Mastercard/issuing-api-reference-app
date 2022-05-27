@@ -23,7 +23,7 @@ import com.mastercard.developer.issuing.client.service.TransactionManagementServ
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class IssuingApiClientReferenceAppMain {
 

@@ -15,6 +15,7 @@ package com.mastercard.developer.issuing.client.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Type;
@@ -22,8 +23,11 @@ import java.lang.reflect.Type;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.generated.invokers.ApiClient;
 import com.mastercard.developer.issuing.generated.invokers.ApiException;
 import com.mastercard.developer.issuing.generated.invokers.ApiResponse;
@@ -37,7 +41,7 @@ import okhttp3.Call;
 public class TransactionManagementServiceTest {
 
     /** The service. */
-    private TransactionManagementService service = new TransactionManagementService();
+    private TransactionManagementService service;
 
     /** The api client mock. */
     @Mock
@@ -54,9 +58,8 @@ public class TransactionManagementServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-        MockitoAnnotations.initMocks(this);
-        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
-        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
+        MockitoAnnotations.openMocks(this);
+        service = MockTestHelper.initializeApiClient(TransactionManagementService.class, apiClientMock, mockCall);
     }
 
     /**
@@ -93,20 +96,4 @@ public class TransactionManagementServiceTest {
         assertEquals(response, actualResponse);
     }
 
-    /**
-     * Test balance inquiry.
-     *
-     * @throws Exception the exception
-     */
-    @Test
-    public void testBalanceInquiry() throws Exception {
-        /** Mock Response Object */
-        BalanceDetails response = new BalanceDetails();
-        ApiResponse apiResponse = new ApiResponse(200, null, response);
-        when(apiClientMock.execute(any(okhttp3.Call.class), any(Type.class))).thenReturn(apiResponse);
-
-        BalanceDetails actualResponse = service.balanceInquiry();
-
-        assertEquals(response, actualResponse);
-    }
 }

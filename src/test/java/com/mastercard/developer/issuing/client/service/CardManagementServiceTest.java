@@ -38,7 +38,7 @@ import okhttp3.Call;
 public class CardManagementServiceTest {
 
     /** The service. */
-    private CardManagementService service = new CardManagementService();
+    private CardManagementService service;
 
     /** The api client mock. */
     @Mock
@@ -55,9 +55,8 @@ public class CardManagementServiceTest {
      */
     @Before
     public void setUp() throws ApiException {
-        MockitoAnnotations.initMocks(this);
-        MockTestHelper.initializeApiClient(service, apiClientMock, mockCall);
-        when(apiClientMock.escapeString(any(String.class))).thenReturn("1234567890123456");
+        MockitoAnnotations.openMocks(this);
+        service = MockTestHelper.initializeApiClient(CardManagementService.class, apiClientMock, mockCall);
     }
 
     /**

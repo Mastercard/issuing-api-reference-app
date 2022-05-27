@@ -39,7 +39,7 @@ import com.mastercard.developer.issuing.generated.models.EncryptedPinBlock;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public final class PinBlockTDEAEncrypter {
 
@@ -49,6 +49,7 @@ public final class PinBlockTDEAEncrypter {
     /** The Constant PIN_ENCRYPTION_TRANSFORMATION. */
     private static final String PIN_ENCRYPTION_TRANSFORMATION = "mi.api.pin.encryption.secret.key.transformation";
 
+    /** The Constant PIN_ENCRYPTION_ALGO. */
     private static final String PIN_ENCRYPTION_ALGO = "mi.api.pin.encryption.secret.key.algorithm";
 
     /** The Constant KEY_SIZE. Double DES uses 112 bit key block and Triple DES uses 168 bit key block */
@@ -132,7 +133,7 @@ public final class PinBlockTDEAEncrypter {
      * @return the encrypted pin block
      * @throws ReferenceAppGenericException the reference app generic exception
      */
-    public EncryptedPinBlock encryptPin(String pin, String cardNumber) throws ReferenceAppGenericException {
+    public EncryptedPinBlock encryptPin(char[] pin, String cardNumber) throws ReferenceAppGenericException {
 
         EncryptedPinBlock encryptedPinBlock = new EncryptedPinBlock();
         /** PIN block ISO-0 (FORMAT 0) encryption using 3TDEA keys */
@@ -241,13 +242,13 @@ public final class PinBlockTDEAEncrypter {
      * @return the string
      * @throws ReferenceAppGenericException the exception
      */
-    public String generatePinBlock(String pin, String cardNumber) throws ReferenceAppGenericException {
-        if (pin.length() < 4 || pin.length() > 6) {
+    public String generatePinBlock(char[] pin, String cardNumber) throws ReferenceAppGenericException {
+        if (pin.length < 4 || pin.length > 6) {
             log.error("In generatePinBlock invalid pin length.");
             throw new ReferenceAppGenericException("Invalid pin length.");
         }
         /** Prefix pin with zero and suffix with F to make it 16 characters long */
-        String pinBlock = StringUtils.rightPad("0" + pin.length() + pin, 16, 'F');
+        String pinBlock = StringUtils.rightPad("0" + pin.length + String.valueOf(pin), 16, 'F');
         int cardLen = cardNumber.length();
         String pan = "0000" + cardNumber.substring(cardLen - 13, cardLen - 1);
 

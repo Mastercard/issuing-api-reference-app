@@ -194,7 +194,7 @@ mvn clean install -Dmaven.test.skip=true
 When the project builds successfully, you can run the following command to start/run the Spring Boot application:
  
 ```
-java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar  
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar  
 ```
 
 <B> Note: Checkout the API response in the `sample_responses` folder (relative path). </B>
@@ -202,22 +202,22 @@ java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar
 - Add argument ```search-cards``` or ```get-card``` in above command to execute/test each API individually. For example, 
  * Run below command to execute/test the Search Cards ( ```/card-management/cards/searches```) API
 ```
-java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar search-cards
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar search-cards
 ```
 
  * Run below command to execute/test multiple APIs like Search Cards ( ```/card-management/cards/searches```) API and Get Card (```/card-management/cards/{card_id}```) API
 ```
-java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar search-cards get-card
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar search-cards get-card
 ```
 
  * Run below command to find the complete list of use cases available in reference-app for testing
 ```
-java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar list
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar list
 ```
 
  * Run below command to execute/test all the use cases available in reference-app for testing
 ```
-java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.2.jar all
+java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar all
 ```
                                                                       
 **NOTE:**   

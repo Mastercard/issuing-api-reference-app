@@ -32,7 +32,7 @@ import com.mastercard.developer.issuing.generated.models.Profile;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class CardIssuanceService extends BaseService {
 
@@ -42,6 +42,7 @@ public class CardIssuanceService extends BaseService {
     /** The Constant PREPAID_CARD_ISSUANCE. */
     private static final String PREPAID_CARD_ISSUANCE = "prepaid-card-issuance";
 
+    /** The Constant DEBIT_CARD_ISSUANCE. */
     private static final String DEBIT_CARD_ISSUANCE = "debit-card-issuance";
 
     /** The scenarios. */
@@ -89,7 +90,11 @@ public class CardIssuanceService extends BaseService {
         }
     }
 
-    /** Prepaid card issuance. */
+    /**
+     *  Prepaid card issuance.
+     *
+     * @return the prepaid card profile
+     */
     public PrepaidCardProfile prepaidCardIssuance() {
         PrepaidCardProfile response = null;
         try {
@@ -174,7 +179,11 @@ public class CardIssuanceService extends BaseService {
         return response;
     }
 
-    /** Debit card issuance. */
+    /**
+     *  Debit card issuance.
+     *
+     * @return the debit card profile
+     */
     public DebitCardProfile debitCardIssuance() {
         DebitCardProfile response = null;
         try {

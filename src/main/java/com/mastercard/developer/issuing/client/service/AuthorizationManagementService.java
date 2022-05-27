@@ -35,7 +35,7 @@ import com.mastercard.developer.issuing.generated.models.TokenDetails;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class AuthorizationManagementService extends BaseService {
 
@@ -43,7 +43,7 @@ public class AuthorizationManagementService extends BaseService {
     private static final String SERVICE_CONTEXT = "/authorization-management";
 
     /** The Constant AUTHENTICATION_TOKEN. */
-    private static final String AUTHENTICATION_TOKEN = "authentication-token";
+    private static final String TRANSACTION_PIN_TOKEN = "transaction-pin-token";
 
     /** The Constant AUTHENTICATION_TOKEN. */
     private static final String PIN_CHANGE_TOKEN = "pin-change-token";
@@ -51,8 +51,11 @@ public class AuthorizationManagementService extends BaseService {
     /** The Constant AUTHENTICATION_TOKEN. */
     private static final String PIN_RESET_TOKEN = "pin-reset-token";
 
+    /** The Constant CLEAR_PIN. */
+    public static final char[] CLEAR_PIN = { '6', '5', '8', '4' };
+
     /** The scenarios. */
-    private static final String[] SCENARIOS = { PIN_RESET_TOKEN, PIN_CHANGE_TOKEN, AUTHENTICATION_TOKEN };
+    private static final String[] SCENARIOS = { PIN_RESET_TOKEN, PIN_CHANGE_TOKEN, TRANSACTION_PIN_TOKEN };
 
     /** The api client. */
     private ApiClient apiClient = ApiClientHelper.getApiClient(SERVICE_CONTEXT);
@@ -70,7 +73,7 @@ public class AuthorizationManagementService extends BaseService {
      * Call apis.
      *
      * @param scenarios the scenarios
-     * @throws Exception the exception
+     * @throws ReferenceAppGenericException the reference app generic exception
      */
     public void callApis(String[] scenarios) throws ReferenceAppGenericException {
 
@@ -80,17 +83,14 @@ public class AuthorizationManagementService extends BaseService {
         for (String scenario : scenarios) {
             switch (scenario) {
             case PIN_RESET_TOKEN:
+            case PIN_CHANGE_TOKEN:
                 logScenario(scenario);
                 TokenDetails pinResetTokenDetails = createToken(AuthTokenIntent.PIN_RESET);
                 ApiClientHelper.saveResponseObject(scenario, pinResetTokenDetails);
                 break;
-            case PIN_CHANGE_TOKEN:
+            case TRANSACTION_PIN_TOKEN:
                 logScenario(scenario);
-                TokenDetails pinChangeTokenDetails = createToken(AuthTokenIntent.PIN_RESET);
-                ApiClientHelper.saveResponseObject(scenario, pinChangeTokenDetails);
-                break;
-            case AUTHENTICATION_TOKEN:
-                logScenario(scenario);
+                /** Option 3 - Need to set old PIN manually */
                 TokenDetails tokenDetails = createToken(AuthTokenIntent.BALANCE_INQUIRY);
                 ApiClientHelper.saveResponseObject(scenario, tokenDetails);
                 break;
@@ -105,7 +105,7 @@ public class AuthorizationManagementService extends BaseService {
      *
      * @param intent the intent
      * @return the string
-     * @throws Exception the exception
+     * @throws ReferenceAppGenericException the reference app generic exception
      */
     public TokenDetails createToken(String intent) throws ReferenceAppGenericException {
         String token = null;
@@ -117,20 +117,18 @@ public class AuthorizationManagementService extends BaseService {
             String cardNumber = ApiClientHelper.getRequestObject("card-number", String.class);
             log.info(">>> Start preparation to call createToken for cardId={}", cardId);
 
-            ClientAuthentication request = ApiClientHelper.getRequestObject(AUTHENTICATION_TOKEN, ClientAuthentication.class);
+            ClientAuthentication request = ApiClientHelper.getRequestObject(TRANSACTION_PIN_TOKEN, ClientAuthentication.class);
 
             /** Update intent */
             request.setIntent(intent);
 
             switch (intent) {
             case AuthTokenIntent.PIN_RESET:
-                updateClientSecrets(request);
-                break;
             case AuthTokenIntent.PIN_CHANGE:
-                updateOldPin(request, cardNumber);
+                updateClientSecrets(request);
                 break;
             case AuthTokenIntent.BALANCE_INQUIRY:
-                updateClientSecrets(request);
+                setOldPinBlock(request, cardNumber);
                 break;
             default:
                 break;
@@ -146,6 +144,7 @@ public class AuthorizationManagementService extends BaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
+            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
             log.info(">>> Calling createToken for cardId={}", cardId);
 
             response = userAuthenticationApi.createToken(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource,
@@ -162,10 +161,16 @@ public class AuthorizationManagementService extends BaseService {
         return response;
     }
 
+    /**
+     * Update client secrets.
+     *
+     * @param request the request
+     */
     private void updateClientSecrets(ClientAuthentication request) {
         /** Option 1 - Update Date of birth in the request */
         CardManagementService cardManagementService = new CardManagementService();
-        log.info(">>> Fetch Client Date of Birth by Calling Get Client API");
+        log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+        log.info(">>> Fetch Client 'Date of Birth' by Calling Get Client API");
         ClientProfile clientProfile = cardManagementService.getClient();
         LocalDate birthDate = clientProfile.getClient()
                                            .getProfile()
@@ -178,7 +183,8 @@ public class AuthorizationManagementService extends BaseService {
         clientSecret.setBirthDate(birthDate);
 
         /** Option 2 - Update Card CVV & Expiry */
-        log.info(">>> Fetch Card Details by Calling Get Card API");
+        log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+        log.info(">>> Fetch Card 'CVV' and 'Expiry' by Calling Get Card API");
         CardProfile cardProfile = cardManagementService.getCard();
         CardDetails cardDetails = cardProfile.getCard();
         CardSecret cardSecret = request.getCard();
@@ -190,17 +196,21 @@ public class AuthorizationManagementService extends BaseService {
         cardSecret.setExpiry(cardDetails.getExpiry());
     }
 
-    private void updateOldPin(ClientAuthentication request, String cardNumber) throws GeneralSecurityException {
+    /**
+     * Sets the old pin block.
+     *
+     * @param request the request
+     * @param cardNumber the card number
+     * @throws GeneralSecurityException the general security exception
+     */
+    private void setOldPinBlock(ClientAuthentication request, String cardNumber) throws GeneralSecurityException {
         /** Option 3 - Need to set old PIN manually */
-        String clearPin = "1234";
         PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
-        EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(clearPin, cardNumber);
+        EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(CLEAR_PIN, cardNumber);
 
-        CardSecret cardSecret = request.getCard();
-        if (cardSecret == null) {
-            cardSecret = new CardSecret();
-            request.setCard(cardSecret);
-        }
+        CardSecret cardSecret = new CardSecret();
+        request.setCard(cardSecret);
+
         cardSecret.setPin(encryptedPinBlock);
         request.setCard(cardSecret);
         /** Remove client attributes */

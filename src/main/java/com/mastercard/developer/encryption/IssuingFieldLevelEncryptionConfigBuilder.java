@@ -31,7 +31,7 @@ import com.mastercard.developer.encryption.FieldLevelEncryptionConfig.FieldValue
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class IssuingFieldLevelEncryptionConfigBuilder {
 
@@ -39,7 +39,7 @@ public class IssuingFieldLevelEncryptionConfigBuilder {
     public static final String NONE = "NONE";
 
     /**
-     * private constructor
+     * private constructor.
      */
     private IssuingFieldLevelEncryptionConfigBuilder() {
     }

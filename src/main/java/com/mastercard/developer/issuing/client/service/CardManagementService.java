@@ -17,7 +17,9 @@ package com.mastercard.developer.issuing.client.service;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 
 import com.mastercard.developer.issuing.client.helper.ApiClientHelper;
 import com.mastercard.developer.issuing.client.helper.PinBlockTDEAEncrypter;
@@ -39,7 +41,7 @@ import com.mastercard.developer.issuing.generated.models.UpdatedClient;
 
 import lombok.extern.log4j.Log4j2;
 
-/** The Constant log. */
+
 @Log4j2
 public class CardManagementService extends BaseService {
 
@@ -80,8 +82,8 @@ public class CardManagementService extends BaseService {
      * Call apis.
      *
      * @param scenarios the scenarios
-     * @throws GeneralSecurityException
-     * @throws ReferenceAppGenericException
+     * @throws ReferenceAppGenericException the reference app generic exception
+     * @throws GeneralSecurityException the general security exception
      */
     public void callApis(String[] scenarios) throws ReferenceAppGenericException, GeneralSecurityException {
 
@@ -123,7 +125,11 @@ public class CardManagementService extends BaseService {
         }
     }
 
-    /** Search card. */
+    /**
+     *  Search card.
+     *
+     * @return the card search result
+     */
     public CardSearchResult searchCard() {
         CardSearchResult response = null;
         try {
@@ -193,9 +199,10 @@ public class CardManagementService extends BaseService {
 
     /**
      * Update pin.
-     * 
-     * @throws ReferenceAppGenericException
-     * @throws GeneralSecurityException
+     *
+     * @return true, if successful
+     * @throws ReferenceAppGenericException the reference app generic exception
+     * @throws GeneralSecurityException the general security exception
      */
     public boolean updatePin() throws ReferenceAppGenericException, GeneralSecurityException {
         Boolean success = null;
@@ -207,19 +214,22 @@ public class CardManagementService extends BaseService {
             NewPinDetails request = ApiClientHelper.getRequestObject(UPDATE_PIN, NewPinDetails.class);
 
             /** Prerequisite - Create Token and set token */
+            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
             log.info(">> Create Token for card id: {}", cardId);
 
             AuthorizationManagementService authorizationManagementService = new AuthorizationManagementService();
-            TokenDetails pinChangeTokenDetails = authorizationManagementService.createToken("PIN_RESET");
+            TokenDetails pinChangeTokenDetails = authorizationManagementService.createToken(AuthTokenIntent.PIN_RESET);
             log.info("Received token for PIN_RESET intent: {}", pinChangeTokenDetails.getToken());
             request.setToken(pinChangeTokenDetails.getToken());
 
             /** Generate random 4 digit PIN and build encrypted PIN block */
-            String clearPin = String.format("%04d", new SecureRandom().nextInt(10000));
+            char[] clearPin = String.format("%04d", new SecureRandom().nextInt(10000))
+                                    .toCharArray();
+
             /**
-             * Use below log statement to view PIN in clear. But should be removed before moving the code to higher environment.<BR>
-             * log.debug("Generated random PIN: {}", clearPin);
+             * Use below log statement to view PIN in clear. But it must be removed before moving the code to higher environment.<BR>
              */
+            log.debug("Generated random PIN: {}", String.valueOf(clearPin));
 
             log.info("Build and encrypt PIN block.");
             PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
@@ -237,6 +247,7 @@ public class CardManagementService extends BaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
+            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
             log.info(">> Update PIN using the token {} for card id: {}", request.getToken(), cardId);
             cardApi.updatePin(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
             success = true;
@@ -281,7 +292,11 @@ public class CardManagementService extends BaseService {
         return response;
     }
 
-    /** Update client. */
+    /**
+     *  Update client.
+     *
+     * @return the service request details
+     */
     public ServiceRequestDetails updateClient() {
         ServiceRequestDetails response = null;
         try {

@@ -32,7 +32,7 @@ import okio.BufferedSource;
 import okio.GzipSource;
 import okio.Okio;
 
-/** The Constant log. */
+
 @Log4j2
 public class OkHttpLoggingInterceptor implements Interceptor {
 
