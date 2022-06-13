@@ -39,7 +39,6 @@ import com.mastercard.developer.issuing.generated.models.EncryptedPinBlock;
 
 import lombok.extern.log4j.Log4j2;
 
-
 @Log4j2
 public final class PinBlockTDEAEncrypter {
 
@@ -260,8 +259,9 @@ public final class PinBlockTDEAEncrypter {
      *
      * @param length the length
      * @return the string
+     * @throws NoSuchAlgorithmException
      */
-    public String generateDesKey(int length) {
+    public String generateDesKey(int length) throws ReferenceAppGenericException {
         String key = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(ApiClientHelper.getProperty(PIN_ENCRYPTION_ALGO));
@@ -277,8 +277,9 @@ public final class PinBlockTDEAEncrypter {
             log.debug("Convert final key string to UPPER case string");
             key = key.toUpperCase();
 
-        } catch (Exception e) {
+        } catch (NoSuchAlgorithmException e) {
             log.error(e.getMessage(), e);
+            throw new ReferenceAppGenericException("Exception occurred while generating key", e);
         }
         return key;
     }

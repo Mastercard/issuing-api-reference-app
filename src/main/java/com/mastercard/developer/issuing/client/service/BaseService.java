@@ -28,6 +28,8 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public abstract class BaseService {
+    
+    public static final String LOG_SEPARATOR = " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n";
 
     /**
      * Gets the scenarios.

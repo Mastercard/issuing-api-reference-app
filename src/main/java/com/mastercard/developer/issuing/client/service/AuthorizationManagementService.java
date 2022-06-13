@@ -35,7 +35,6 @@ import com.mastercard.developer.issuing.generated.models.TokenDetails;
 
 import lombok.extern.log4j.Log4j2;
 
-
 @Log4j2
 public class AuthorizationManagementService extends BaseService {
 
@@ -52,7 +51,7 @@ public class AuthorizationManagementService extends BaseService {
     private static final String PIN_RESET_TOKEN = "pin-reset-token";
 
     /** The Constant CLEAR_PIN. */
-    public static final char[] CLEAR_PIN = { '6', '5', '8', '4' };
+    private static final char[] CLEAR_PIN = { '6', '5', '8', '4' };
 
     /** The scenarios. */
     private static final String[] SCENARIOS = { PIN_RESET_TOKEN, PIN_CHANGE_TOKEN, TRANSACTION_PIN_TOKEN };
@@ -144,7 +143,7 @@ public class AuthorizationManagementService extends BaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
-            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+            log.info(LOG_SEPARATOR);
             log.info(">>> Calling createToken for cardId={}", cardId);
 
             response = userAuthenticationApi.createToken(xMCIdempotencyKey, cardId, request, xMCBankCode, xMCCorrelationID, xMCSource,
@@ -169,7 +168,7 @@ public class AuthorizationManagementService extends BaseService {
     private void updateClientSecrets(ClientAuthentication request) {
         /** Option 1 - Update Date of birth in the request */
         CardManagementService cardManagementService = new CardManagementService();
-        log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+        log.info(LOG_SEPARATOR);
         log.info(">>> Fetch Client 'Date of Birth' by Calling Get Client API");
         ClientProfile clientProfile = cardManagementService.getClient();
         LocalDate birthDate = clientProfile.getClient()
@@ -183,7 +182,7 @@ public class AuthorizationManagementService extends BaseService {
         clientSecret.setBirthDate(birthDate);
 
         /** Option 2 - Update Card CVV & Expiry */
-        log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+        log.info(LOG_SEPARATOR);
         log.info(">>> Fetch Card 'CVV' and 'Expiry' by Calling Get Card API");
         CardProfile cardProfile = cardManagementService.getCard();
         CardDetails cardDetails = cardProfile.getCard();
@@ -199,7 +198,7 @@ public class AuthorizationManagementService extends BaseService {
     /**
      * Sets the old pin block.
      *
-     * @param request the request
+     * @param request    the request
      * @param cardNumber the card number
      * @throws GeneralSecurityException the general security exception
      */

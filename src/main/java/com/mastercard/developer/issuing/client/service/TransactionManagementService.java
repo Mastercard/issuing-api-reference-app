@@ -38,10 +38,11 @@ import com.mastercard.developer.issuing.generated.models.TransactionSearch;
 
 import lombok.extern.log4j.Log4j2;
 
-
-
 @Log4j2
 public class TransactionManagementService extends BaseService {
+
+    /** The Constant CLEAR_PIN. */
+    private static final char[] CLEAR_PIN = { '6', '5', '8', '4' };
 
     /** The Constant SERVICE_CONTEXT. */
     private static final String SERVICE_CONTEXT = "/transaction-management";
@@ -243,7 +244,7 @@ public class TransactionManagementService extends BaseService {
             switch (option) {
             case 1:
                 /** Option 1 - Lets try to set authorization token */
-                log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+                log.info(LOG_SEPARATOR);
                 log.info(">> Create {} Token for card id: {}", AuthTokenIntent.BALANCE_INQUIRY, cardId);
                 AuthorizationManagementService authorizationManagementService = new AuthorizationManagementService();
                 TokenDetails txnTokenDetails = authorizationManagementService.createToken(AuthTokenIntent.BALANCE_INQUIRY);
@@ -255,7 +256,7 @@ public class TransactionManagementService extends BaseService {
                 log.info(">>> Set Pin Block");
                 String cardNumber = ApiClientHelper.getRequestObject("card-number", String.class);
                 PinBlockTDEAEncrypter pinBlockTDEAEncrypter = PinBlockTDEAEncrypter.getInstance();
-                EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(AuthorizationManagementService.CLEAR_PIN, cardNumber);
+                EncryptedPinBlock encryptedPinBlock = pinBlockTDEAEncrypter.encryptPin(CLEAR_PIN, cardNumber);
                 authenticationMetaData.setPin(encryptedPinBlock);
                 break;
             default:

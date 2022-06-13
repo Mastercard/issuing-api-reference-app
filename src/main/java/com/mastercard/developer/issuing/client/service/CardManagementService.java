@@ -214,7 +214,7 @@ public class CardManagementService extends BaseService {
             NewPinDetails request = ApiClientHelper.getRequestObject(UPDATE_PIN, NewPinDetails.class);
 
             /** Prerequisite - Create Token and set token */
-            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+            log.info(LOG_SEPARATOR);
             log.info(">> Create Token for card id: {}", cardId);
 
             AuthorizationManagementService authorizationManagementService = new AuthorizationManagementService();
@@ -247,7 +247,7 @@ public class CardManagementService extends BaseService {
             String xMCSource = null;
             String xMCClientApplicationUserID = null;
 
-            log.info(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n\n");
+            log.info(LOG_SEPARATOR);
             log.info(">> Update PIN using the token {} for card id: {}", request.getToken(), cardId);
             cardApi.updatePin(cardId, request, xMCBankCode, xMCCorrelationID, xMCSource, xMCClientApplicationUserID);
             success = true;

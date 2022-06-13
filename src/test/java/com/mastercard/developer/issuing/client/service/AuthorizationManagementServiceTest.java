@@ -14,6 +14,7 @@
 package com.mastercard.developer.issuing.client.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -92,16 +93,24 @@ public class AuthorizationManagementServiceTest {
         clientProfile.getClient()
                      .getProfile()
                      .getBirthDate();
+        
         when(cardManagementServiceMock.getClient()).thenReturn(clientProfile);
-
+        ClientProfile clientProfile1 = cardManagementServiceMock.getClient();
+        assertEquals(clientProfile, clientProfile1);
+        
         CardProfile cardProfile = new CardProfile();
         CardDetails cardDetails = new CardDetails();
         cardDetails.setCvv("456");
         cardDetails.setExpiry("09/25");
         cardProfile.setCard(cardDetails);
+
         when(cardManagementServiceMock.getCard()).thenReturn(cardProfile);
-		
+        CardProfile cardProfile1 = cardManagementServiceMock.getCard();
+        assertNotNull(cardProfile1);
+        assertEquals(cardProfile, cardProfile1);
+        
         /** 
+         * // Need to configure certificates before you uncomment below code 
 		* TokenDetails actualResponse = service.createToken(AuthTokenIntent.BALANCE_INQUIRY);
         * assertEquals(response, actualResponse);
 		*/
