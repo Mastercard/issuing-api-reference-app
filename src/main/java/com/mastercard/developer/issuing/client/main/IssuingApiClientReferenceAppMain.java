@@ -60,7 +60,6 @@ public class IssuingApiClientReferenceAppMain {
 
         } else if ("all".equalsIgnoreCase(args[0])) {
             log.info("Executing all scenario.");
-
             String[] scenario = { "prepaid-card-issuance", "debit-card-issuance", "get-card", "search-cards", "get-client", "update-client",
                     "update-card-status", "topup-prepaid-card", "transaction-history", "balance-inquiry" }; // "authentication-token", "update-pin"
 
