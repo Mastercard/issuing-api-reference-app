@@ -1,4 +1,4 @@
-# Mastercard Processing APMEA Issuing APIs - Reference Application
+﻿# Mastercard Processing APMEA Issuing APIs - Reference Application
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing-api-reference-app&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_issuing-api-reference-app)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_issuing-api-reference-app&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_issuing-api-reference-app)
@@ -54,7 +54,7 @@ Mastercard Processing APMEA Issuing platform enables:
 This is a reference application to demonstrate how Mastercard Processing APMEA Issuing Digital First APIs can be consumed.
 Issuing Digital First APIs support prepaid, debit, and credit cards processing.
 
-This Reference application is a guide for using Issuing APIs for cards processing. Please visit Mastercard Developer portal for more details about the APIs: [Mastercard Developers](https://developer.mastercard.com/drafts/card-management/staging/product/mi-issuing/).
+This Reference application is a guide for using Issuing APIs for cards processing. Please visit Mastercard Developer portal for more details about the APIs: [Mastercard Developers](https://developer.mastercard.com/product/mi-issuing).
 
 <hr/><br/>
 
@@ -72,7 +72,7 @@ mTLS Certificate Approval - Create a new project on [Mastercard Developers](http
 
 - **RSA Private Key/Certificate for Data Decryption** - Customers need to generate RSA key pair and share public key with Mastercard.
 
-<u>Note</u>: **Sandbox APIs are instantly accessible** without following the above process to get certificates/keys from Mastercard Key Management team. Required certificates/keys are available on [Mastercard Developers Portal](https://developer.mastercard.com/drafts/card-management/staging/tutorial/create-mi-issuing-project/) for Sandbox environment (simulates the production environment with dummy data).
+<u>Note</u>: **Sandbox APIs are instantly accessible** without following the above process to get certificates/keys from Mastercard Key Management team. Required certificates/keys are available on [Mastercard Developers Portal](https://developer.mastercard.com/product/mi-issuing) for Sandbox environment (simulates the production environment with dummy data).
 
 ### 3. Softwares/Libraries <a name="softwares"></a>
 - [Java 8 or later](https://www.azul.com/downloads/?package=jdk#download-openjdk)
@@ -183,7 +183,7 @@ mvn clean compile
 
 ### Step 5 - Build the project <a name="build"></a>
 
-Once you have updated the certificates & properties, you are ready to build the application. You can do this by navigating to the project’s base directory from the terminal and then by running the following command.
+Once you have updated the certificates & properties, you are ready to build the application. You can do this by navigating to the project's base directory from the terminal and then by running the following command.
 ```
 mvn clean install -Dmaven.test.skip=true
 ```
@@ -197,7 +197,7 @@ When the project builds successfully, you can run the following command to start
 java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar  
 ```
 
-<B> Note: Checkout the API response in the `sample_responses` folder (relative path). </B>
+<B> Note: Checkout the API response in the `output_<env>` folder (relative path). </B>
 
 - Add argument ```search-cards``` or ```get-card``` in above command to execute/test each API individually. For example, 
  * Run below command to execute/test the Search Cards ( ```/card-management/cards/searches```) API
@@ -221,17 +221,17 @@ java -Denv=sandbox -jar target/issuing-api-reference-app-1.0.3.jar all
 ```
                                                                       
 **NOTE:**   
-    - For MTF & PROD environment, update request with valid details in JSON files under location ```/src/main/resources/sample_requests/``` in order to execute these apis successfully. 
+    - For MTF & PROD environment, update request with valid details in JSON files under location ```/src/main/resources/<env>/sample_requests/``` in order to execute these apis successfully. 
 
 <hr/><br/>
 
 ## Service Use-Cases Documentation <a name="use-cases"></a>
 Latest Open API use-cases documentation can be found here: 
-- [Card Issuance Use Cases](https://developer.mastercard.com/drafts/card-issuance/staging/documentation/use-cases/)
-- [Card Management Use Cases](https://developer.mastercard.com/drafts/card-management/staging/documentation/use-cases/)
-- [Card Controls Use Cases](https://developer.mastercard.com/drafts/card-controls/staging/documentation/use-cases/)
-- [Authorization Management Use Cases](https://developer.mastercard.com/drafts/authorization-management/staging/documentation/use-cases/)
-- [Transaction Management Use Cases](https://developer.mastercard.com/drafts/transaction-management/staging/documentation/use-cases/)
+- [Card Issuance Use Cases](https://developer.mastercard.com/card-issuance/documentation/use-cases/)
+- [Card Management Use Cases](https://developer.mastercard.com/card-management/documentation/use-cases/)
+- [Card Controls Use Cases](https://developer.mastercard.com/card-controls/documentation/use-cases/)
+- [Authorization Management Use Cases](https://developer.mastercard.com/authorization-management/documentation/use-cases/)
+- Transaction Management Use Cases (coming soon...)
 
 <hr/><br/>
 
@@ -239,11 +239,11 @@ Latest Open API use-cases documentation can be found here:
 
 ### OpenAPI Specs <a name="open-api-specs"></a>
 Latest Open API specifications can be found here: 
-- [Card Issuance API Specs](https://developer.mastercard.com/drafts/card-issuance/staging/documentation/api-reference/)
-- [Card Management API Specs](https://developer.mastercard.com/drafts/card-management/staging/documentation/api-reference/)
-- [Card Controls API Specs](https://developer.mastercard.com/drafts/card-controls/staging/documentation/api-reference/)
-- [Authorization Management API Specs](https://developer.mastercard.com/drafts/authorization-management/staging/documentation/api-reference/)
-- [Transaction Management API Specs](https://developer.mastercard.com/drafts/transaction-management/staging/documentation/api-reference/)
+- [Card Issuance API Specs](https://developer.mastercard.com/card-issuance/documentation/api-reference/)
+- [Card Management API Specs](https://developer.mastercard.com/card-management/documentation/api-reference/)
+- [Card Controls API Specs](https://developer.mastercard.com/card-controls/documentation/api-reference/)
+- [Authorization Management API Specs](https://developer.mastercard.com/authorization-management/documentation/api-reference/)
+- Transaction Management API Specs (coming soon...)
 
 To develop a client application that consumes a Issuing RESTful APIs with Spring Boot.
 
@@ -281,7 +281,7 @@ If you would like further information, please send an email to apisupport@master
 <hr/><br/>
 
 ## License <a name="license"></a>
-Copyright 2022 Mastercard
+Copyright 2023 Mastercard
  
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
  
