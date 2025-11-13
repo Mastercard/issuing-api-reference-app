@@ -16,7 +16,7 @@
 		<client-encryption-version>1.7.1</client-encryption-version>
 		<default-package>com.mastercard.developer.issuing</default-package>
 		<ref-app-main-class>com.mastercard.developer.issuing.client.main.IssuingApiClientReferenceAppMain</ref-app-main-class>
-		<okhttp-version>4.9.1</okhttp-version>
+		<okhttp-version>4.9.2</okhttp-version>
 		<gson-version>2.9.0</gson-version>
 		<gson-fire-version>1.8.5</gson-fire-version>
 		<swagger-core-version>1.6.2</swagger-core-version>
